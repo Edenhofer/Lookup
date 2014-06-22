@@ -5,7 +5,7 @@ Gordian Edenhofer 09-Jun-2014
 */
 session_start();
 
-// Bestimmung des Aufrufs
+/* Bestimmung des Aufrufs */
 $debug = (strstr($_SERVER["QUERY_STRING"], "debug"));					// debugging-mode
 if (isset($_SESSION['uinfo']) === false) {
 	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?Windows';
@@ -15,7 +15,7 @@ if (isset($_SESSION['uinfo']) === false) {
 }
 if (strpos($_SERVER["QUERY_STRING"], "iframe") !== false) $_SESSION['uinfo'] = '?iframe';	// iFrame-mode
 
-// Default-Werte, die im weiteren Verlauf geaender werden koennen
+/* Default-Werte, die im weiteren Verlauf geaender werden koennen */
 $source_url = "/home/pi/bin/v.html";							// Pfad zum Vertretungsplan
 $footnote = "Erdacht, erstellt und gepflegt von Gordian&nbsp;Edenhofer.";			// Fussnote mit Namensnennung
 $dc = "Auswahl anpassen";								// "Cookie-Loeschen"-Text
