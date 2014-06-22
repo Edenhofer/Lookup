@@ -1,0 +1,11 @@
+#!/bin/bash
+# Vertretungsplan als Startseite des Apache2-Servers auf dem Rasberry Pi
+# Gordian Edenhofer 08-04-14
+
+cd /tmp
+wget -q www.heinrich-mann-schule.de/vertretung/S_heute.html
+wget -q www.heinrich-mann-schule.de/vertretung/S_morgen.html
+cat S_heute.html S_morgen.html > v.html
+tr \\r \\n < v.html > vtemp
+/home/pi/www/sp-converter vtemp > v.html
+rm vtemp S_heute.html S_morgen.html

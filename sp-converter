@@ -1,0 +1,19 @@
+#!/usr/bin/perl -W
+# Processing Substitution Plan
+# Gordian Edenhofer 08-Jun-2014
+
+use strict;
+
+while (<>) {
+	# Remove unnecessary or disrupting HTML-Code
+	s/<TITLE>Vertretungsplan<\/TITLE>//;
+	s/<script type="text\/javascript">//;
+	s/<H3>/<TR><TH COLSPAN=5><DIV CLASS="Titel">/;
+	s/<\/H3>/<\/DIV><\/TH><\/TR>/;
+	s/<DIV CLASS="Adhoc">//;
+	s/<\/DIV><\/DIV>/<\/DIV>/;
+	s/<TABLE>//;
+	s/<\/TABLE>//;
+	
+	print;
+}
