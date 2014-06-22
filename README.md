@@ -1,4 +1,4 @@
-www
+World Wide Web
 ===
 Gordian Edenhofer
 22 Jun 2014
