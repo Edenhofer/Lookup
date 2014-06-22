@@ -328,7 +328,7 @@ span.tab{
 if ($debug) {
 echo "REQUEST_URI=|" . $_SERVER["REQUEST_URI"] . "|<br> debug=|$debug|<br> QUERY_STRING=|" . $_SERVER["QUERY_STRING"] . "|<br>var_dump(\$_POST)=|";
 var_dump($_POST);
-echo "|<br>\$_SESSION['uinfo']=|" . $_SESSION['uinfo'] . "|<br><br>";
+echo "|<br>\$_SESSION['uinfo']=|" . $_SESSION['uinfo'] . "|<br>\$_SERVER['HTTP_USER_AGENT']=|" . $_SERVER['HTTP_USER_AGENT'] . "|<br>";
 }
 
 if (isset($_COOKIE['k']) && isset($_POST['submit']) && strcmp($_POST['submit'], $dc) == 0) {
