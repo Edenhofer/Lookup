@@ -8,9 +8,9 @@ session_start();
 /* Bestimmung des Aufrufs */
 $debug = (strstr($_SERVER["QUERY_STRING"], "debug"));					// debugging-mode
 if (isset($_SESSION['uinfo']) === false) {
-	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?Windows';
+	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?desktop';
+	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False) $_SESSION['uinfo'] = '?desktop';
 	else if (strpos($_SERVER['HTTP_USER_AGENT'], "Linux") !== False && strpos($_SERVER['HTTP_USER_AGENT'], "Android") === False) $_SESSION['uinfo'] = '?Linux';
-	// Apple fehlt noch
 	else $_SESSION['uinfo'] = '?m';
 }
 if (strpos($_SERVER["QUERY_STRING"], "iframe") !== false) $_SESSION['uinfo'] = '?iframe';	// iFrame-mode
@@ -32,7 +32,7 @@ if (strpos($_SESSION['uinfo'], "?m") !== False) {					// Einstellungen fuer die 
 	$input_font_size = "0.8em";
 	$footer_font_size = "0.55em";
 	$footnote_font_size = "0.75em";
-} else if (strpos($_SESSION['uinfo'], "?Windows") !== False || strpos($_SESSION['uinfo'], "?Linux") !== False) {	// Desktop Version
+} else if (strpos($_SESSION['uinfo'], "?desktop") !== False || strpos($_SESSION['uinfo'], "?Linux") !== False) {	// Desktop Version
 	$column = 4;
 	$nlfnc = 1;
 	$font_size = "1em";
