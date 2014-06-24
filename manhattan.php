@@ -5,7 +5,7 @@ Gordian Edenhofer 09-Jun-2014
 */
 session_start();
 
-/* Bestimmung des Aufrufs */
+/* Bestimmung der Quelle des Aufrufs, z.B. Linux/Windows/OS X bzw. mobile */
 $debug = (strstr($_SERVER["QUERY_STRING"], "debug"));					// debugging-mode
 if (isset($_SESSION['uinfo']) === false) {
 	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?desktop';
@@ -17,7 +17,7 @@ if (strpos($_SERVER["QUERY_STRING"], "iframe") !== false) $_SESSION['uinfo'] = '
 
 /* Default-Werte, die im weiteren Verlauf geaender werden koennen */
 $source_url = "/home/pi/bin/v.html";							// Pfad zum Vertretungsplan
-$footnote = "Erdacht, erstellt und gepflegt von Gordian&nbsp;Edenhofer.";			// Fussnote mit Namensnennung
+$footnote = "Erdacht, erstellt und gepflegt von Gordian&nbsp;Edenhofer.";		// Fussnote mit Namensnennung
 $dc = "Auswahl anpassen";								// "Cookie-Loeschen"-Text
 $rt = "Neu Laden";									// "Seite neu laden"-Text
 $column = 4;										// Anzahl der Spalten
@@ -213,7 +213,7 @@ $p = array(										// Parallel Klassen
 	"d" => "d",
 	"e" => "e",
 	"f" => "f" );
-$ep = array(										// NUR fuer E-Phase: a --> 01 ...
+$ep = array(										// Parallel Klassen der E-Phase
 	"-" => "bitte w&auml;hlen",
 	'01' => "01",
 	'02' => "02",
@@ -231,7 +231,7 @@ function newlineif() {
 	$p = 0;
 }
 
-/* Beginn des HTML-Codes */
+/* Beginn des HTML-Codes bzw. Beginn der Generierung */
 echo '<!DOCTYPE HTML>
 <html>
 <head>
@@ -581,6 +581,8 @@ if (isset($_COOKIE['uinfo'])) {									// Erzeugung von "User-Info"-Cookie
 if ($_SESSION['calls'] == 5) {
 	echo "Bitte erlauben Sie Cookies auf dieser Website, damit diese gescheit dargestellt werden kann.";
 }
+
+Ich sollte hier noch den CSS für DIV align=denter ergänzen.
 */
 ?>
 
