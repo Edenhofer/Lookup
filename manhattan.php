@@ -396,7 +396,7 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 			}
 		}
 	}
-	fclose($handle);
+	fclose($handle);								// Schließen des Vertretungsplans
 	
 	while ($l++ <= 12) {
 		echo $br;
