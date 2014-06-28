@@ -16,7 +16,7 @@ if (isset($_SESSION['uinfo']) === false) {
 if (strpos($_SERVER["QUERY_STRING"], "iframe") !== false) $_SESSION['uinfo'] = '?iframe';	// iFrame-mode
 
 /* Default-Werte, die im weiteren Verlauf geaender werden koennen */
-$source_url = "/home/pi/bin/v.html";							// Pfad zum Vertretungsplan
+$source_url = "/tmp/v.html";							// Pfad zum Vertretungsplan
 $footnote = "Erdacht, erstellt und gepflegt von Gordian&nbsp;Edenhofer.";		// Fussnote mit Namensnennung
 $dc = "Auswahl anpassen";								// "Cookie-Loeschen"-Text
 $rt = "Neu Laden";									// "Seite neu laden"-Text
@@ -99,7 +99,7 @@ $kurse_q = array(									// Kurse der 12. Klasse
 	'L_3\/5' => "Latein bei Herrn S.",
 	'M_3\/5' => "Mathe bei Herrn C.",
 	'M_3\/6' => "Mathe bei Herrn M.",
-	'M_3\/7' => "Mathe bei Herrn H.",
+	'M_3\/7' => "Mathe bei Frau H.",
 	'M_3\/8' => "Mathe bei Herrn B.",
 	'M_3\/9' => "Mathe bei Herrn S.",
 	'M_3\/2' => "Mathe LK bei Herrn T.",
@@ -147,10 +147,6 @@ $kurse_a = array(									// Kurse der 13. Klasse
 	'E_3\/8' => "Englisch bei Frau K.",
 	'E_3\/1' => "Englisch LK bei Frau B.",
 	'E_3\/2' => "Englisch LK bei Frau F.",
-	'[Ethik]_3\/5' => "[FEHLER] Ethik bei Frau S. [ETH05]",
-	'[Ethik]_3\/6' => "[FEHLER] Ethik bei Herrn B.",
-	'[Ethik]_3\/7' => "[FEHLER] Ethik bei Frau S. [ETH07]",
-	'[Ethik]_3\/8' => "[FEHLER] Ethik bei Herrn K.",
 	'F_3\/5' => "Franz&ouml;sisch bei Frau L.",
 	'G_3\/5' => "Geschichte bei Frau D.",
 	'G_3\/6' => "Geschichte bei Herrn M.",
@@ -158,7 +154,6 @@ $kurse_a = array(									// Kurse der 13. Klasse
 	'G_3\/8' => "Geschichte bei Herrn W.",
 	'G_3\/33' => "Geschichte bei Herrn R.",
 	'G_3\/1' => "Geschichte LK bei Frau W.",
-	'[INFO]_3\/5' => "[FEHLER] Informatik bei Herrn P.",
 	'Ku_3\/5' => "Kunst bei Frau V.",
 	'Ku_3\/6' => "Kunst bei Frau J. [KU06]",
 	'Ku_3\/7' => "Kunst bei Frau J. [KU07]",
@@ -309,15 +304,19 @@ select {
 	font-size: ' . $input_font_size . ';
 }
 
+.center{										// Alternative zu <div align="center">
+	margin: auto;
+	width: 50%;
+}
+span.tab{
+    padding: 1em;
+}
 .Titel {}
 .footnote {
 	font-size: ' . $footnote_font_size . ';
 }
 .footer {
 	font-size: ' . $footer_font_size . ';
-}
-span.tab{
-    padding: 1em;
 }
 </style>
 </head>
@@ -401,7 +400,7 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 	while ($l++ <= 12) {
 		echo $br;
 	}
-	echo "</table>\n<div class=\"footer\">Aktualisiert am: " . date('j') . "." . date('m') . "." . date('y')
+	echo "</table>\n<br>\n<div class=\"footer\">Aktualisiert am: " . date('j') . "." . date('m') . "." . date('y')
 	. " " . date('H') . ":" . date('i') . "</div>";
 	$value = str_replace(" ", "", $value);
 	if (strpos($value, "(") !== false) {
