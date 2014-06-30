@@ -45,6 +45,7 @@ $p = 0;											// "$p": "Druckvariabel"
 $l = 0;											// "$l": Anzahl der Zeilen
 $flagg = 0;										// Markierung
 $n = 0;											// Zaehler
+$i = 0;											// Zaehler
 $br = "\n<tr><td>&nbsp;</td><td colspan=\"4\"></td></tr>\n";
 
 
@@ -55,6 +56,9 @@ function newlineif() {
 		$l += 1;
 	}
 	$p = 0;
+	if ($i == 1) {
+		echo "</table>\n\n<table>\n";
+	}
 }
 
 /* Beginn des HTML-Codes bzw. Beginn der Generierung */
@@ -65,7 +69,15 @@ echo '<!DOCTYPE HTML>
 <title>Gordian Edenhofers individueller Vertretungsplan</title>
 
 <SCRIPT type="text/javascript">
+function visibility() {
+	visible = 1-visible;
+	var sel = document.getElementById("ft");
+	var val = sel.options[sel.selectedIndex].value;
 
+	document.getElementById("fehlende_lehrer").style.display = "none";
+	document.getElementById("fehlende_raeume").style.display = "none";
+	document.getElementById("fehlende_klassen").style.display = "none";
+}
 </SCRIPT>
 
 <style>
@@ -125,7 +137,16 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
     		while (($buffer = fgets($handle, 4096)) !== false) {
 			if (preg_match('/<HR>/', $buffer) == 1) {
 				newlineif();
+				$n = 1;
+			} else {
+				$n++;
 			}
+			if (preg_match("/<DIV CLASS=\"Eins\">/", $buffer) == 1 && $n = 3) {
+				$p = 1;
+				$i = 1;
+				echo "</table>\n\n<table id=\"yellow_block\">\n";
+			}
+			
 			if (preg_match("/>(Vertretungsplan|Ersatzraumplan)/", $buffer) == 1) {
 				newlineif();
 				echo $buffer . $br;
@@ -134,7 +155,20 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 				$p = 1;
 			} else if (preg_match("/Titel.>.+/", $buffer) == 1 && $p == 1) {
 				newlineif();
-			}
+			} else if (preg_match("/(fehlende Lehrer:/", $buffer) == 1) {
+				echo "</table>\n\n<table id=\"fehlende_lehrer\">\n";
+				$p = 1;
+				$i = 1;
+			} else if (preg_match("/(fehlende R&auml;ume:/", $buffer) == 1) {
+				echo "</table>\n\n<table id=\"fehlende_raeume\">\n";
+				$p = 1;
+				$i = 1;
+			} else if (preg_match("/(fehlende Klassen:/", $buffer) == 1) {
+				echo "</table>\n\n<table id=\"fehlende_klassen\">\n";
+				$p = 1;
+				$i = 1;
+			}	
+			
 			if ( $p == 1 ) {
 				echo $buffer;						// Ausdrucken der selektierten Zeile
 				$l++;
@@ -168,6 +202,11 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 	echo "<br>\n<br>\n<div class=\"footnote\">\n$footnote</div>\n<br>";	
 }
 ?>
+
+<SCRIPT type="text/javascript">
+visible = 0;
+visibility();
+</SCRIPT>
 
 </div>
 </body>
