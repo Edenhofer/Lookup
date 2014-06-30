@@ -47,21 +47,21 @@ $flagg = 0;										// Markierung
 $buffer = "";
 $buffer_p = "";
 $buffer_o = "";
-$n = 0;											// Zaehler
-$i = 0;											// Zaehler
+$i = 0;											// Zaehler & Flagge
 $br = "\n<tr><td>&nbsp;</td><td colspan=\"4\"></td></tr>\n";
 
 
 function newlineif() {
-	global $p, $l, $br;
-	if ($p == 1) {
+	global $p, $l, $i, $br;
+	if ($i != 0) {
+		echo "</table>\n\n<table>\n";
+		$i = 0;
+	} else if ($p == 1) {
 		print $br;
 		$l += 1;
 	}
+	
 	$p = 0;
-	if ($i == 1) {
-		echo "</table>\n\n<table>\n";
-	}
 }
 
 /* Beginn des HTML-Codes bzw. Beginn der Generierung */
@@ -76,7 +76,8 @@ function visibility() {
 	visible = 1-visible;
 	var sel = document.getElementById("ft");
 	var val = sel.options[sel.selectedIndex].value;
-
+	document.getElementById("yellow_block").styl.display = "inline";
+	
 	document.getElementById("fehlende_lehrer").style.display = "none";
 	document.getElementById("fehlende_raeume").style.display = "none";
 	document.getElementById("fehlende_klassen").style.display = "none";
@@ -140,15 +141,15 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
     		while (($buffer = fgets($handle, 4096)) !== false) {
 			if (preg_match('/<HR>/', $buffer) == 1) {
 				newlineif();
-				$n = 1;
-			} else {
-				$n++;
 			}
-			if (preg_match("/<DIV CLASS=\"Zwei\">$value/", $buffer) == 1 && $n = 5) {
-				echo "$buffer_o\n$buffer_p\n";
+			if (preg_match("/<DIV CLASS=\"Zwei\">$value/", $buffer) == 1) {
+				echo "</table>\n\n<table id=\"yellow_block\">\n";
+				echo "$buffer_o$buffer_p";
 				$p = 1;
 				$i = 1;
-				echo "</table>\n\n<table id=\"yellow_block\">\n";
+			} else if (preg_match("/<\/TR>/", $buffer) == 1 && $i == 1 && $p == 1) {
+				echo "</TR>";
+				newlineif();
 			}
 			
 			if (preg_match("/>(Vertretungsplan|Ersatzraumplan)/", $buffer) == 1) {
@@ -162,15 +163,15 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 			} else if (preg_match("/(fehlende Lehrer:/", $buffer) == 1) {
 				echo "</table>\n\n<table id=\"fehlende_lehrer\">\n";
 				$p = 1;
-				$i = 1;
+				$i = 2;
 			} else if (preg_match("/(fehlende R&auml;ume:/", $buffer) == 1) {
 				echo "</table>\n\n<table id=\"fehlende_raeume\">\n";
 				$p = 1;
-				$i = 1;
+				$i = 3;
 			} else if (preg_match("/(fehlende Klassen:/", $buffer) == 1) {
 				echo "</table>\n\n<table id=\"fehlende_klassen\">\n";
 				$p = 1;
-				$i = 1;
+				$i = 4;
 			}	
 			
 			if ( $p == 1 ) {
