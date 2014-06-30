@@ -144,11 +144,7 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 			} else {
 				$n++;
 			}
-			if (preg_match("/<DIV CLASS=\"Eins\">/", $buffer) == 1 && $n = 3) {
-				$p = 1;
-				$i = 2;
-				echo "</table>\n\n<table id=\"yellow_block\">\n";
-			} else if (preg_match("/<DIV CLASS=\"Zwei\">$value/", $buffer) == 1 && $n = 5) {
+			if (preg_match("/<DIV CLASS=\"Zwei\">$value/", $buffer) == 1 && $n = 5) {
 				echo "$buffer_o\n$buffer_p\n";
 				$p = 1;
 				$i = 1;
