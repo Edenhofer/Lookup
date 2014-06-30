@@ -44,6 +44,9 @@ if (strpos($_SESSION['uinfo'], "?m") !== False) {					// Einstellungen fuer die 
 $p = 0;											// "$p": "Druckvariabel"
 $l = 0;											// "$l": Anzahl der Zeilen
 $flagg = 0;										// Markierung
+$buffer = "";
+$buffer_p = "";
+$buffer_o = "";
 $n = 0;											// Zaehler
 $i = 0;											// Zaehler
 $br = "\n<tr><td>&nbsp;</td><td colspan=\"4\"></td></tr>\n";
@@ -143,6 +146,11 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 			}
 			if (preg_match("/<DIV CLASS=\"Eins\">/", $buffer) == 1 && $n = 3) {
 				$p = 1;
+				$i = 2;
+				echo "</table>\n\n<table id=\"yellow_block\">\n";
+			} else if (preg_match("/<DIV CLASS=\"Zwei\">$value/", $buffer) == 1 && $n = 5) {
+				echo "$buffer_o\n$buffer_p\n";
+				$p = 1;
 				$i = 1;
 				echo "</table>\n\n<table id=\"yellow_block\">\n";
 			}
@@ -173,6 +181,8 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 				echo $buffer;						// Ausdrucken der selektierten Zeile
 				$l++;
 			}
+			$buffer_o = $buffer_p;
+			$buffer_p = $buffer;
 		}
 	}
 	fclose($handle);								// Schließen des Vertretungsplans
