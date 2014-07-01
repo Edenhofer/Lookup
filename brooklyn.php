@@ -48,6 +48,8 @@ $buffer = "";
 $buffer_p = "";
 $buffer_o = "";
 $i = 0;											// Zaehler & Flagge
+$n = 0;											// Zaehler & Flagge
+$ybe = 0;										// Yellow Block Exists
 $br = "\n<tr><td>&nbsp;</td><td colspan=\"4\"></td></tr>\n";
 
 
@@ -73,14 +75,20 @@ echo '<!DOCTYPE HTML>
 
 <SCRIPT type="text/javascript">
 function visibility() {
-	visible = 1-visible;
+
+	'; /* Still uncomplete
 	var sel = document.getElementById("ft");
 	var val = sel.options[sel.selectedIndex].value;
-	document.getElementById("yellow_block").styl.display = "inline";
+	*/ echo '
 	
-	document.getElementById("fehlende_lehrer").style.display = "none";
-	document.getElementById("fehlende_raeume").style.display = "none";
-	document.getElementById("fehlende_klassen").style.display = "none";
+	document.getElementById("fehlende_lehrer_1").style.display = "none";	
+	document.getElementById("fehlende_klassen_1").style.display = "none";
+	document.getElementById("fehlende_raeume_1").style.display = "none";
+	document.getElementById("fehlende_lehrer_2").style.display = "none";
+	document.getElementById("fehlende_klassen_2").style.display = "none";
+	document.getElementById("fehlende_raeume_2").style.display = "none";
+	document.getElementById("yellow_block_1").style.display = "inline";
+	document.getElementById("yellow_block_2").style.display = "inline";
 }
 </SCRIPT>
 
@@ -143,8 +151,14 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 				newlineif();
 			}
 			if (preg_match("/<DIV CLASS=\"Zwei\">$value/", $buffer) == 1) {
-				echo "</table>\n\n<table id=\"yellow_block\">\n";
+				echo "</table>\n\n<table id=\"yellow_block";
+				if ($n == 0) {
+					echo "_1\">\n";
+				} else if ($n == 1) {
+					echo "_2\">\n";
+				}				
 				echo "$buffer_o$buffer_p";
+				$ybe++;
 				$p = 1;
 				$i = 1;
 			} else if (preg_match("/<\/TR>/", $buffer) == 1 && $i == 1 && $p == 1) {
@@ -160,18 +174,6 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 				$p = 1;
 			} else if (preg_match("/Titel.>.+/", $buffer) == 1 && $p == 1) {
 				newlineif();
-			} else if (preg_match("/(fehlende Lehrer:/", $buffer) == 1) {
-				echo "</table>\n\n<table id=\"fehlende_lehrer\">\n";
-				$p = 1;
-				$i = 2;
-			} else if (preg_match("/(fehlende R&auml;ume:/", $buffer) == 1) {
-				echo "</table>\n\n<table id=\"fehlende_raeume\">\n";
-				$p = 1;
-				$i = 3;
-			} else if (preg_match("/(fehlende Klassen:/", $buffer) == 1) {
-				echo "</table>\n\n<table id=\"fehlende_klassen\">\n";
-				$p = 1;
-				$i = 4;
 			}	
 			
 			if ( $p == 1 ) {
@@ -180,6 +182,39 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 			}
 			$buffer_o = $buffer_p;
 			$buffer_p = $buffer;
+			
+			if (preg_match("/fehlende Lehrer:/", $buffer) == 1) {
+				echo "</table>\n\n<table id=\"fehlende_lehrer";
+				if ($n == 0) {
+					echo "_1\">\n";
+				} else if ($n == 1) {
+					echo "_2\">\n";
+				}
+				echo "<TR><TH COLSPAN=2><DIV CLASS=\"Titel\">Fehlende Lehrer:</DIV></TH></TR>";
+				$p = 1;
+				$i = 2;
+			} else if (preg_match("/fehlende Klassen:/", $buffer) == 1) {
+				echo "</table>\n\n<table id=\"fehlende_klassen";
+				if ($n == 0) {
+					echo "_1\">\n";
+				} else if ($n == 1) {
+					echo "_2\">\n";
+				}
+				echo "<TR><TH COLSPAN=2><DIV CLASS=\"Titel\">Fehlende Klassen:</DIV></TH></TR>";
+				$p = 1;
+				$i = 3;
+			} else if (preg_match("/fehlende R&auml;ume:/", $buffer) == 1) {
+				echo "</table>\n\n<table id=\"fehlende_raeume";
+				if ($n == 0) {
+					echo "_1\">\n";
+				} else if ($n == 1) {
+					echo "_2\">\n";
+				}				
+				echo "<TR><TH COLSPAN=2><DIV CLASS=\"Titel\">Fehlende R&auml;ume:</DIV></TH></TR>";
+				$p = 1;
+				$i = 4;
+				$n = 1;
+			}
 		}
 	}
 	fclose($handle);								// Schließen des Vertretungsplans
@@ -194,7 +229,9 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 	echo "<form method=\"post\" action=\"" . htmlspecialchars($_SERVER["REQUEST_URI"]) . "\">";
 	echo "<input type=\"submit\" name=\"submit\" value=\"$dc\">";
 	echo " <input type=\"button\" onClick=\"history.go(0)\" value=\"$rt\">\n</form>\n";
-	echo "<br>\n<div class=\"footnote\">$footnote</div>\n<br>";		
+	echo "<br>\n<div class=\"footnote\">$footnote</div>\n<br>";
+	
+	while ($ybe++ < 2) echo "\n<table id=\"yellow_block_" . $ybe . "\"></table>";		
 } else {
 	if (isset($_COOKIE['l'])) {
 		if ($debug) echo "\$_COOKIE: " . $_COOKIE['l'] . "\n";
@@ -211,7 +248,6 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['l']
 ?>
 
 <SCRIPT type="text/javascript">
-visible = 0;
 visibility();
 </SCRIPT>
 
