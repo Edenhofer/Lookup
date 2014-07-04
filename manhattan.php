@@ -9,14 +9,14 @@ session_start();
 $debug = (strstr($_SERVER["QUERY_STRING"], "debug"));					// debugging-mode
 if (isset($_SESSION['uinfo']) === false) {
 	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?desktop';
-	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False) $_SESSION['uinfo'] = '?desktop';
+	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False && preg_match("OS \d", $_SERVER['HTTP_USER_AGENT']) != 1) $_SESSION['uinfo'] = '?desktop';
 	else if (strpos($_SERVER['HTTP_USER_AGENT'], "Linux") !== False && strpos($_SERVER['HTTP_USER_AGENT'], "Android") === False) $_SESSION['uinfo'] = '?Linux';
 	else $_SESSION['uinfo'] = '?m';
 }
 if (strpos($_SERVER["QUERY_STRING"], "iframe") !== false) $_SESSION['uinfo'] = '?iframe';	// iFrame-mode
 
 /* Default-Werte, die im weiteren Verlauf geaender werden koennen */
-$source_url = "/tmp/v.html";							// Pfad zum Vertretungsplan
+$source_url = "/tmp/v.html";								// Pfad zum Vertretungsplan
 $footnote = "Erdacht, erstellt und gepflegt von Gordian&nbsp;Edenhofer.";		// Fussnote mit Namensnennung
 $dc = "Auswahl anpassen";								// "Cookie-Loeschen"-Text
 $rt = "Neu Laden";									// "Seite neu laden"-Text

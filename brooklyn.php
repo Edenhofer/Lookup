@@ -9,7 +9,7 @@ session_start();
 $debug = (strstr($_SERVER["QUERY_STRING"], "debug"));					// debugging-mode
 if (isset($_SESSION['uinfo']) === false) {
 	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?desktop';
-	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False) $_SESSION['uinfo'] = '?desktop';
+	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False && preg_match("OS \d", $_SERVER['HTTP_USER_AGENT']) != 1) $_SESSION['uinfo'] = '?desktop';
 	else if (strpos($_SERVER['HTTP_USER_AGENT'], "Linux") !== False && strpos($_SERVER['HTTP_USER_AGENT'], "Android") === False) $_SESSION['uinfo'] = '?Linux';
 	else $_SESSION['uinfo'] = '?m';
 }
@@ -75,12 +75,10 @@ echo '<!DOCTYPE HTML>
 
 <SCRIPT type="text/javascript">
 function visibility() {
-
-	'; /* Still uncomplete
-	var sel = document.getElementById("ft");
-	var val = sel.options[sel.selectedIndex].value;
-	*/ echo '
-	
+			'; /* Still incomplete
+			var sel = document.getElementById("ft");
+			var val = sel.options[sel.selectedIndex].value;
+			*/ echo '	
 	document.getElementById("fehlende_lehrer_1").style.display = "none";	
 	document.getElementById("fehlende_klassen_1").style.display = "none";
 	document.getElementById("fehlende_raeume_1").style.display = "none";
