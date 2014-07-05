@@ -9,7 +9,7 @@ session_start();
 $debug = (strstr($_SERVER["QUERY_STRING"], "debug"));					// debugging-mode
 if (isset($_SESSION['uinfo']) === false) {
 	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?desktop';
-	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False && preg_match("OS \d", $_SERVER['HTTP_USER_AGENT']) != 1) $_SESSION['uinfo'] = '?desktop';
+	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False && preg_match("/OS \d/", $_SERVER['HTTP_USER_AGENT']) != 1) $_SESSION['uinfo'] = '?desktop';
 	else if (strpos($_SERVER['HTTP_USER_AGENT'], "Linux") !== False && strpos($_SERVER['HTTP_USER_AGENT'], "Android") === False) $_SESSION['uinfo'] = '?Linux';
 	else $_SESSION['uinfo'] = '?m';
 }
