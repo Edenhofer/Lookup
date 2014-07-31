@@ -1,0 +1,84 @@
+<!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
+-->
+
+<!doctype html>
+<html>
+<script	src="google_translate.js"></script>
+<head>
+<title>Look Up</title>
+<style>
+	* {
+		font-family: Arial, Helvetica, sans-serif;
+	}
+	span.tab{
+		padding: 0.7em;
+	}
+	#loading {
+		font-size: 0.9em;
+		color: #4488ee;
+	}
+	#output {
+		font-size: 0.9em;
+		color: #474747;
+	}
+	#noresult {
+		font-size: 0.9em;
+		color: #4488ee;
+	}
+	#tip {
+		font-size: 0.95em;
+		color: #4488ee;
+	}
+	#source {
+		font-size: 0.75em;
+		color: #191919;
+	}
+	#footer {
+		font-size: 0.7em;
+		text-align: center;
+		color: #999999;
+	}
+	body {
+		min-width: 375px;
+		min-height: 75px;
+	}
+	input[type=text] {
+		min-width: 250px;
+	}
+	input[type=submit] {
+		width: 75px;
+		height: 27px;
+		background-color: #4488ee;
+		color: #f2f2f2;
+		border: 0px solid;
+		border-radius: 3px;
+	}
+	input[type=submit]:hover {
+		background-color: #4475ee;
+	}
+</style>
+</head>
+<body>
+	<form id="search">
+		<input type="text" id="query" name="input" autofocus="autofocus">
+		<!--<span class="tab"></span>-->
+		<input type="submit" value="submit">
+	</form>
+	
+	<div id="loading"></div>
+	<div id="output"></div>
+	<div id="noresult"></div>
+	<div id="source"></div>
+	<div id="tip">
+		<i><p>Tip: Use the settings to further tweak your search.</p></i>
+	</div>
+	<div id="footer">
+		<p><i>Copyright by Gordian Edenhofer</i> - <a href="chrome-extension://gikpkhhmhlciakiiamjddgldjccgijek/options.html" target="_blank">Extension Options</a></p>	
+	</div>
+</body>
+</html>
+

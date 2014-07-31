@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<script src="options.js"></script>
+<head>
+<title>Look Up</title>
+<style>
+	* {
+	font-family: Arial, Helvetica, sans-serif;
+	}
+	span.tab {
+		padding: 0.7em;
+	}
+	.center {
+		text-align: center;
+	}
+	#footer {
+		font-size: 0.8em;
+		text-align: center;
+		color: #999999;
+	}
+	body {
+		font-size: 1em;
+		margin: auto;
+		width: 20em;
+	}
+	input[type=submit] {
+		width: 75px;
+		height: 27px;
+		background-color: #4488ee;
+		color: #f2f2f2;
+		border: 0px solid;
+		border-radius: 3px;
+	}
+	input[type=submit]:hover {
+		background-color: #4475ee;
+	}
+	#default {
+		width: 75px;
+		height: 27px;
+		background-color: #ffffff;
+		color: #525252;
+		border: 1px solid;
+		border-color: #929292;
+		border-radius: 3px;
+	}
+	select {
+		background-color: #ffffff;
+		color: #454545;
+		border: 1px solid;
+		border-color: #929292;
+		border-radius: 1px;
+	}
+</style>
+</head>
+<body>
+	<br>
+	<table>
+		<tr>
+			<td>Language:<span class="tab"></span></td>
+			<td><select id="language">
+				<option value="de">German</option>
+				<option value="en">Englisch</option>
+			</select></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Grounding:<span class="tab"></span></td>
+			<td><select id="grounding">
+				<option value="wikipedia">Wikipedia</option>
+				<option value="archlinux">Arch Linux</option>
+				<option id="ger_d" value="ger_dictionary">W&ouml;rterbuch (Duden)</option>
+			</select></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><form id="save"><input type="submit" value="Save"></form></td>
+			<td><form id="restore"><input id="default" type="submit" value="Default"></form></td>
+		<tr>
+	</table>
+	
+	<div id="status"></div>
+	<div id="footer">
+		<p><i>Copyright by Gordian Edenhofer - <a href="https://plus.google.com/+GordianEdenhofer/posts" target="_blank">Donate</a></i></p>
+	</div>
+</body>
+</html>
+
