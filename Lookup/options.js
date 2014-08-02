@@ -1,14 +1,10 @@
 // Until now the function is not calles
 function style_display() {
-	alert("NOT WORKING THIS WAY!");
 	var language = document.getElementById("language").value;
 	var grounding = document.getElementById("grounding").value;
-	alert(language);
 	
-	/* styl.display is not working like this !!!!!!!!!!!!!!!!!!!1
-	if (language == "de") document.getElementById("ger_d").style.display = "none";
-	else document.getElementById("ger_d").style.display = "inline";
-	*/
+	if (language == "de") document.getElementById("ger_d").style.display = 'inline';
+	else document.getElementById("ger_d").style.display = 'none';
 }
 
 // Saves options to chrome.storage
@@ -22,30 +18,51 @@ function save_options() {
 	setTimeout(function() {document.getElementById("status").innerHTML = ""}, 1250);
 }
 
-// Loading the Settings
-function load() {
+// Setting default options
+function default_options() {
+/*
+This button is for later, if there are more settings available!!!!!!!!!!!!!!!!
+*/
+}
+
+// Setting the onload configuration
+function onload() {
+	// Loading the Settings
 	var language = "";
 	var grounding = "";
+	
 	chrome.storage.local.get('language', function (result) {
 		language = result.language;
+		
+		// Preselecting the saved language
+		for (var i = 0; i < document.getElementById("language").options.length; i++) {
+			if (document.getElementById("language").options[i].value == language) {
+				document.getElementById("language").options[i].selected = true;
+				break;
+			}
+		}
 	});
-
 
 	chrome.storage.local.get('grounding', function (result) {
 		grounding = result.grounding;
+		
+		// Preselecting the saved grounding
+		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
+			if (document.getElementById("grounding").options[i].value == grounding) {
+				document.getElementById("grounding").options[i].selected = true;
+				break;
+			}
+		}
 	});
 	
-	return(language, grounding);
+	style_display();
 }
 
-// Setting default options
-function default_options() {
-	var language = document.getElementById("language").value;
-	var grounding = document.getElementById("grounding").value;	
-}
-
-// Event Listeners
+// Event Listeners which are added on load of the page
 window.addEventListener("load", function(evt) {
+	onload();
 	document.getElementById("save").addEventListener("click", save_options);
 	document.getElementById("default").addEventListener("click", default_options);
+	document.getElementById("language").addEventListener("change", style_display);
+	document.getElementById("donate").addEventListener("click", donate);
 });

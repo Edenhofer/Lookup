@@ -39,13 +39,6 @@ function load() {
 
 // Function for Wikipedia specific queries
 function wikipedia() {
-	/* Is this needed? !!!!!!!!!!!!!!!!!!!!!!!
-	var begin =  window.begin;
-	var query = window.query;
-	var end = window.end;
-	var data = window.data;
-	*/
-
 	begin = data.search(new RegExp("<p>[a-zA-Z0-9_ ]*<b>" + query, "i"));
 	
 	if (begin != -1) {
@@ -169,7 +162,6 @@ function search() {
 			// Deleting unneccessary spaces
 			data = data.trim();
 			
-			// This must be automated!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			if (eval(grounding+"()") == 0) {			
 				// Trimming the output to not exceed the maximum length
 				if (data.length >= max_output_length) data = data.slice(0, max_output_length) + "..."

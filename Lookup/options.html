@@ -44,6 +44,13 @@
 		border-color: #929292;
 		border-radius: 3px;
 	}
+	#donate {
+		width: 80px;
+		height: 25px;
+		background-color: #ffffff;
+		color: #4488ee;
+		border: 0px solid;
+	}
 	select {
 		background-color: #ffffff;
 		color: #454545;
@@ -72,7 +79,7 @@
 				<td>Grounding:<span class="tab"></span></td>
 				<td><select id="grounding">
 					<option value="wikipedia">Wikipedia</option>
-					<option value="ger_dictionary" id="ger_d">W&ouml;rterbuch (Duden)</option>
+					<option value="ger_d" id="ger_d">W&ouml;rterbuch (Duden)</option>
 					<option value="archlinux">Arch Linux</option>
 					<option value="google_translate">Google Translate</option>
 				</select></td>
@@ -96,7 +103,10 @@
 	<span id="status"></span>
 	
 	<div id="footer">
-		<p><i>Copyright by Gordian Edenhofer - <a href="https://plus.google.com/+GordianEdenhofer/posts" target="_blank">Donate</a></i></p>
+		<p>
+			<i>Copyright by Gordian Edenhofer - </i>
+			<button type="button" id="donate"><i>Donate</i></button>
+		</p>
 	</div>
 </body>
 </html>
