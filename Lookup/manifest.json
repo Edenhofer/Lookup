@@ -4,12 +4,19 @@
   "name": "Lookup",
   "description": "This extension helps you to lookup anything in wikipedia or Arch Linux without interrupting your browsing experience.",
   "options_page": "options.html",
-  "version": "0.1",
+  "version": "0.3",
 
+  "icons": {
+    "16": "logo.png",
+    "19": "logo.png",
+    "256": "logo.png"
+  },
+  
   "browser_action": {
     "default_icon": "logo.png",
     "default_popup": "popup.html"
   },
+  
   "permissions": [
   	"storage",
   	"https://*/*",
