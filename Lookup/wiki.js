@@ -1,19 +1,15 @@
-// Getting the input
-var query = document.getElementById("query").value
-
-// Loading the settings and defining the url
-var url = load() + query;
-
-// Defining some other variables
-var max_output_length = 540
+// Setting up the variables
+var query = "";
+var language = "";
+var grounding = "";
+var url = "";
+var max_output_length = 540;
 var data = "";
 var begin = -1;
 var end = -1;
 
 // Loading the Settings
 function load() {
-	var language = "";
-	var grounding = "";
 	chrome.storage.local.get('language', function (result) {
 		language = result.language;
 	});
@@ -27,7 +23,7 @@ function load() {
 	if (grounding == "ger_d") return "http://www.duden.de/rechtschreibung/";
 	if (grounding == "archlinux") {
 		if (language == "en") language = "org/index.php";
-		if (language == "de") language = "de/title";
+		else if (language == "de") language = "de/title";
 		else {
 			alert("Error Code: aaa01"); 
 			return "";
@@ -35,7 +31,10 @@ function load() {
 		return "https://wiki.archlinux." + language + "/";
 	} 
 	if (grounding == "google_translate") return "https://translate.google.de/#auto/" + language + "/";
-	else return "";
+	else {
+		grounding = "";
+		return "";
+	}
 }
 
 // Function for Wikipedia specific queries
@@ -46,7 +45,7 @@ function wikipedia() {
 	var end = window.end;
 	var data = window.data;
 	*/
-	
+
 	begin = data.search(new RegExp("<p>[a-zA-Z0-9_ ]*<b>" + query, "i"));
 	
 	if (begin != -1) {
@@ -129,9 +128,17 @@ function g_translate() {
 
 function search() {
 	event.preventDefault();
-
+	
+	// Getting the input
+	query = document.getElementById("query").value;
+	
 	// Break if there is no input
-	if (document.getElementById("query").value == "") return;
+	if (query == "") return;
+
+	/* Loading the settings and defining the url
+	(The splitting is necessery, otherwise the main function would not wait.) */
+	url = load();
+	url += query;
 	
 	// Filling the loading div with text
 	document.getElementById("loading").innerHTML = "<p>Searching...<\p>";
@@ -160,10 +167,10 @@ function search() {
 		if (request.readyState == 4){
 			data = request.responseText;
 			// Deleting unneccessary spaces
-			data = data.trim()
+			data = data.trim();
 			
 			// This must be automated!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			if (wikipedia() == 0) {			
+			if (eval(grounding+"()") == 0) {			
 				// Trimming the output to not exceed the maximum length
 				if (data.length >= max_output_length) data = data.slice(0, max_output_length) + "..."
 				

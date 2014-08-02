@@ -5,7 +5,7 @@ function style_display() {
 	var grounding = document.getElementById("grounding").value;
 	alert(language);
 	
-	/* styl.display is not working like this 
+	/* styl.display is not working like this !!!!!!!!!!!!!!!!!!!1
 	if (language == "de") document.getElementById("ger_d").style.display = "none";
 	else document.getElementById("ger_d").style.display = "inline";
 	*/
@@ -18,10 +18,8 @@ function save_options() {
 	
 	chrome.storage.local.set({'language': language, 'grounding': grounding});
 	
-	/* This is not working as it should
-	document.getElementById("status").innerHTML = "Settings saved";
-	setTimeout(function() {document.getElementById("status").innerHTML = ""}, 750);
-	*/
+	document.getElementById("status").innerHTML = "Settings saved.";
+	setTimeout(function() {document.getElementById("status").innerHTML = ""}, 1250);
 }
 
 // Loading the Settings
