@@ -1,0 +1,31 @@
+#!/bin/bash
+# Vertretungsplan als Startseite des Apache2-Servers auf dem Rasberry Pi
+# Gordian Edenhofer 08-04-14
+
+cd /tmp
+
+wget -q www.heinrich-mann-schule.de/vertretung/S_heute.html
+wget -q www.heinrich-mann-schule.de/vertretung/S_morgen.html
+wget -q www.heinrich-mann-schule.de/vertretung/L_heute.html
+wget -q www.heinrich-mann-schule.de/vertretung/L_morgen.html
+
+cat S_heute.html S_morgen.html > v.html
+tr \\r \\n < v.html > vtemp
+/home/pi/www/sp-converter vtemp > v.html
+rm vtemp S_heute.html S_morgen.html
+
+cat L_heute.html L_morgen.html > v-l.html
+tr \\r \\n < v-l.html > vltemp
+/home/pi/www/sp-converter vltemp > v-l.html
+rm vltemp L_heute.html L_morgen.html
+
+# Gordian
+/home/pi/bin/sp-to-html 12 "M 3/2" "Ph 3/1" "D 3/5" "E 3/5" "Ku 3/5" "PoWi 3/5" "G 3/6" "eR 3/12" "Ch 3/5" "Bio 3/5" "T 3/9" > /var/www/index.html
+# Roman
+/home/pi/bin/sp-to-html 09dG > /var/www/roman.html
+# Freddy
+/home/pi/bin/sp-to-html 12 "M 3/5" "D 3/5" "E 3/6" "Ku 3/7" "PoWi 3/7" "G 3/1" "eR 3/12" "Ch 3/2" "Bio 3/6" "T 3/9" > /var/www/freddy.html
+# Amadeusz
+/home/pi/bin/sp-to-html 12 "M 3/5" "D 3/5" "E 3/2" "Ku 3/5" "PoWi 3/6" "G 3/1" "kR 3/21" "Ch 3/6" "Bio 3/5" "T 3/9" > /var/www/amadeusz.html
+# Tobi
+/home/pi/bin/sp-to-html 12 "M 3/7" "D 3/6" "E 3/8" "Ku 3/8" "PoWi 3/1" "G 3/6" "eR 3/11" "Ch 3/2" "Bio 3/6" "T 3/9" > /var/www/tobi.html
