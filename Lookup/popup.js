@@ -11,15 +11,35 @@ var end = -1;
 // On page load function
 function init() {
 	// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
+	chrome.storage.sync.get('switcher_grounding', function (result) {
+		// Getting the switcher_grounding
+		if (chrome.runtime.lastError || typeof result.switcher_grounding === 'undefined') switcher_grounding = true;
+		else switcher_grounding = result.switcher_grounding;
+	});
+	
 	chrome.storage.sync.get('language', function (result) {
+		// Getting the language
 		if (chrome.runtime.lastError || typeof result.language === 'undefined') language = "en";
 		else language = result.language;
+		
+		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
+		else document.getElementById("ger_d").style.display = 'none';
 	});
 
 	chrome.storage.sync.get('grounding', function (result) {
+		// Getting the grounding
 		if (chrome.runtime.lastError || typeof result.grounding === 'undefined') grounding = "wikipedia";
 		else grounding = result.grounding;
 		
+		// Preselecting the saved grounding
+		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
+			if (document.getElementById("grounding").options[i].value == grounding) {
+				document.getElementById("grounding").options[i].selected = true;
+				break;
+			}
+		}
+		
+		// Putting together the first part of the url, containing the language and grounding
 		if (grounding == "wikipedia") url = "http://" + language + ".wikipedia.org/wiki/";
 		else if (grounding == "ger_d") url = "http://www.duden.de/rechtschreibung/";
 		else if (grounding == "archlinux") {
@@ -37,9 +57,24 @@ function init() {
 		
 		// Setting the icon
 		if (grounding != "") {
-			document.getElementById("icon").innerHTML = "<img src=\"/icons/" + grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+			document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/" + grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
 		}
+		
+		// Setting up the quick grounding switcher
+		if (switcher_grounding === true) {
+			document.getElementById("grounding").style.display = 'inline';
+			document.getElementById("icon").style.display = 'none';
+		}
+		else document.getElementById("grounding").style.display = 'none';
 	});
+}
+
+// Function for quickly switching the grounding
+function switcher_grounding() {
+	var current_grounding = document.getElementById("grounding").value;
+	chrome.storage.sync.set({'grounding': current_grounding});
+	
+	init();
 }
 
 // Function for Wikipedia specific queries
@@ -95,8 +130,11 @@ function archlinux() {
 		var temp = data.slice(begin, end);
 		if (temp.replace(/(<([^>]+)>)/ig, "").length < 50) {
 			end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
+			
+			// Saving the cursive writing
 			data = data.replace(/<i>/ig, "gorditemp01");
 			data = data.replace(/<\/i>/ig, "gorditemp02");
+			
 			data = data.slice(begin, end);
 		}
 		else data = temp
@@ -104,6 +142,8 @@ function archlinux() {
 		// Replacing anything html with nothing
 		data = data.replace(/(<([^>]+)>)/ig, "");
 		data = data.replace(/\[\d+\]/ig, "");
+		
+		// Saving the cursive writing
 		data = data.replace(/gorditemp01/ig, "<i>");
 		data = data.replace(/gorditemp02/ig, "</i>");
 		
@@ -196,7 +236,9 @@ function search() {
 	};	
 }
 
+// Adding some EventListeners and one starup function (init())
 window.addEventListener('load', function(evt) {
 	init();
+	document.getElementById("grounding").addEventListener("change", switcher_grounding);
 	document.getElementById('search').addEventListener('submit', search);
 });

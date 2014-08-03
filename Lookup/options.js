@@ -11,9 +11,12 @@ function style_display() {
 function save_options() {
 	var language = document.getElementById("language").value;
 	var grounding = document.getElementById("grounding").value;
+	var switcher_grounding = document.getElementById("switcher_grounding").checked;
 	
-	chrome.storage.sync.set({'language': language, 'grounding': grounding});
+	// Saving the selected options
+	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'switcher_grounding': switcher_grounding});
 	
+	// Displaying a message for a fixed time
 	document.getElementById("status").innerHTML = "Settings saved.";
 	setTimeout(function() {document.getElementById("status").innerHTML = ""}, 1250);
 }
@@ -30,9 +33,11 @@ function init() {
 	// Loading the Settings
 	var language = "";
 	var grounding = "";
+	var switcher_grounding = "";
 	
+	// Getting and restoring the language
 	chrome.storage.sync.get('language', function (result) {
-		if (chrome.runtime.lastError) language = "en";
+		if (chrome.runtime.lastError || typeof result.language === 'undefined') language = "en";
 		else language = result.language;
 		
 		// Preselecting the saved language
@@ -47,8 +52,9 @@ function init() {
 		else document.getElementById("ger_d").style.display = 'none';
 	});
 
+	// Getting and restoring the grounding
 	chrome.storage.sync.get('grounding', function (result) {
-		if (chrome.runtime.lastError) grounding = "wikipedia";
+		if (chrome.runtime.lastError || typeof result.grounding === 'undefined') grounding = "wikipedia";
 		else grounding = result.grounding;
 		
 		// Preselecting the saved grounding
@@ -58,6 +64,16 @@ function init() {
 				break;
 			}
 		}
+	});
+	
+	// Getting and restoring the switcher_grounding
+	chrome.storage.sync.get('switcher_grounding', function (result) {
+		if (chrome.runtime.lastError || typeof result.switcher_grounding === 'undefined') switcher_grounding = false;
+		else switcher_grounding = result.switcher_grounding;
+		
+		// Preselecting the saved switcher_grounding
+		if (switcher_grounding === true) document.getElementById("switcher_grounding").checked = true;
+		if (switcher_grounding === false) document.getElementById("switcher_grounding").checked = false;
 	});
 }
 
@@ -74,7 +90,7 @@ function donate() {
 	*/
 }
 
-// Event Listeners which are added on load of the page
+// Event Listeners which are added on load of the page and getting the init() function ready, which will start when the page is opened
 window.addEventListener("load", function(evt) {
 	init();
 	document.getElementById("save").addEventListener("click", save_options);

@@ -60,6 +60,14 @@
 	input[type=submit]:hover {
 		background-color: #4475ee;
 	}
+	select {
+		font-size: 0.95em;
+		background-color: #ffffff;
+		color: #454545;
+		border: 1px solid;
+		border-color: #929292;
+		border-radius: 1px;
+	}
 </style>
 </head>
 <body>
@@ -79,7 +87,14 @@
 	<div id="footer">
 		<p>
 			<i>Copyright by Gordian Edenhofer.</i> - <a href="chrome-extension://gikpkhhmhlciakiiamjddgldjccgijek/options.html" target="_blank">Extension Options</a>
-			&nbsp;&nbsp;&nbsp;&nbsp;<span id="icon"></span>
+			<span id="icon"></span>
+			<select id="grounding">
+				<option value="wikipedia">Wiki</option>
+				<option value="ger_d" id="ger_d">Duden</option>
+				<option value="archlinux">Arch</option>
+				<!-- In case I can fix the google translate function!!!!!!!!!!!!!!!! -->
+				<option value="google_translate" style="display:none">dict</option>
+			</select>
 		</p>
 	</div>
 </body>
