@@ -69,8 +69,10 @@ function init() {
 	});
 	
 	// Filling the value of #query (the search bar) with the currently selected text
-	chrome.tabs.executeScript({code: "window.getSelection().toString();"}, function(selection) {
-		document.getElementById("query").value = selection[0];
+	chrome.tabs.executeScript({
+			code: "window.getSelection().toString();"
+		}, function(result) {
+			if (!chrome.runtime.lastError || result !== undefined) document.getElementById("query").value = result[0];
 	});
 }
 
