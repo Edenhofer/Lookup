@@ -62,8 +62,16 @@ function init() {
 }
 
 // Donate Popup
-function donat() {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!
+function donate() {
+	window.open("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9ZAYWC36LQVZQ&submit.x=35&submit.y=2", "_blank");
+	/* !!!!!!!!!!!!!!!!!!!!!! Popup erstellen!
+	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+		<input type="hidden" name="cmd" value="_s-xclick">
+		<input type="hidden" name="hosted_button_id" value="9ZAYWC36LQVZQ">
+		<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" width=60px height=15px border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+		<img alt="" border="0" src="https://www.paypalobjects.com/de_DE/i/scr/pixel.gif" width="1" height="1">
+	</form>
+	*/
 }
 
 // Event Listeners which are added on load of the page

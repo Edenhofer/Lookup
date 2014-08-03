@@ -28,7 +28,7 @@
 		text-align: center;
 		color: #999999;
 	}
-	#save {
+	.button {
 		width: 75px;
 		height: 27px;
 		background-color: #4488ee;
@@ -36,10 +36,10 @@
 		border: 0px solid;
 		border-radius: 3px;
 	}
-	#save:hover {
+	.button:hover {
 		background-color: #4475ee;
 	}
-	#default {
+	.default.button {
 		width: 75px;
 		height: 27px;
 		background-color: #ffffff;
@@ -97,17 +97,19 @@
 		</table>
 	<form>
 		
-	<button type="button" id="save">Save</button>
+	<button type="button" class="button" id="save">Save</button>
 	<span class="tab"></span>
 	<!-- This button is for later, if there are more settings available!!!!!!!!!!!!!!!! -->
-	<button type="button" id="default" style="visibility:hidden">Default</button>
+	<button type="button" class="default_button" id="default" style="visibility:hidden">Default</button>
 	<span class="tab"></span>
 	<span id="status"></span>
-	<br><br><br>
+	<br>
+	<br>
+	<br>	
 	<div id="report">If you encounter any bugs or errors, please report them on <a href="https://github.com/Edenhofer/www/issues" target="_blank">github</a>. Thank you in advance.</div>
 	<div id="footer">
 		<p>
-			<i>Copyright by Gordian Edenhofer - </i>
+			<i>Copyright by Gordian Edenhofer. - </i>
 			<button type="button" id="donate"><i>Donate</i></button>
 		</p>
 	</div>
