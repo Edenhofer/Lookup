@@ -30,7 +30,7 @@ This button is for later, if there are more settings available!!!!!!!!!!!!!!!!
 
 // Setting the init configuration
 function init() {
-	// Loading the Settings
+	// Setting up the variables
 	var language = "";
 	var grounding = "";
 	var switcher_grounding = "";
@@ -73,7 +73,7 @@ function init() {
 		
 		// Preselecting the saved switcher_grounding
 		if (switcher_grounding === true) document.getElementById("switcher_grounding").checked = true;
-		if (switcher_grounding === false) document.getElementById("switcher_grounding").checked = false;
+		else if (switcher_grounding === false) document.getElementById("switcher_grounding").checked = false;
 	});
 }
 

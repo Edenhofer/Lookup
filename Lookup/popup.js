@@ -13,7 +13,7 @@ function init() {
 	// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
 	chrome.storage.sync.get('switcher_grounding', function (result) {
 		// Getting the switcher_grounding
-		if (chrome.runtime.lastError || typeof result.switcher_grounding === 'undefined') switcher_grounding = true;
+		if (chrome.runtime.lastError || result.switcher_grounding === undefined) switcher_grounding = true;
 		else switcher_grounding = result.switcher_grounding;
 	});
 	
@@ -39,7 +39,7 @@ function init() {
 			}
 		}
 		
-		// Putting together the first part of the url, containing the language and grounding
+		// Putting together the first part of the url containing the language and grounding
 		if (grounding == "wikipedia") url = "http://" + language + ".wikipedia.org/wiki/";
 		else if (grounding == "ger_d") url = "http://www.duden.de/rechtschreibung/";
 		else if (grounding == "archlinux") {
@@ -67,12 +67,17 @@ function init() {
 		}
 		else document.getElementById("grounding").style.display = 'none';
 	});
+	
+	// Filling the value of #query (the search bar) with the currently selected text
+	chrome.tabs.executeScript({code: "window.getSelection().toString();"}, function(selection) {
+		document.getElementById("query").value = selection[0];
+	});
 }
 
 // Function for quickly switching the grounding
 function switcher_grounding() {
-	var current_grounding = document.getElementById("grounding").value;
-	chrome.storage.sync.set({'grounding': current_grounding});
+	grounding = document.getElementById("grounding").value;
+	chrome.storage.sync.set({'grounding': grounding});
 	
 	init();
 }
@@ -239,6 +244,6 @@ function search() {
 // Adding some EventListeners and one starup function (init())
 window.addEventListener('load', function(evt) {
 	init();
-	document.getElementById("grounding").addEventListener("change", switcher_grounding);
+	document.getElementById('grounding').addEventListener('change', switcher_grounding);
 	document.getElementById('search').addEventListener('submit', search);
 });

@@ -16,6 +16,13 @@
 		width: 21em;
 		color: #474747;
 	}
+	a {
+		color: #4488ee;
+		text-decoration: none;
+	}
+	a:hover {
+		color: #3a75cc;
+	}
 	.small_text {
 		font-size: 0.85em;
 	}
@@ -23,7 +30,7 @@
 		font-size: 0.9em;
 		color: #4488ee;
 	}
-	#report {
+	.report {
 		font-size: 0.8em;
 	}
 	#footer {
@@ -52,12 +59,17 @@
 		border-radius: 3px;
 	}
 	#donate {
-		width: 80px;
+		width: 70px;
 		height: 25px;
-		font-size: 0.9em;
+		font-size: 1em;
 		background-color: #ffffff;
 		color: #4488ee;
 		border: 0px solid;
+		border-radius: 3px;
+	}
+	#donate:hover {
+		color: #3a75cc;
+		cursor:pointer;
 	}
 	select {
 		background-color: #ffffff;
@@ -99,7 +111,7 @@
 			</tr>
 			<tr>
 				<td>Switcher:<span class="tab"></span></td>
-				<td><input type="checkbox" value="switcher" id="switcher"><span class="small_text">Quick Grounding-Switcher in the Popup itself.</span></td>
+				<td><input type="checkbox" value="switcher" id="switcher_grounding"><span class="small_text">Quick grounding-switcher in the popup itself.</span></td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -117,10 +129,10 @@
 	<br>
 	<br>
 	<br>	
-	<div id="report">If you encounter any bugs or errors, please report them on <a href="https://github.com/Edenhofer/www/issues" target="_blank">github</a>. Thank you in advance.</div>
+	<span class="report">If you encounter any bugs or errors, please report them on <a href="https://github.com/Edenhofer/www/issues" target="_blank">github</a>. Thank you in advance.</span>
 	<div id="footer">
 		<p>
-			<i>Copyright by Gordian Edenhofer. - </i>
+			<i>&copy; Gordian Edenhofer - </i>
 			<button type="button" id="donate"><i>Donate</i></button>
 		</p>
 	</div>
