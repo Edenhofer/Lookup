@@ -12,7 +12,7 @@ function save_options() {
 	var language = document.getElementById("language").value;
 	var grounding = document.getElementById("grounding").value;
 	
-	chrome.storage.local.set({'language': language, 'grounding': grounding});
+	chrome.storage.sync.set({'language': language, 'grounding': grounding});
 	
 	document.getElementById("status").innerHTML = "Settings saved.";
 	setTimeout(function() {document.getElementById("status").innerHTML = ""}, 1250);
@@ -25,14 +25,15 @@ This button is for later, if there are more settings available!!!!!!!!!!!!!!!!
 */
 }
 
-// Setting the onload configuration
-function onload() {
+// Setting the init configuration
+function init() {
 	// Loading the Settings
 	var language = "";
 	var grounding = "";
 	
-	chrome.storage.local.get('language', function (result) {
-		language = result.language;
+	chrome.storage.sync.get('language', function (result) {
+		if (chrome.runtime.lastError) language = "en";
+		else language = result.language;
 		
 		// Preselecting the saved language
 		for (var i = 0; i < document.getElementById("language").options.length; i++) {
@@ -41,10 +42,14 @@ function onload() {
 				break;
 			}
 		}
+		
+		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
+		else document.getElementById("ger_d").style.display = 'none';
 	});
 
-	chrome.storage.local.get('grounding', function (result) {
-		grounding = result.grounding;
+	chrome.storage.sync.get('grounding', function (result) {
+		if (chrome.runtime.lastError) grounding = "wikipedia";
+		else grounding = result.grounding;
 		
 		// Preselecting the saved grounding
 		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
@@ -54,13 +59,16 @@ function onload() {
 			}
 		}
 	});
-	
-	style_display();
+}
+
+// Donate Popup
+function donat() {
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 // Event Listeners which are added on load of the page
 window.addEventListener("load", function(evt) {
-	onload();
+	init();
 	document.getElementById("save").addEventListener("click", save_options);
 	document.getElementById("default").addEventListener("click", default_options);
 	document.getElementById("language").addEventListener("change", style_display);

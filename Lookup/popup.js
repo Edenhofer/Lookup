@@ -8,38 +8,43 @@ var data = "";
 var begin = -1;
 var end = -1;
 
-// Loading the Settings
-function load() {
-	chrome.storage.local.get('language', function (result) {
-		language = result.language;
+// On page load function
+function init() {
+	// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
+	chrome.storage.sync.get('language', function (result) {
+		if (chrome.runtime.lastError || typeof result.language === 'undefined') language = "en";
+		else language = result.language;
 	});
 
-
-	chrome.storage.local.get('grounding', function (result) {
-		grounding = result.grounding;
-	});
-	
-	if (grounding == "wikipedia") return "http://" + language + ".wikipedia.org/wiki/";
-	if (grounding == "ger_d") return "http://www.duden.de/rechtschreibung/";
-	if (grounding == "archlinux") {
-		if (language == "en") language = "org/index.php";
-		else if (language == "de") language = "de/title";
+	chrome.storage.sync.get('grounding', function (result) {
+		if (chrome.runtime.lastError || typeof result.grounding === 'undefined') grounding = "wikipedia";
+		else grounding = result.grounding;
+		
+		if (grounding == "wikipedia") url = "http://" + language + ".wikipedia.org/wiki/";
+		else if (grounding == "ger_d") url = "http://www.duden.de/rechtschreibung/";
+		else if (grounding == "archlinux") {
+			if (language == "de") language = "de/title";
+			// The last option must be "en"
+			else language = "org/index.php";
+			url = "https://wiki.archlinux." + language + "/";
+		} 
+		else if (grounding == "google_translate") url = "https://translate.google.de/#auto/" + language + "/";
 		else {
-			alert("Error Code: aaa01"); 
-			return "";
+			url = "";
+			grounding = "";
+			return;
 		}
-		return "https://wiki.archlinux." + language + "/";
-	} 
-	if (grounding == "google_translate") return "https://translate.google.de/#auto/" + language + "/";
-	else {
-		grounding = "";
-		return "";
-	}
+		
+		// Setting the icon
+		if (grounding != "") {
+			document.getElementById("icon").innerHTML = "<img src=\"/icons/" + grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+		}
+	});
 }
 
 // Function for Wikipedia specific queries
 function wikipedia() {
-	begin = data.search(new RegExp("<p>[a-zA-Z0-9_ ]*<b>" + query, "i"));
+	begin = data.search(new RegExp("<p>[a-zA-Z0-9&_; ]*<b>" + query, "i"));
 	
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
@@ -54,13 +59,14 @@ function wikipedia() {
 	else return -1;			
 }
 
-// Function for Duden specific queries
-function duden() {
-	begin = data.search(/(<\/span>Bedeutung|span>Bedeutungen)<span class="helpref woerterbuch_hilfe_bedeutungen">/i) + 16;
+// Function for Duden (german_dictionary) specific queries
+function ger_d() {
+	begin = data.search(new RegExp("(</span>Bedeutung|span>Bedeutungen)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")) + 16;
+	data = data.slice(begin);
 			
 	if (begin != 15) {
-		end = data.indexOf("</div>", begin);
-		data = data.slice(begin, end);
+		end = data.search(new RegExp("<(/div>|img)", "i"), begin);
+		data = data.slice(0, end);
 		
 		// Replacing anything html with nothing
 		data = data.replace(/<span class="content">/ig, "gorditemp");
@@ -78,9 +84,15 @@ function archlinux() {
 	if (data.toLowerCase().indexOf("<div class=\"noarticletext\">", begin) != -1) begin = -1;
 	else begin = data.toLowerCase().indexOf("</div>", begin);
 	
+	// German Arch Linux wiki entrys starts on the third "</div>"
+	if (language == "de/title") {
+		begin = data.toLowerCase().indexOf("</div>", begin + 6);
+		begin = data.toLowerCase().indexOf("</div>", begin + 6);
+	}
+	
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
-		temp = data.slice(begin, end);
+		var temp = data.slice(begin, end);
 		if (temp.replace(/(<([^>]+)>)/ig, "").length < 50) {
 			end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
 			data = data.replace(/<i>/ig, "gorditemp01");
@@ -121,6 +133,7 @@ function g_translate() {
 
 function search() {
 	event.preventDefault();
+	var current_url = "";
 	
 	// Getting the input
 	query = document.getElementById("query").value;
@@ -128,10 +141,8 @@ function search() {
 	// Break if there is no input
 	if (query == "") return;
 
-	/* Loading the settings and defining the url
-	(The splitting is necessery, otherwise the main function would not wait.) */
-	url = load();
-	url += query;
+	// The Url is set in the init() function
+	current_url = url + query;
 	
 	// Filling the loading div with text
 	document.getElementById("loading").innerHTML = "<p>Searching...<\p>";
@@ -154,7 +165,7 @@ function search() {
 	}
 
 	var request = makeHttpObject();
-	request.open("GET", url, true);
+	request.open("GET", current_url, true);
 	request.send(null);
 	request.onreadystatechange = function() {
 		if (request.readyState == 4){
@@ -167,8 +178,8 @@ function search() {
 				if (data.length >= max_output_length) data = data.slice(0, max_output_length) + "..."
 				
 				document.getElementById("output").innerHTML = "<p></p>" + data;
-				document.getElementById("source").innerHTML = "<i><a href=\"" + url
-					+ "\" target=\"_blank\">" + url + "</a><\i>";
+				document.getElementById("source").innerHTML = "<i><a href=\"" + current_url
+					+ "\" target=\"_blank\">" + current_url + "</a><\i>";
 				
 				// Set what to display
 				document.getElementById("loading").style.display="none";
@@ -186,5 +197,6 @@ function search() {
 }
 
 window.addEventListener('load', function(evt) {
+	init();
 	document.getElementById('search').addEventListener('submit', search);
 });
