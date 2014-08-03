@@ -44,7 +44,7 @@ function init() {
 
 // Function for Wikipedia specific queries
 function wikipedia() {
-	begin = data.search(new RegExp("<p>[a-zA-Z0-9&_; ]*<b>" + query, "i"));
+	begin = data.search(new RegExp("<p>[a-zA-Z0-9&_; ]*(<i>|)<b>" + query, "i"));
 	
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
