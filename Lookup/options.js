@@ -6,10 +6,17 @@ function style_display_language() {
 	if (language == "de") document.getElementById("ger_d").style.display = 'inline';
 	else document.getElementById("ger_d").style.display = 'none';
 	
+	if (language == "de" || language == "en") {
+		document.getElementById("input_language_section").style.display = 'inline';
+		document.getElementById("input_language").style.display = 'inline';
+	}else {
+		document.getElementById("input_language_section").style.display = 'none';
+		document.getElementById("input_language").style.display = 'none';
+	}
+	
+	// Warning the user if the same values for "language" and "input_language" are selected
 	if (language == input_language) {
 		document.getElementById("status").innerHTML = "<br><br>The values of \"Language\" and \"Input Language\" should be different.";
-		// Displaying a message for a fixed time
-		// setTimeout(function() {document.getElementById("status").innerHTML = ""}, 1250);
 	} else document.getElementById("status").innerHTML = "";
 }
 
@@ -86,6 +93,11 @@ function init() {
 				break;
 			}
 		}
+		
+		// Warning the user if the same values for "language" and "input_language" are selected
+		if (language == input_language) {
+			document.getElementById("status").innerHTML = "<br><br>The values of \"Language\" and \"Input Language\" should be different.";
+		} else document.getElementById("status").innerHTML = "";
 	});
 	
 	// Getting and restoring the switcher_grounding

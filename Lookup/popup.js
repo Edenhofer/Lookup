@@ -57,9 +57,12 @@ function init() {
 		} 
 		else if (grounding == "google_translate") url = "https://translate.google.de/#auto/" + language + "/";
 		else if (grounding == "dict") {
-			if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) url = "http://www.dict.cc/?s=";
-			else if (input_language == language) url = "";
-			else url = "http://" + language + input_language + ".dict.cc/?s=";
+			// Dict.cc only works with english and german
+			if (language == "de" || language == "en") {
+				if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) url = "http://www.dict.cc/?s=";
+				else if (input_language == language) url = "";
+				else url = "http://" + language + input_language + ".dict.cc/?s=";
+			} else url = "";
 		} else {
 			url = "";
 			grounding = "";
@@ -75,6 +78,10 @@ function init() {
 		if (switcher_grounding === true) {
 			document.getElementById("grounding").style.display = 'inline';
 			document.getElementById("icon").style.display = 'none';
+			
+			// Setting up switcher_input_language
+			if (grounding == "dict") document.getElementById("input_language").style.display = 'inline';
+			else document.getElementById("input_language").style.display = 'none';
 		} else {
 			document.getElementById("grounding").style.display = 'none';
 			document.getElementById("icon").style.display = 'inline';	
@@ -93,6 +100,17 @@ function init() {
 function switcher_grounding() {
 	grounding = document.getElementById("grounding").value;
 	chrome.storage.sync.set({'grounding': grounding});
+	
+	if (grounding == "dict") document.getElementById("input_language").style.display = 'inline';
+	else document.getElementById("input_language").style.display = 'none';
+	
+	init();
+}
+
+// Function for quickly switching the input_language
+function switcher_input_language() {
+	input_language = document.getElementById("input_language").value;
+	chrome.storage.sync.set({'input_language': input_language});
 	
 	init();
 }
@@ -288,5 +306,6 @@ function search() {
 window.addEventListener('load', function(evt) {
 	init();
 	document.getElementById('grounding').addEventListener('change', switcher_grounding);
+	document.getElementById('input_language').addEventListener('change', switcher_input_language);
 	document.getElementById('search').addEventListener('submit', search);
 });
