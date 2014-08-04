@@ -31,6 +31,14 @@ function init() {
 		// Getting the input_language
 		if (chrome.runtime.lastError || typeof result.input_language === 'undefined') input_language = "de";
 		else input_language = result.input_language;
+		
+		// Preselecting the saved input_language
+		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
+			if (document.getElementById("input_language").options[i].value == input_language) {
+				document.getElementById("input_language").options[i].selected = true;
+				break;
+			}
+		}
 	});
 
 	chrome.storage.sync.get('grounding', function (result) {
@@ -192,9 +200,9 @@ function archlinux() {
 
 // Function for Google Translate
 function g_translate() {
-	/* !!!!!!!!!!!!!!!!!!!Funktioniert leider nur in der Theorie,
-	der Source Code, den Google ein schickt ist ein anderer als,
-	der der ein normaler Nutzer bekommt. */
+	/* Funktioniert leider nur in der Theorie.
+	Der Source Code, den Google einen schickt ist ein anderer als,
+	der, der ein normaler Nutzer bekommt. !!!!!!!!!!!!!!!*/
 	begin = data.search(/<span id=result_box/i);
 	
 	if (begin != -1) {

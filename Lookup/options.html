@@ -13,8 +13,11 @@
 	body {
 		font-size: 1em;
 		margin: auto;
-		width: 21em;
+		width: 24em;
 		color: #474747;
+	}
+	td.FisrtOfRow {
+		padding-right: 1em;
 	}
 	a {
 		color: #4488ee;
@@ -26,9 +29,13 @@
 	.small_text {
 		font-size: 0.85em;
 	}
-	#status {
+	.status {
 		font-size: 0.9em;
 		color: #4488ee;
+	}
+	.warning {
+		font-size: 0.9em;
+		color: #ff0000;
 	}
 	.report {
 		font-size: 0.8em;
@@ -85,7 +92,7 @@
 	<form>
 		<table>
 			<tr>
-				<td>Language:<span class="tab"></span></td>
+				<td class="FirstOfRow">Language:<span class="tab"></span></td>
 				<td><select id="language">
 					<option value="en">Englisch</option>
 					<option value="de">German</option>
@@ -96,7 +103,7 @@
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td>Grounding:<span class="tab"></span></td>
+				<td class="FirstOfRow">Grounding:<span class="tab"></span></td>
 				<td><select id="grounding">
 					<option value="wikipedia">Wikipedia</option>
 					<option value="ger_d" id="ger_d">W&ouml;rterbuch (Duden)</option>
@@ -111,7 +118,7 @@
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td><span id="input_language_section">Input Language: (for translator)</span><span class="tab"></span></td>
+				<td class="FirstOfRow"><span id="input_language_section">Input Language: (for&nbsp;translator)</span><span class="tab"></span></td>
 				<td><select id="input_language">
 					<option value="en">Englisch</option>
 					<option value="de">German</option>
@@ -124,7 +131,7 @@
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td>Switcher:<span class="tab"></span></td>
+				<td class="FirstOfRow">Switcher:<span class="tab"></span></td>
 				<td><input type="checkbox" value="switcher" id="switcher_grounding"><span class="small_text">Quick grounding-switcher in the popup itself.</span></td>
 			</tr>
 			<tr>
@@ -133,16 +140,16 @@
 			</tr>
 		</table>
 	</form>
-		
+	<span class="warning" id="warning"></span>
+	<br>
 	<button type="button" class="button" id="save">Save</button>
 	<span class="tab"></span>
 	<!-- This button is for later, if there are more settings available!!!!!!!!!!!!!!!! -->
 	<button type="button" class="default_button" id="default" style="visibility:hidden">Default</button>
-	<span class="tab"></span>
-	<span id="status"></span>
+	<span class="tab" style="display:none"></span>
+	<span class="status" id="status"></span>
 	<br>
 	<br>
-	<br>	
 	<span class="report">If you encounter any bugs or errors, please report them on <a href="https://github.com/Edenhofer/www/issues" target="_blank">github</a>. Thank you in advance.</span>
 	<div id="footer">
 		<p>

@@ -16,8 +16,8 @@ function style_display_language() {
 	
 	// Warning the user if the same values for "language" and "input_language" are selected
 	if (language == input_language) {
-		document.getElementById("status").innerHTML = "<br><br>The values of \"Language\" and \"Input Language\" should be different.";
-	} else document.getElementById("status").innerHTML = "";
+		document.getElementById("warning").innerHTML = "The values of \"Language\" and \"Input Language\" should be different.<br><br>";
+	} else document.getElementById("warning").innerHTML = "";
 }
 
 // Saves options to chrome.storage
@@ -96,8 +96,8 @@ function init() {
 		
 		// Warning the user if the same values for "language" and "input_language" are selected
 		if (language == input_language) {
-			document.getElementById("status").innerHTML = "<br><br>The values of \"Language\" and \"Input Language\" should be different.";
-		} else document.getElementById("status").innerHTML = "";
+			document.getElementById("warning").innerHTML = "The values of \"Language\" and \"Input Language\" should be different.<br><br>";
+		} else document.getElementById("warning").innerHTML = "";
 	});
 	
 	// Getting and restoring the switcher_grounding
