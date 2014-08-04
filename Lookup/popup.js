@@ -1,3 +1,4 @@
+/* IS NOT WORKING WITH ÖÄÜ!!!!!!!!!!!!!!!!!!!!!! (current_url is correct) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 // Setting up the variables
 var query = "";
 var language = "";
@@ -25,6 +26,12 @@ function init() {
 		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
 		else document.getElementById("ger_d").style.display = 'none';
 	});
+	
+	chrome.storage.sync.get('input_language', function (result) {
+		// Getting the input_language
+		if (chrome.runtime.lastError || typeof result.input_language === 'undefined') input_language = "de";
+		else input_language = result.input_language;
+	});
 
 	chrome.storage.sync.get('grounding', function (result) {
 		// Getting the grounding
@@ -49,7 +56,11 @@ function init() {
 			url = "https://wiki.archlinux." + language + "/";
 		} 
 		else if (grounding == "google_translate") url = "https://translate.google.de/#auto/" + language + "/";
-		else {
+		else if (grounding == "dict") {
+			if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) url = "http://www.dict.cc/?s=";
+			else if (input_language == language) url = "";
+			else url = "http://" + language + input_language + ".dict.cc/?s=";
+		} else {
 			url = "";
 			grounding = "";
 			return;
@@ -64,8 +75,10 @@ function init() {
 		if (switcher_grounding === true) {
 			document.getElementById("grounding").style.display = 'inline';
 			document.getElementById("icon").style.display = 'none';
+		} else {
+			document.getElementById("grounding").style.display = 'none';
+			document.getElementById("icon").style.display = 'inline';	
 		}
-		else document.getElementById("grounding").style.display = 'none';
 	});
 	
 	// Filling the value of #query (the search bar) with the currently selected text
@@ -105,7 +118,7 @@ function wikipedia() {
 function ger_d() {
 	begin = data.search(new RegExp("(</span>Bedeutung|span>Bedeutungen)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")) + 16;
 	data = data.slice(begin);
-			
+	
 	if (begin != 15) {
 		end = data.search(new RegExp("<(/div>|img)", "i"), begin);
 		data = data.slice(0, end);
@@ -176,6 +189,34 @@ function g_translate() {
 		return 0;
 	}
 	else return -1;
+}
+
+// Function for dict.cc
+function dict() {
+	begin = data.search(/<tr id='tr1'>/i);
+	
+	if (begin != -1) {
+		// Searching for the second orrance of "</tr>"
+		end = data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5;
+		data = data.slice(begin, end);
+		
+		data = "<table>" + data + "</table>";
+		
+		// Replacing some uneccessary html code with nothing
+		data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
+		
+		// Removing all links
+		data = data.replace(/<a([^>]+)>/ig, "");
+		data = data.replace(/<\/a>/ig, "");
+		
+		// Removing some notes
+		data = data.replace(/([\d]+)/ig, "");
+		data = data.replace(/({([\D]+)})/ig, "");
+		data = data.replace(/\[Aus.\]/ig, "");
+		
+		return 0;
+	}	
+	else return -1;			
 }
 
 function search() {

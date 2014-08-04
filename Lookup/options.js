@@ -1,20 +1,27 @@
-// Until now the function is not calles
-function style_display() {
+// Hiding language specific groundings
+function style_display_language() {
 	var language = document.getElementById("language").value;
-	var grounding = document.getElementById("grounding").value;
+	var input_language = document.getElementById("input_language").value;
 	
 	if (language == "de") document.getElementById("ger_d").style.display = 'inline';
 	else document.getElementById("ger_d").style.display = 'none';
+	
+	if (language == input_language) {
+		document.getElementById("status").innerHTML = "<br><br>The values of \"Language\" and \"Input Language\" should be different.";
+		// Displaying a message for a fixed time
+		// setTimeout(function() {document.getElementById("status").innerHTML = ""}, 1250);
+	} else document.getElementById("status").innerHTML = "";
 }
 
 // Saves options to chrome.storage
 function save_options() {
 	var language = document.getElementById("language").value;
 	var grounding = document.getElementById("grounding").value;
+	var input_language = document.getElementById("input_language").value;
 	var switcher_grounding = document.getElementById("switcher_grounding").checked;
 	
 	// Saving the selected options
-	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'switcher_grounding': switcher_grounding});
+	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'input_language': input_language, 'switcher_grounding': switcher_grounding});
 	
 	// Displaying a message for a fixed time
 	document.getElementById("status").innerHTML = "Settings saved.";
@@ -33,6 +40,7 @@ function init() {
 	// Setting up the variables
 	var language = "";
 	var grounding = "";
+	var input_language = "";
 	var switcher_grounding = "";
 	
 	// Getting and restoring the language
@@ -61,6 +69,20 @@ function init() {
 		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
 			if (document.getElementById("grounding").options[i].value == grounding) {
 				document.getElementById("grounding").options[i].selected = true;
+				break;
+			}
+		}
+	});
+	
+	// Getting and restoring the input_language
+	chrome.storage.sync.get('input_language', function (result) {
+		if (chrome.runtime.lastError || typeof result.input_language === 'undefined') input_language = "en";
+		else input_language = result.input_language;
+		
+		// Preselecting the saved input_language
+		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
+			if (document.getElementById("input_language").options[i].value == input_language) {
+				document.getElementById("input_language").options[i].selected = true;
 				break;
 			}
 		}
@@ -95,6 +117,7 @@ window.addEventListener("load", function(evt) {
 	init();
 	document.getElementById("save").addEventListener("click", save_options);
 	document.getElementById("default").addEventListener("click", default_options);
-	document.getElementById("language").addEventListener("change", style_display);
+	document.getElementById("language").addEventListener("change", style_display_language);
+	document.getElementById("input_language").addEventListener("change", style_display_language);
 	document.getElementById("donate").addEventListener("click", donate);
 });
