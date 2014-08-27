@@ -125,15 +125,27 @@ function switcher_input_language() {
 
 // Function for Wikipedia specific queries
 function wikipedia() {
-	begin = data.search(new RegExp("<p>[a-zA-Z0-9&_; ]*(<i>|)<b>" + query, "i"));
+	begin = data.search(new RegExp("<p>[^<]*(<i>|)<b>" + query, "i"));
 	
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
-		data = data.slice(begin, end);
+		
+		// Checking for a list of options
+		if (data.slice(end - 1, end) == ":") {
+			// End is where the second checkpoint ends
+			end = data.indexOf("</li>", data.indexOf("</li>", begin) + 5);
+			data = data.slice(begin, end);
+			data = data.replace(/<li>/ig, "gorditemp01");
+			data = data.replace(/<\/li>/ig, "gorditemp02");
+			data += "gorditemp03";
+		} else data = data.slice(begin, end);
 		
 		// Replacing anything html with nothing
 		data = data.replace(/(<([^>]+)>)/ig, "");
 		data = data.replace(/\[\d+\]/ig, "");
+		data = data.replace(/gorditemp01/ig, "<li>");
+		data = data.replace(/gorditemp02/ig, "</li>");
+		data = data.replace(/gorditemp03/ig, "<li>...</li>");
 		
 		return 0;
 	}	
@@ -165,17 +177,18 @@ function archlinux() {
 	if (data.toLowerCase().indexOf("<div class=\"noarticletext\">", begin) != -1) begin = -1;
 	else begin = data.toLowerCase().indexOf("</div>", begin);
 	
-	// German Arch Linux wiki entrys starts on the third "</div>"
-	if (language == "de/title") {
-		begin = data.toLowerCase().indexOf("</div>", begin + 6);
-		begin = data.toLowerCase().indexOf("</div>", begin + 6);
-	}
-	
 	if (begin != -1) {
+		// German Arch Linux wiki entrys starts on the third "</div>"
+		if (language == "de/title") {
+			begin = data.toLowerCase().indexOf("</div>", begin + 6);
+			begin = data.toLowerCase().indexOf("</div>", begin + 6);
+		}
+		
 		end = data.indexOf("</p>", begin);
 		var temp = data.slice(begin, end);
 		if (temp.replace(/(<([^>]+)>)/ig, "").length < 50) {
 			end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
+			if (data.indexOf("<div", data.indexOf("</p>", begin) + 4) < end) end = data.indexOf("<div", data.indexOf("</p>", begin));
 			
 			// Saving the cursive writing
 			data = data.replace(/<i>/ig, "gorditemp01");
@@ -231,14 +244,15 @@ function dict() {
 		// Replacing some uneccessary html code with nothing
 		data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
 		
-		// Removing all links
-		data = data.replace(/<a([^>]+)>/ig, "");
-		data = data.replace(/<\/a>/ig, "");
+		// Removing html but not <td> or </td>
+		data = data.replace(/<[^t]([^>]+)>/ig, "");
+		data = data.replace(/<\/[^t]([^d]*)>/ig, "");
 		
 		// Removing some notes
-		data = data.replace(/([\d]+)/ig, "");
-		data = data.replace(/({([\D]+)})/ig, "");
-		data = data.replace(/\[Aus.\]/ig, "");
+		data = data.replace(/([\d]+)/ig, "");		
+		data = data.replace(/\[[^(\])]*\]/ig, "");
+		data = data.replace(/{[a-zA-Z.]+}/ig, "");
+		data = data.replace(/&lt;([^&]*)&gt;/ig, "");
 		
 		return 0;
 	}	
@@ -254,7 +268,13 @@ function search() {
 	
 	// Break if there is no input
 	if (query == "") return;
-
+	
+	// Replacing special characters in query (NOT WORKING !!!!!!!!!!!!!!!!!!!)
+	query = query.replace(/ä/ig, "%C3%B6");
+	query = query.replace(/ö/ig, "%C3%A4");
+	query = query.replace(/ü/ig, "%C3%BC");
+	alert(query);
+	
 	// The Url is set in the init() function
 	current_url = url + query;
 	
@@ -287,6 +307,7 @@ function search() {
 			// Deleting unneccessary spaces
 			data = data.trim();
 			
+			alert(data);
 			if (eval(grounding+"()") == 0) {			
 				// Trimming the output to not exceed the maximum length
 				if (data.length >= max_output_length) data = data.slice(0, max_output_length) + "..."
