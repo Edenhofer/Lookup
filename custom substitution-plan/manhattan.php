@@ -197,7 +197,7 @@ $jg = array(										// Jahrgangsstufe
 	"07" => "7. Klasse",
 	"08" => "8. Klasse",
 	"09" => "9. Klasse",
-	"E " => "E-Phase",
+	"EP " => "E-Phase",
 	"12" => "Q1 und Q2",
 	"13" => "Q3 und Q4" );
 $p = array(										// Parallel Klassen
@@ -363,7 +363,7 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 		}
 		if ($jg >= 12) {
 			$value = $jg . $s;
-		} else if (strncmp($jg, "E ", 2) == 0) {
+		} else if (strncmp($jg, "EP ", 3) == 0) {
 			$ep = (isset($_POST['ep'])) ? $_POST['ep'] : "";
 			$value = $jg . $ep;
 		} else {
@@ -422,8 +422,8 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 			$temp = strpos($value_temp, "(");
 			$value_temp = substr($value, 0, $temp);
 		}
-		if (strstr($value_temp, "E 0")) {
-			$temp = str_replace("E 0", "", $value_temp);
+		if (strstr($value_temp, "EP 0")) {
+			$temp = str_replace("EP 0", "", $value_temp);
 			$temp += 96;
 			$temp = chr($temp);
 			$value_temp = $value_temp . $temp;
