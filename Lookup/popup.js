@@ -100,7 +100,13 @@ function init() {
 	chrome.tabs.executeScript({
 			code: "window.getSelection().toString();"
 		}, function(result) {
-			if (!chrome.runtime.lastError || result !== undefined) document.getElementById("query").value = result[0];
+			if (!chrome.runtime.lastError || result !== undefined) {
+				document.getElementById("query").value = result[0];
+				query = result[0];
+				
+				// Search directly after the button click (not working!!!!!!!!!)
+				//query_search();
+			}
 	});
 }
 
@@ -129,7 +135,7 @@ function wikipedia() {
 	
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
-		
+				
 		// Checking for a list of options
 		if (data.slice(end - 1, end) == ":") {
 			// End is where the second checkpoint ends
@@ -158,7 +164,7 @@ function ger_d() {
 	data = data.slice(begin);
 	
 	if (begin != 15) {
-		end = data.search(new RegExp("<(/div>|img)", "i"), begin);
+		end = data.search(new RegExp("<(/div>|div|img)", "i"), begin);
 		data = data.slice(0, end);
 		
 		// Replacing anything html with nothing
@@ -259,7 +265,8 @@ function dict() {
 	else return -1;			
 }
 
-function search() {
+// The main search function
+function query_search() {
 	event.preventDefault();
 	var current_url = "";
 	
@@ -273,7 +280,7 @@ function search() {
 	query = query.replace(/ä/ig, "%C3%B6");
 	query = query.replace(/ö/ig, "%C3%A4");
 	query = query.replace(/ü/ig, "%C3%BC");
-	alert(query);
+	//alert(query);
 	
 	// The Url is set in the init() function
 	current_url = url + query;
@@ -307,7 +314,7 @@ function search() {
 			// Deleting unneccessary spaces
 			data = data.trim();
 			
-			alert(data);
+			//alert(data); !!!!!!!!!!!!!!!!!!!
 			if (eval(grounding+"()") == 0) {			
 				// Trimming the output to not exceed the maximum length
 				if (data.length >= max_output_length) data = data.slice(0, max_output_length) + "..."
@@ -336,5 +343,5 @@ window.addEventListener('load', function(evt) {
 	init();
 	document.getElementById('grounding').addEventListener('change', switcher_grounding);
 	document.getElementById('input_language').addEventListener('change', switcher_input_language);
-	document.getElementById('search').addEventListener('submit', search);
+	document.getElementById('search').addEventListener('submit', query_search);
 });
