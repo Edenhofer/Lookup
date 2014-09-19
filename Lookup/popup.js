@@ -105,7 +105,7 @@ function init() {
 				query = result[0];
 				
 				// Search directly after the button click (not working!!!!!!!!!)
-				//query_search();
+				query_search();
 			}
 	});
 }
@@ -328,7 +328,12 @@ function query_search() {
 				document.getElementById("output").style.display="inline";
 				document.getElementById("source").style.display="inline";
 			} else {
-				document.getElementById("noresult").innerHTML = "<p>No Match</p>";
+			// No Match Case
+				// Presenting a Google-Link to look for results
+				if (query.length > 20) temp = query.slice(0, 20) + "...";
+				else temp = query;
+				document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
+					+ query.replace("\"", "%22") + "\" target=\"_blank\">Google for \"" + temp + "\"</a></p>";
 				
 				// Set  what to display
 				document.getElementById("loading").style.display="none";
