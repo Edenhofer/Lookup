@@ -6,6 +6,7 @@ var grounding = "";
 var url = "";
 var max_output_length = 540;
 var data = "";
+var temp = "";
 var begin = -1;
 var end = -1;
 
@@ -191,7 +192,7 @@ function archlinux() {
 		}
 		
 		end = data.indexOf("</p>", begin);
-		var temp = data.slice(begin, end);
+		temp = data.slice(begin, end);
 		if (temp.replace(/(<([^>]+)>)/ig, "").length < 50) {
 			end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
 			if (data.indexOf("<div", data.indexOf("</p>", begin) + 4) < end) end = data.indexOf("<div", data.indexOf("</p>", begin));
@@ -241,10 +242,12 @@ function dict() {
 	begin = data.search(/<tr id='tr1'>/i);
 	
 	if (begin != -1) {
-		// Searching for the second orrance of "</tr>"
+		// Searching for the second ocurrance of "</tr>" or the first of "</table>
 		end = data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5;
-		data = data.slice(begin, end);
+		temp = data.indexOf("</table>", begin);
+		if (temp < end) end = temp;
 		
+		data = data.slice(begin, end);		
 		data = "<table>" + data + "</table>";
 		
 		// Replacing some uneccessary html code with nothing
@@ -257,7 +260,7 @@ function dict() {
 		// Removing some notes
 		data = data.replace(/([\d]+)/ig, "");		
 		data = data.replace(/\[[^(\])]*\]/ig, "");
-		data = data.replace(/{[a-zA-Z.]+}/ig, "");
+		data = data.replace(/{[a-zA-Z.-]+}/ig, "");
 		data = data.replace(/&lt;([^&]*)&gt;/ig, "");
 		
 		return 0;
