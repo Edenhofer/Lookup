@@ -251,6 +251,7 @@ function dict() {
 		data = "<table>" + data + "</table>";
 		
 		// Replacing some uneccessary html code with nothing
+		data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
 		data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
 		
 		// Removing html but not <td> or </td>
