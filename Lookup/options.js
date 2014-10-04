@@ -2,9 +2,13 @@
 function style_display_language() {
 	var language = document.getElementById("language").value;
 	var input_language = document.getElementById("input_language").value;
+	var grounding = document.getElementById("grounding").value;
 	
 	if (language == "de") document.getElementById("ger_d").style.display = 'inline';
-	else document.getElementById("ger_d").style.display = 'none';
+	else {
+		if (grounding == "ger_d") document.getElementById("grounding").options[0].selected = true;
+		document.getElementById("ger_d").style.display = 'none';
+	}
 	
 	if (language == "de" || language == "en") {
 		document.getElementById("input_language_section").style.display = 'inline';

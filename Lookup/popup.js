@@ -93,7 +93,8 @@ function init() {
 			else document.getElementById("input_language").style.display = 'none';
 		} else {
 			document.getElementById("grounding").style.display = 'none';
-			document.getElementById("icon").style.display = 'inline';	
+			document.getElementById("input_language").style.display = 'none';
+			document.getElementById("icon").style.display = 'inline';
 		}
 	});
 	
@@ -242,15 +243,18 @@ function dict() {
 	begin = data.search(/<tr id='tr1'>/i);
 	
 	if (begin != -1) {
-		// Searching for the second ocurrance of "</tr>" or the first of "</table>
-		end = data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5;
+		// Searching for the third ocurrance of "</tr>" or the first of "</table>
+		end = data.indexOf("</tr>", data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5) + 5;
 		temp = data.indexOf("</table>", begin);
 		if (temp < end) end = temp;
 		
 		data = data.slice(begin, end);		
 		data = "<table>" + data + "</table>";
 		
-		// Replacing some uneccessary html code with nothing
+		// Removing some headings, e.g. "</div><b>Substantive</b>"
+		data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
+		
+		// Removing some uneccessary html code
 		data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
 		data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
 		
