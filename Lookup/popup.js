@@ -89,7 +89,11 @@ function init() {
 			document.getElementById("icon").style.display = 'none';
 			
 			// Setting up switcher_input_language
-			if (grounding == "dict") document.getElementById("input_language").style.display = 'inline';
+			if (grounding == "dict") {
+				document.getElementById("input_language").style.display = 'inline';
+				// Suppressing the currently selected language as an displayed option of the switcher_input_language
+				document.getElementById("input_language_" + language).style.display = 'none';
+			}
 			else document.getElementById("input_language").style.display = 'none';
 		} else {
 			document.getElementById("grounding").style.display = 'none';
@@ -325,10 +329,13 @@ function query_search() {
 			//alert(data); !!!!!!!!!!!!!!!!!!!
 			if (eval(grounding+"()") == 0) {			
 				// Trimming the output to not exceed the maximum length
-				if (data.length >= max_output_length) data = data.slice(0, max_output_length) + "..."
+				if (data.length >= max_output_length) {
+					data = data.slice(0, max_output_length);
+					data = data.slice(0, data.lastIndexOf(" "))+ "...";
+				}
 				
 				document.getElementById("output").innerHTML = "<p></p>" + data;
-				document.getElementById("source").innerHTML = "<i><a href=\"" + current_url
+				document.getElementById("source").innerHTML = "<span class=\"tab\"></span><i><a href=\"" + current_url
 					+ "\" target=\"_blank\">" + current_url + "</a><\i>";
 				
 				// Set what to display
