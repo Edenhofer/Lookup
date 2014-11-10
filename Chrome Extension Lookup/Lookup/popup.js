@@ -289,13 +289,14 @@ function query_search() {
 	if (query == "") return;
 	
 	// Replacing special characters in query (NOT WORKING !!!!!!!!!!!!!!!!!!!)
-	query = query.replace(/ä/ig, "%C3%B6");
-	query = query.replace(/ö/ig, "%C3%A4");
-	query = query.replace(/ü/ig, "%C3%BC");
+	//query = query.replace(/ä/ig, "%C3%B6");
+	//query = query.replace(/ö/ig, "%C3%A4");
+	//query = query.replace(/ü/ig, "%C3%BC");
 	//alert(query);
 	
 	// The Url is set in the init() function
 	current_url = url + query;
+	//alert(current_url);
 	
 	// Filling the loading div with text
 	document.getElementById("loading").innerHTML = "<p>Searching...<\p>";
@@ -307,26 +308,14 @@ function query_search() {
 	document.getElementById("source").style.display="none";
 	document.getElementById("tip").style.display="none";
 	
-	function makeHttpObject() {
-		try {return new XMLHttpRequest();}
-		catch (error) {}
-		try {return new ActiveXObject("Msxml2.XMLHTTP");}
-		catch (error) {}
-		try {return new ActiveXObject("Microsoft.XMLHTTP");}
-		catch (error) {}
-		throw new Error("Could not create HTTP request object.");
-	}
-
-	var request = makeHttpObject();
-	request.open("GET", current_url, true);
-	request.send(null);
-	request.onreadystatechange = function() {
-		if (request.readyState == 4){
-			data = request.responseText;
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState == 4){
+			data = xmlhttp.responseText;
 			// Deleting unneccessary spaces
 			data = data.trim();
 			
-			//alert(data); !!!!!!!!!!!!!!!!!!!
+			//alert(data);
 			if (eval(grounding+"()") == 0) {			
 				// Trimming the output to not exceed the maximum length
 				if (data.length >= max_output_length) {
@@ -355,7 +344,9 @@ function query_search() {
 				document.getElementById("noresult").style.display="inline";
 			}			
 		}
-	};	
+	};
+	xmlhttp.open("GET", current_url, true);
+	xmlhttp.send();	
 }
 
 // Adding some EventListeners and one starup function (init())

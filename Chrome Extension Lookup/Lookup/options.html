@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+<script src="options.js"></script>
+<head>
+<title>Look Up</title>
+<style>
+	* {
+	font-family: Arial, Helvetica, sans-serif;
+	}
+	span.tab {
+		padding: 0.7em;
+	}
+	body {
+		font-size: 1em;
+		margin: auto;
+		width: 24em;
+		color: #474747;
+	}
+	td.FisrtOfRow {
+		padding-right: 1em;
+	}
+	a {
+		color: #4488ee;
+		text-decoration: none;
+	}
+	a:hover {
+		color: #3a75cc;
+	}
+	.small_text {
+		font-size: 0.85em;
+	}
+	.status {
+		font-size: 0.9em;
+		color: #4488ee;
+	}
+	.warning {
+		font-size: 0.9em;
+		color: #ff0000;
+	}
+	.report {
+		font-size: 0.8em;
+	}
+	#footer {
+		font-size: 0.8em;
+		text-align: center;
+		color: #999999;
+	}
+	.button {
+		width: 75px;
+		height: 27px;
+		background-color: #4488ee;
+		color: #f2f2f2;
+		border: 0px solid;
+		border-radius: 3px;
+	}
+	.button:hover {
+		background-color: #4475ee;
+	}
+	.default.button {
+		width: 75px;
+		height: 27px;
+		background-color: #ffffff;
+		color: #525252;
+		border: 1px solid;
+		border-color: #929292;
+		border-radius: 3px;
+	}
+	#donate {
+		width: 70px;
+		height: 25px;
+		font-size: 1em;
+		background-color: #ffffff;
+		color: #4488ee;
+		border: 0px solid;
+		border-radius: 3px;
+	}
+	#donate:hover {
+		color: #3a75cc;
+		cursor:pointer;
+	}
+	select {
+		background-color: #ffffff;
+		color: #454545;
+		border: 1px solid;
+		border-color: #929292;
+		border-radius: 1px;
+	}
+</style>
+</head>
+<body>
+	<br>
+	<form>
+		<table>
+			<tr>
+				<td class="FirstOfRow">Language:<span class="tab"></span></td>
+				<td><select id="language">
+					<option value="en">Englisch</option>
+					<option value="de">German</option>
+				</select></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td class="FirstOfRow">Grounding:<span class="tab"></span></td>
+				<td><select id="grounding">
+					<option value="wikipedia">Wikipedia</option>
+					<option value="ger_d" id="ger_d">W&ouml;rterbuch (Duden)</option>
+					<option value="archlinux">Arch Linux</option>
+					<!-- In case I can fix the google translate function!!!!!!!!!!!!!!!! -->
+					<option value="google_translate" style="display:none">Google Translate</option>
+					<option value="dict">Dictionary (dict.cc)</option>
+				</select></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td class="FirstOfRow"><span id="input_language_section">Input Language: (for&nbsp;translator)</span><span class="tab"></span></td>
+				<td><select id="input_language">
+					<option value="en">Englisch</option>
+					<option value="de">German</option>
+					<option value="fr">French</option>
+					<option value="es">Spanich</option>
+				</select></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td class="FirstOfRow">Switcher:<span class="tab"></span></td>
+				<td><input type="checkbox" value="switcher" id="switcher_grounding"><span class="small_text">Quick grounding-switcher in the popup itself.</span></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+			</tr>
+		</table>
+	</form>
+	<span class="warning" id="warning"></span>
+	<br>
+	<button type="button" class="button" id="save">Save</button>
+	<span class="tab"></span>
+	<!-- This button is for later, if there are more settings available!!!!!!!!!!!!!!!! -->
+	<button type="button" class="default_button" id="default" style="visibility:hidden">Default</button>
+	<span class="tab" style="display:none"></span>
+	<span class="status" id="status"></span>
+	<br>
+	<br>
+	<span class="report">If you encounter any bugs or errors, please report them on <a href="https://github.com/Edenhofer/www/issues" target="_blank">github</a>. Thank you in advance.</span>
+	<div id="footer">
+		<p>
+			<i>&copy; Gordian Edenhofer - </i>
+			<button type="button" id="donate"><i>Donate</i></button>
+		</p>
+	</div>
+</body>
+</html>
