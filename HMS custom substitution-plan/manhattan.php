@@ -16,12 +16,12 @@ if (isset($_SESSION['uinfo']) === false) {
 if (strpos($_SERVER["QUERY_STRING"], "iframe") !== false) $_SESSION['uinfo'] = '?iframe';	// iFrame-mode
 
 /* Default-Werte, die im weiteren Verlauf geaender werden koennen */
-$source_url = "/tmp/v.html";								// Pfad zum Vertretungsplan
+$source_url = "/tmp/v.html";						// Pfad zum Vertretungsplan
 $footnote = "Erdacht, erstellt und gepflegt von Gordian&nbsp;Edenhofer.";		// Fussnote mit Namensnennung
-$dc = "Auswahl anpassen";								// "Cookie-Loeschen"-Text
+$dc = "Auswahl anpassen";							// "Cookie-Loeschen"-Text
 $rt = "Neu Laden";									// "Seite neu laden"-Text
 $column = 4;										// Anzahl der Spalten
-$nlfnc = 1;										// Neue Zeil fuer neues Fach [bei Tabelle]: 1 = False, 0 = True
+$nlfnc = 1;											// Neue Zeil fuer neues Fach [bei Tabelle]: 1 = False, 0 = True
 $font_size = 100;									// Schriftgroesse in %
 $input_font_size = 80;
 
@@ -56,137 +56,136 @@ $n = 0;											// Zaehler
 if ($column != 1) $td = "<td colspan=\"" . ($column-1) . "\"></td>";
 else $td = "";
 $br = "\n<tr><td>&nbsp;</td>" . $td . "</tr>\n";
-$kurse_q = array(									// Kurse der 12. Klasse
-	'Bio_3\/5' => "Bio bei Frau S.",
-	'Bio_3\/6' => "Bio bei Frau N.",
-	'Bio_3\/1' => "Bio LK bei  G.",
-	'Bio_3\/2' => "Bio LK bei Herrn H.",
-	'Ch_3\/5' => "Chemie bei Frau S.",
-	'Ch_3\/6' => "Chemie bei Herrn S. [CH06]",
-	'Ch_3\/7' => "Chemie bei Herrn S. [CH07]",
-	'Ch_3\/1' => "Chemie LK bei Frau M.",
-	'Ch_3\/2' => "Chemie LK bei Herrn H.",
-	'D_3\/5' => "Deutsch bei Frau S.",
-	'D_3\/6' => "Deutsch bei Herrn K.",
-	'D_3\/7' => "Deutsch bei Frau F.",
-	'D_3\/8' => "Deutsch bei Frau G.",
-	'D_3\/9' => "Deutsch bei Frau K.",
-	'D_3\/10' => "Deutsch bei Frau L.",
-	'D_3\/1' => "Deutsch LK bei Herrn B.",
-	'E_3\/5' => "Englisch bei Herrn W.",
-	'E_3\/6' => "Englisch bei Frau S.",
-	'E_3\/7' => "Englisch bei Frau B.",
-	'E_3\/8' => "Englisch bei Frau K.",
-	'E_3\/1' => "Englisch LK bei Frau B.",
-	'E_3\/2' => "Englisch LK bei Frau F.",
-	'Eth_3\/5' => "Ethik bei Frau S. [ETH05]",
-	'Eth_3\/6' => "Ethik bei Herrn B.",
-	'Eth_3\/7' => "Ethik bei Frau S. [ETH07]",
-	'Eth_3\/8' => "Ethik bei Herrn K.",
-	'F_3\/5' => "Franz&ouml;sisch bei Frau L.",
-	'G_3\/5' => "Geschichte bei Frau D.",
-	'G_3\/6' => "Geschichte bei Herrn M.",
-	'G_3\/7' => "Geschichte bei Frau S.",
-	'G_3\/8' => "Geschichte bei Herrn W.",
-	'G_3\/33' => "Geschichte bei Herrn R.",
-	'G_3\/1' => "Geschichte LK bei Frau W.",
-	'[INFO]_3\/5' => "[FEHLER] Informatik bei Herrn P.",
-	'Ku_3\/5' => "Kunst bei Frau V.",
-	'Ku_3\/6' => "Kunst bei Frau J. [KU06]",
-	'Ku_3\/7' => "Kunst bei Frau J. [KU07]",
-	'Ku_3\/8' => "Kunst bei Frau S.",
-	'Ku_3\/1' => "Kunst LK bei Frau V.",
-	'L_3\/5' => "Latein bei Herrn S.",
-	'M_3\/5' => "Mathe bei Herrn C.",
-	'M_3\/6' => "Mathe bei Herrn M.",
-	'M_3\/7' => "Mathe bei Frau H.",
-	'M_3\/8' => "Mathe bei Herrn B.",
-	'M_3\/9' => "Mathe bei Herrn S.",
-	'M_3\/2' => "Mathe LK bei Herrn T.",
-	'Mu_3\/5' => "Musik bei Herrn L.",
-	'Ph_3\/5' => "Physik bei Herrn T.",
-	'Ph_3\/1' => "Physik LK bei Herrn C.",
-	'PoWi_3\/5' => "PoWi bei Frau I.",
-	'PoWi_3\/6' => "PoWi bei Herrn H.",
-	'PoWi_3\/7' => "PoWi bei Frau F.",
-	'PoWi_3\/1' => "PoWi LK bei Herrn G.",
-	'PoWi_3\/2' => "PoWi LK bei Frau W.",
-	'PoWi_3\/3' => "PoWi LK bei Herrn K.",
-	'eR_3\/11' => "Evangelische Religion bei Frau K.",
-	'eR_3\/12' => "Evangelische Religion bei Herrn K.",
-	'kR_3\/21' => "Katholische Religion bei Herrn S.",
-	'Spa_3\/5' => "Spanisch bei Frau K.",
-	'Spa_3\/77' => "Spanisch bei Frau V.",
-	'Spa_3\/2' => "Spanisch LK bei Frau V.",
-	'T_3\/1' => "Sport bei Frau B.",
-	'T_3\/2' => "Sport bei Frau F. [T02]",
-	'T_3\/3' => "Sport bei Herrn G.",
-	'T_3\/4' => "Sport bei Frau F. [T04]",
-	'T_3\/9' => "Sport bei Herrn S.",
-	'T_3\/6' => "Sport bei Herrn P." );
-$kurse_a = array(									// Kurse der 13. Klasse
-	'Bio_3\/5' => "Bio bei Frau S.",
-	'Bio_3\/6' => "Bio bei Frau N.",
-	'Bio_3\/1' => "Bio LK bei Herrn G.",
-	'Bio_3\/2' => "Bio LK bei Herrn H.",
-	'Ch_3\/5' => "Chemie bei Frau S.",
-	'Ch_3\/6' => "Chemie bei Herrn S. [CH06]",
-	'Ch_3\/7' => "Chemie bei Herrn S. [CH07]",
-	'Ch_3\/1' => "Chemie LK bei Frau M.",
-	'Ch_3\/2' => "Chemie LK bei Herrn H.",
-	'D_3\/5' => "Deutsch bei Frau S.",
-	'D_3\/6' => "Deutsch bei Herrn K.",
-	'D_3\/7' => "Deutsch bei Frau F.",
-	'D_3\/8' => "Deutsch bei Frau G.",
-	'D_3\/9' => "Deutsch bei Frau K.",
-	'D_3\/10' => "Deutsch bei Frau L.",
-	'D_3\/1' => "Deutsch LK bei Herrn B.",
-	'E_3\/5' => "Englisch bei Herrn W.",
-	'E_3\/6' => "Englisch bei Frau S.",
-	'E_3\/7' => "Englisch bei Frau B.",
-	'E_3\/8' => "Englisch bei Frau K.",
-	'E_3\/1' => "Englisch LK bei Frau B.",
-	'E_3\/2' => "Englisch LK bei Frau F.",
-	'F_3\/5' => "Franz&ouml;sisch bei Frau L.",
-	'G_3\/5' => "Geschichte bei Frau D.",
-	'G_3\/6' => "Geschichte bei Herrn M.",
-	'G_3\/7' => "Geschichte bei Frau S.",
-	'G_3\/8' => "Geschichte bei Herrn W.",
-	'G_3\/33' => "Geschichte bei Herrn R.",
-	'G_3\/1' => "Geschichte LK bei Frau W.",
-	'Ku_3\/5' => "Kunst bei Frau V.",
-	'Ku_3\/6' => "Kunst bei Frau J. [KU06]",
-	'Ku_3\/7' => "Kunst bei Frau J. [KU07]",
-	'Ku_3\/8' => "Kunst bei Frau S.",
-	'Ku_3\/1' => "Kunst LK bei Frau V.",
-	'L_3\/5' => "Latein bei Herrn S.",
-	'M_3\/5' => "Mathe bei Herrn C.",
-	'M_3\/6' => "Mathe bei Herrn M.",
-	'M_3\/7' => "Mathe bei Herrn H.",
-	'M_3\/8' => "Mathe bei Herrn B.",
-	'M_3\/9' => "Mathe bei Herrn S.",
-	'M_3\/2' => "Mathe LK bei Herrn T.",
-	'Mu_3\/5' => "Musik bei Herrn L.",
-	'Ph_3\/5' => "Physik bei Herrn T.",
-	'Ph_3\/1' => "Physik LK bei Herrn C.",
-	'PoWi_3\/5' => "PoWi bei Frau I.",
-	'PoWi_3\/6' => "PoWi bei Herrn H.",
-	'PoWi_3\/7' => "PoWi bei Frau F.",
-	'PoWi_3\/1' => "PoWi LK bei Herrn G.",
-	'PoWi_3\/2' => "PoWi LK bei Frau W.",
-	'PoWi_3\/3' => "PoWi LK bei Herrn K.",
-	'eR_3\/11' => "Evangelische Religion bei Frau K.",
-	'eR_3\/12' => "Evangelische Religion bei Herrn K.",
-	'kR_3\/21' => "Katholische Religion bei Herrn S.",
-	'Spa_3\/5' => "Spanisch bei Frau K.",
-	'Spa_3\/77' => "Spanisch bei Frau V.",
-	'Spa_3\/2' => "Spanisch LK bei Frau V.",
-	'T_3\/1' => "Sport bei Frau B.",
-	'T_3\/2' => "Sport bei Frau F. [T02]",
-	'T_3\/3' => "Sport bei Herrn G.",
-	'T_3\/4' => "Sport bei Frau F. [T04]",
-	'T_3\/9' => "Sport bei Herrn S.",
-	'T_3\/6' => "Sport bei Herrn P." );
+$kurse_q = array(									// Kurse der 12. Klasse (Beginnende Q-Phase)
+	'Bio_14\/5' => "Bio bei Frau S.",
+	'Bio_14\/6' => "Bio bei Frau N.",
+	'Bio_14\/1' => "Bio LK bei Herrn G.",
+	'Bio_14\/2' => "Bio LK bei Herrn H.",
+	'Ch_14\/5' => "Chemie bei Frau S.",
+	'Ch_14\/6' => "Chemie bei Herrn S. [CH06]",
+	'Ch_14\/7' => "Chemie bei Herrn S. [CH07]",
+	'Ch_14\/1' => "Chemie LK bei Frau M.",
+	'Ch_14\/2' => "Chemie LK bei Herrn H.",
+	'D_14\/5' => "Deutsch bei Frau S.",
+	'D_14\/6' => "Deutsch bei Herrn K.",
+	'D_14\/7' => "Deutsch bei Frau F.",
+	'D_14\/8' => "Deutsch bei Frau G.",
+	'D_14\/9' => "Deutsch bei Frau K.",
+	'D_14\/10' => "Deutsch bei Frau L.",
+	'D_14\/1' => "Deutsch LK bei Herrn B.",
+	'E_14\/5' => "Englisch bei Herrn W.",
+	'E_14\/6' => "Englisch bei Frau S.",
+	'E_14\/7' => "Englisch bei Frau B.",
+	'E_14\/8' => "Englisch bei Frau K.",
+	'E_14\/1' => "Englisch LK bei Frau B.",
+	'E_14\/2' => "Englisch LK bei Frau F.",
+	'F_14\/5' => "Franz&ouml;sisch bei Frau L.",
+	'G_14\/5' => "Geschichte bei Frau D.",
+	'G_14\/6' => "Geschichte bei Herrn M.",
+	'G_14\/7' => "Geschichte bei Frau S.",
+	'G_14\/8' => "Geschichte bei Herrn W.",
+	'G_14\/33' => "Geschichte bei Herrn R.",
+	'G_14\/1' => "Geschichte LK bei Frau W.",
+	'Ku_14\/5' => "Kunst bei Frau V.",
+	'Ku_14\/6' => "Kunst bei Frau J. [KU06]",
+	'Ku_14\/7' => "Kunst bei Frau J. [KU07]",
+	'Ku_14\/8' => "Kunst bei Frau S.",
+	'Ku_14\/1' => "Kunst LK bei Frau V.",
+	'L_14\/5' => "Latein bei Herrn S.",
+	'M_14\/5' => "Mathe bei Herrn C.",
+	'M_14\/6' => "Mathe bei Herrn M.",
+	'M_14\/7' => "Mathe bei Herrn H.",
+	'M_14\/8' => "Mathe bei Herrn B.",
+	'M_14\/9' => "Mathe bei Herrn S.",
+	'M_14\/2' => "Mathe LK bei Herrn T.",
+	'Mu_14\/5' => "Musik bei Herrn L.",
+	'Ph_14\/5' => "Physik bei Herrn T.",
+	'Ph_14\/1' => "Physik LK bei Herrn C.",
+	'PoWi_14\/5' => "PoWi bei Frau I.",
+	'PoWi_14\/6' => "PoWi bei Herrn H.",
+	'PoWi_14\/7' => "PoWi bei Frau F.",
+	'PoWi_14\/1' => "PoWi LK bei Herrn G.",
+	'PoWi_14\/2' => "PoWi LK bei Frau W.",
+	'PoWi_14\/3' => "PoWi LK bei Herrn K.",
+	'eR_14\/11' => "Evangelische Religion bei Frau K.",
+	'eR_14\/12' => "Evangelische Religion bei Herrn K.",
+	'kR_14\/21' => "Katholische Religion bei Herrn S.",
+	'Spa_14\/5' => "Spanisch bei Frau K.",
+	'Spa_14\/77' => "Spanisch bei Frau V.",
+	'Spa_14\/2' => "Spanisch LK bei Frau V.",
+	'T_14\/1' => "Sport bei Frau B.",
+	'T_14\/2' => "Sport bei Frau F. [T02]",
+	'T_14\/3' => "Sport bei Herrn G.",
+	'T_14\/4' => "Sport bei Frau F. [T04]",
+	'T_14\/9' => "Sport bei Herrn S.",
+	'T_14\/6' => "Sport bei Herrn P." );
+$kurse_a = array(									// Kurse der 13. Klasse (Abschlussklasse)
+	'Bio_13\/5' => "Bio bei Frau S.",
+	'Bio_13\/6' => "Bio bei Frau N.",
+	'Bio_13\/1' => "Bio LK bei G.",
+	'Bio_13\/2' => "Bio LK bei Herrn H.",
+	'Ch_13\/5' => "Chemie bei Frau S.",
+	'Ch_13\/7' => "Chemie bei Herrn S.",
+	'Ch_13\/1' => "Chemie LK bei Frau M.",
+	'Ch_13\/2' => "Chemie LK bei Herrn H.",
+	'D_13\/5' => "Deutsch bei Frau S.",
+	'D_13\/6' => "Deutsch bei Herrn K.",
+	'D_13\/7' => "Deutsch bei Frau F.",
+	'D_13\/8' => "Deutsch bei Frau G.",
+	'D_13\/9' => "Deutsch bei Frau K.",
+	'D_13\/10' => "Deutsch bei Frau L.",
+	'D_13\/1' => "Deutsch LK bei Herrn B.",
+	'E_13\/5' => "Englisch bei Herrn W.",
+	'E_13\/6' => "Englisch bei Frau S.",
+	'E_13\/7' => "Englisch bei Frau B.",
+	'E_13\/8' => "Englisch bei Frau K.",
+	'E_13\/1' => "Englisch LK bei Frau B.",
+	'E_13\/2' => "Englisch LK bei Frau F.",
+	'Eth_13\/5' => "Ethik bei Frau S. [ETH05]",
+	'Eth_13\/6' => "Ethik bei Herrn B.",
+	'Eth_13\/7' => "Ethik bei Frau S. [ETH07]",
+	'Eth_13\/8' => "Ethik bei Herrn B.",
+	'F_13\/5' => "Franz&ouml;sisch bei Frau L.",
+	'BiG_13\/5' => "Bili-Geschichte bei Herrn R.",
+	'G_13\/5' => "Geschichte bei Frau D.",
+	'G_13\/6' => "Geschichte bei Herrn M.",
+	'G_13\/7' => "Geschichte bei Frau S.",
+	'G_13\/8' => "Geschichte bei Herrn W.",
+	'G_13\/33' => "Geschichte bei Herrn R.",
+	'G_13\/1' => "Geschichte LK bei Frau W.",
+	'[INFO]_13\/5' => "[FEHLER] Informatik bei Herrn P.",
+	'Ku_13\/6' => "Kunst bei Frau J. [KU06]",
+	'Ku_13\/7' => "Kunst bei Frau J. [KU07]",
+	'Ku_13\/8' => "Kunst bei Frau S.",
+	'Ku_13\/1' => "Kunst LK bei Frau V.",
+	'L_13\/5' => "Latein bei Herrn S.",
+	'M_13\/5' => "Mathe bei Herrn C.",
+	'M_13\/6' => "Mathe bei Herrn M.",
+	'M_13\/7' => "Mathe bei Frau H.",
+	'M_13\/8' => "Mathe bei Herrn B.",
+	'M_13\/9' => "Mathe bei Herrn S.",
+	'M_13\/2' => "Mathe LK bei Herrn T.",
+	'Mu_13\/5' => "Musik bei Herrn L.",
+	'Ph_13\/5' => "Physik bei Herrn T.",
+	'Ph_13\/1' => "Physik LK bei Herrn C.",
+	'PoWi_13\/5' => "PoWi bei Frau I.",
+	'PoWi_13\/6' => "PoWi bei Herrn H.",
+	'PoWi_13\/7' => "PoWi bei Frau F.",
+	'PoWi_13\/1' => "PoWi LK bei Herrn G.",
+	'PoWi_13\/2' => "PoWi LK bei Frau W.",
+	'PoWi_13\/3' => "PoWi LK bei Herrn K.",
+	'eR_13\/11' => "Evangelische Religion bei Frau K.",
+	'eR_13\/12' => "Evangelische Religion bei Herrn K.",
+	'kR_13\/21' => "Katholische Religion bei Herrn S.",
+	'Spa_13\/5' => "Spanisch bei Frau K.",
+	'Spa_13\/77' => "Spanisch bei Frau V.",
+	'Spa_13\/2' => "Spanisch LK bei Frau V.",
+	'T_13\/1' => "Sport bei Frau B.",
+	'T_13\/2' => "Sport bei Frau F. [T02]",
+	'T_13\/3' => "Sport bei Herrn G.",
+	'T_13\/4' => "Sport bei Frau F. [T04]",
+	'T_13\/9' => "Sport bei Herrn S.",
+	'T_13\/6' => "Sport bei Herrn P." );
 $z = array(										// Zweig
 	"G" => "Gymnasium",
 	" R" => "Realschule",
@@ -234,7 +233,6 @@ echo '<!DOCTYPE HTML>
 <title>Gordian Edenhofers individueller Vertretungsplan</title>
 <SCRIPT type="text/javascript">
 function kurse_visibility() {
-	visible = 1-visible;
 	var sel = document.getElementById("jg");
 	var val = sel.options[sel.selectedIndex].value;
 	var code = val.charCodeAt(0);
@@ -287,43 +285,84 @@ function kurse_visibility() {
 }
 </SCRIPT>
 <style>
-* {
-	font-family: Arial, Helvetica, sans-serif;
-}
-body {
-	font-size: ' . $font_size . ';
-}
-input {
-	font-size: ' . $input_font_size . ';
-}
-input[type="checkbox"] {
-	width: 1.2em;
-	height: 1.2em;
-}
-select {
-	font-size: ' . $input_font_size . ';
-}
-
-.center{										// Alternative zu <div align="center">
-	margin: auto;
-	width: 50%;
-}
-span.tab{
-    padding: 1em;
-}
-.Titel {}
-.footnote {
-	font-size: ' . $footnote_font_size . ';
-}
-.footer {
-	font-size: ' . $footer_font_size . ';
-}
+	* {
+		font-family: Arial, Helvetica, sans-serif;
+	}
+	body {
+		font-size: ' . $font_size . ';
+	}
+	input {
+		font-size: ' . $input_font_size . ';
+	}
+	input[type="checkbox"] {
+		width: 1.2em;
+		height: 1.2em;
+	}
+	select {
+		font-size: ' . $input_font_size . ';
+	}
+	
+	.center{										// Alternative zu <div align="center">
+		margin: auto;
+		width: 50%;
+	}
+	span.tab{
+	    padding: 1em;
+	}
+	.Titel {}
+	.footnote {
+		font-size: ' . $footnote_font_size . ';
+	}
+	.footer {
+		font-size: ' . $footer_font_size . ';
+	}
+	select {
+		font-size: 0.95em;
+		background-color: #ffffff;
+		color: #454545;
+		border: 1px solid;
+		border-color: #929292;
+		border-radius: 1px;
+	}
+	td {
+		padding-left: .5em;
+		padding-right: .5em;
+	}
+	a {
+		color: #3161aa;
+		text-decoration: none;
+	}
+	a:hover {
+		color: #3a75cc;
+		text-decoration: underline;
+	}
+	input[type=submit] {
+		height: 27px;
+		background-color: #4488ee;
+		color: #f2f2f2;
+		border: 0px solid;
+		border-radius: 3px;
+	}
+	input[type=submit]:hover {
+		background-color: #4475ee;
+	}
+	input[type=button] {
+		height: 27px;
+		background-color: #4488ee;
+		color: #f2f2f2;
+		border: 0px solid;
+		border-radius: 3px;
+	}
+	input[type=button]:hover {
+		background-color: #4475ee;
+	}
 </style>
 </head>
 <body>
 <div align="center">
 ';
 
+// Debug Mode
 if ($debug) {
 echo "REQUEST_URI=|" . $_SERVER["REQUEST_URI"] . "|<br> debug=|$debug|<br> QUERY_STRING=|" . $_SERVER["QUERY_STRING"] . "|<br>var_dump(\$_POST)=|";
 var_dump($_POST);
@@ -336,22 +375,39 @@ if (isset($_COOKIE['k']) && isset($_POST['submit']) && strcmp($_POST['submit'], 
 if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']) && strlen($_COOKIE['k']) > 0) )) {
 	if (isset($_COOKIE['k']) && $_SERVER["REQUEST_METHOD"] != "POST") {		// Cookie-Check
 		$value = htmlspecialchars_decode($_COOKIE['k']);
+		if ($debug) {
+			echo "<br>\nvalue= "; var_dump($value);
+		}
 	} else {									// Konkatenation der Kursauswahl
 		$jg = (isset($_POST['jg'])) ? $_POST['jg'] : "";
 		$p = (isset($_POST['p'])) ? $_POST['p'] : "";
 		$z = (isset($_POST['z'])) ? $_POST['z'] : "";
 		$ep = "";
+		
 		$s = "(";
-		$key = key($kurse_q);
-		if (array_key_exists($key,$_POST)) $s .= " " . str_replace("_"," ",$key);
-		next($kurse_q);
-		while ($val = current($kurse_q)) {
+		if (strcmp($jg, "12") == 0) {
 			$key = key($kurse_q);
-			if ($debug) echo "array_key_exists=|" . array_key_exists($key,$_POST) . "|$br";
-			if (array_key_exists($key,$_POST)) $s .= "| " . str_replace("_"," ",$key);
+			if (array_key_exists($key,$_POST)) $s .= " " . str_replace("_"," ",$key);
 			next($kurse_q);
+			while ($val = current($kurse_q)) {
+				$key = key($kurse_q);
+				if ($debug) echo "array_key_exists=|" . array_key_exists($key,$_POST) . "|$br";
+				if (array_key_exists($key,$_POST)) $s .= "| " . str_replace("_"," ",$key);
+				next($kurse_q);
+			}
+		} else if (strcmp($jg, "13") == 0) {
+			$key = key($kurse_a);
+			if (array_key_exists($key,$_POST)) $s .= " " . str_replace("_"," ",$key);
+			next($kurse_a);
+			while ($val = current($kurse_a)) {
+				$key = key($kurse_a);
+				if ($debug) echo "array_key_exists=|" . array_key_exists($key,$_POST) . "|$br";
+				if (array_key_exists($key,$_POST)) $s .= "| " . str_replace("_"," ",$key);
+				next($kurse_a);
+			}
 		}
 		$s .= ")";
+		
 		if ($debug) {
 			echo "\njg= ";
 			var_dump($jg);
@@ -359,9 +415,11 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 			for ($i=0; $i<strlen($jg); $i++)
 				printf ("%d,", ord(substr($jg, $i, 1)));
 			printf("|");
-			echo "\np= "; var_dump($p);
+			echo "<br>\np= "; var_dump($p);
+			echo "<br>\ns= "; var_dump($s);
 		}
-		if ($jg >= 12) {
+		
+		if (strcmp($jg, "12") == 0 || strcmp($jg, "13") == 0) {
 			$value = $jg . $s;
 		} else if (strncmp($jg, "EP ", 3) == 0) {
 			$ep = (isset($_POST['ep'])) ? $_POST['ep'] : "";
@@ -369,10 +427,28 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 		} else {
 			$value = $jg . $p .  $z;
 		}
+		
+		if ($debug) {
+			echo "<br>\nvalue= "; var_dump($value);
+		}
+		
 		setcookie("k", $value, time() + 2592000);				// Setzen eines Cookies "k"
 	}
 	$br = "\n<tr><td>&nbsp;</td><td colspan=\"4\"></td></tr>\n";
 	echo "<table>\n";
+	
+	// Modifying the $value variable to fit the new style of the subsitution plan
+	$temp = substr($value, 0, 2);	
+	if (strcmp($temp, "12") == 0 || strcmp($temp, "13") == 0) {
+		$value_old = $value;
+		// removing the "12" || "13" in front of $value
+		$value = substr($value, 2);
+		$value = str_replace("| ", "|", $value);
+		$value = str_replace("( ", "(", $value);
+	} else {
+		$value_old = $value;
+	}
+	$temp = "";
 	
 	$handle = fopen("$source_url", "r");						// Oeffnen des Vertretungsplans
 	if ($handle) {
@@ -397,15 +473,23 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 	}
 	fclose($handle);								// Schließen des Vertretungsplans
 	
+	// Resetting $value for the purpose of showing it of
+	$value =  $value_old;
+	
 	while ($l++ <= 12) {
 		echo $br;
 	}
 	echo "</table>\n<br>\n<div class=\"footer\">Aktualisiert am: " . date('j') . "." . date('m') . "." . date('y')
 	. " " . date('H') . ":" . date('i') . "</div>";
-	$value = str_replace(" ", "", $value);
-	if (strpos($value, "(") !== false) {
-			$temp = strpos($value, "(");
-			$value = substr($value, 0, $temp);
+	if ($debug) {
+		$value = str_replace("| ", "|", $value);
+		$value = str_replace("( ", "(", $value);
+	} else {
+		$value = str_replace(" ", "", $value);
+		if (strpos($value, "(") !== false) {
+				$temp = strpos($value, "(");
+				$value = substr($value, 0, $temp);
+		}
 	}
 	echo "<div class=\"footer\">KEINE GEW&Auml;HR<br>\nJahrgangsstufe/Klasse: $value</div>\n";
 	echo "<form method=\"post\" action=\"" . htmlspecialchars($_SERVER["REQUEST_URI"]) . "\">";
@@ -581,12 +665,11 @@ if ($_SESSION['calls'] == 5) {
 	echo "Bitte erlauben Sie Cookies auf dieser Website, damit diese gescheit dargestellt werden kann.";
 }
 
-Ich sollte hier noch den CSS für DIV align=denter ergänzen.
+Ich sollte hier noch den CSS für DIV align=denter ergänzen!!!!!!!!!!!!!!!!!!!!!!!!!
 */
 ?>
 
 <SCRIPT type="text/javascript">
-visible = 0;
 kurse_visibility();
 </SCRIPT>
 
