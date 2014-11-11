@@ -338,20 +338,20 @@ function kurse_visibility() {
 	}
 	input[type=submit] {
 		height: 2em;
-		background-color: #4488ee;
+		background-color: #0053a8;
 		color: #f2f2f2;
 		border: 0px solid;
-		border-radius: 0.3em;
+		border-radius: 0.25em;
 	}
 	input[type=submit]:hover {
 		background-color: #4475ee;
 	}
 	input[type=button] {
 		height: 2em;
-		background-color: #4488ee;
+		background-color: #0053a8;
 		color: #f2f2f2;
 		border: 0px solid;
-		border-radius: 0.3em;
+		border-radius: 0.25em;
 	}
 	input[type=button]:hover {
 		background-color: #4475ee;
