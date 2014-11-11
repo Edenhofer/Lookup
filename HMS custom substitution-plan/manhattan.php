@@ -337,21 +337,21 @@ function kurse_visibility() {
 		text-decoration: underline;
 	}
 	input[type=submit] {
-		height: 27px;
+		height: 2em;
 		background-color: #4488ee;
 		color: #f2f2f2;
 		border: 0px solid;
-		border-radius: 3px;
+		border-radius: 0.3em;
 	}
 	input[type=submit]:hover {
 		background-color: #4475ee;
 	}
 	input[type=button] {
-		height: 27px;
+		height: 2em;
 		background-color: #4488ee;
 		color: #f2f2f2;
 		border: 0px solid;
-		border-radius: 3px;
+		border-radius: 0.3em;
 	}
 	input[type=button]:hover {
 		background-color: #4475ee;
