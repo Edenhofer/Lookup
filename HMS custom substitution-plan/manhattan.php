@@ -3,17 +3,6 @@
 Verarbeitung des Vertretungsplans in php
 Gordian Edenhofer 09-Jun-2014	
 */
-session_start();
-
-/* Bestimmung der Quelle des Aufrufs, z.B. Linux/Windows/OS X bzw. mobile */
-$debug = (strstr($_SERVER["QUERY_STRING"], "debug"));					// debugging-mode
-if (isset($_SESSION['uinfo']) === false) {
-	if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?desktop';
-	else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False && preg_match("/OS \d/", $_SERVER['HTTP_USER_AGENT']) != 1) $_SESSION['uinfo'] = '?desktop';
-	else if (strpos($_SERVER['HTTP_USER_AGENT'], "Linux") !== False && strpos($_SERVER['HTTP_USER_AGENT'], "Android") === False) $_SESSION['uinfo'] = '?Linux';
-	else $_SESSION['uinfo'] = '?m';
-}
-if (strpos($_SERVER["QUERY_STRING"], "iframe") !== false) $_SESSION['uinfo'] = '?iframe';	// iFrame-mode
 
 /* Default-Werte, die im weiteren Verlauf geaender werden koennen */
 $source_url = "/tmp/v.html";						// Pfad zum Vertretungsplan
@@ -24,39 +13,62 @@ $column = 4;										// Anzahl der Spalten
 $nlfnc = 1;											// Neue Zeil fuer neues Fach [bei Tabelle]: 1 = False, 0 = True
 $font_size = 100;									// Schriftgroesse in %
 $input_font_size = 80;
+$debug = (strstr($_SERVER["QUERY_STRING"], "debug"));	// debugging-mode
 
-if (strpos($_SESSION['uinfo'], "?m") !== False) {					// Einstellungen fuer die mobile Version
-	$column = 2;
-	$nlfnc = 0;
-	$font_size = "3em";
-	$input_font_size = "0.8em";
-	$footer_font_size = "0.55em";
-	$footnote_font_size = "0.75em";
-} else if (strpos($_SESSION['uinfo'], "?desktop") !== False || strpos($_SESSION['uinfo'], "?Linux") !== False) {	// Desktop Version
-	$column = 4;
-	$nlfnc = 1;
-	$font_size = "1em";
-	$input_font_size = "0.8em";
-	$footer_font_size = "0.9em";
-	$footnote_font_size = "0.75em";
-} else if (strpos($_SESSION['uinfo'], "?iframe") !== False) {				// iFrame-Version
-	$column = 2;
-	$nlfnc = 0;
-	$font_size = "1em";
-	$input_font_size = "0.8em";
-	$footer_font_size = "0.9em";
-	$footnote_font_size = "0.75em";
+if (strpos($_SERVER["QUERY_STRING"], "iframe") === false) {
+	// a session is only started if the $_SERVER["QUERY_STRING"] != "iframe"
+	// that means if not running in iFrame mode
+	session_start();
+
+	// determining the origin of query: e.g. Android, Windows, Linux, OS X
+	if (isset($_SESSION['uinfo']) === false) {
+		if (strpos($_SERVER['HTTP_USER_AGENT'], "Windows") !== False) $_SESSION['uinfo'] = '?desktop';
+		else if (strpos($_SERVER['HTTP_USER_AGENT'], "OS X") !== False && preg_match("/OS \d/", $_SERVER['HTTP_USER_AGENT']) != 1) $_SESSION['uinfo'] = '?desktop';
+		else if (strpos($_SERVER['HTTP_USER_AGENT'], "Linux") !== False && strpos($_SERVER['HTTP_USER_AGENT'], "Android") === False) $_SESSION['uinfo'] = '?Linux';
+		else $_SESSION['uinfo'] = '?m';
+	}
+	
+	if (strpos($_SESSION['uinfo'], "?m") !== False) {
+		// mobile version
+		$column = 2;
+		$nlfnc = 0;
+		$font_size = "3em";
+		$input_font_size = "0.8em";
+		$footer_font_size = "0.55em";
+		$footnote_font_size = "0.75em";
+	} else if (strpos($_SESSION['uinfo'], "?desktop") !== False || strpos($_SESSION['uinfo'], "?Linux") !== False) {
+		// desktop version
+		$column = 4;
+		$nlfnc = 1;
+		$font_size = "1em";
+		$input_font_size = "0.8em";
+		$footer_font_size = "0.9em";
+		$footnote_font_size = "0.75em";
+	}
+} else {
+		// iFrame mode with no session
+		$column = 2;
+		$nlfnc = 0;
+		$font_size = "1em";
+		$input_font_size = "0.8em";
+		$footer_font_size = "0.9em";
+		$footnote_font_size = "0.75em";
 }
 
-
-$p = 0;											// "$p": "Druckvariabel"
-$l = 0;											// "$l": Anzahl der Zeilen
-$flagg = 0;										// Markierung
-$n = 0;											// Zaehler
+// printing variable
+$p = 0;
+// number of lines
+$l = 0;
+// marker
+$flagg = 0;
+// counter
+$n = 0;
 if ($column != 1) $td = "<td colspan=\"" . ($column-1) . "\"></td>";
 else $td = "";
 $br = "\n<tr><td>&nbsp;</td>" . $td . "</tr>\n";
-$kurse_q = array(									// Kurse der 12. Klasse (Beginnende Q-Phase)
+
+// Kurse der 12. Klasse (Beginnende Q-Phase)
+$kurse_q = array(
 	'Bio_14\/5' => "Bio bei Frau S.",
 	'Bio_14\/6' => "Bio bei Frau N.",
 	'Bio_14\/1' => "Bio LK bei Herrn G.",
@@ -119,7 +131,9 @@ $kurse_q = array(									// Kurse der 12. Klasse (Beginnende Q-Phase)
 	'T_14\/4' => "Sport bei Frau F. [T04]",
 	'T_14\/9' => "Sport bei Herrn S.",
 	'T_14\/6' => "Sport bei Herrn P." );
-$kurse_a = array(									// Kurse der 13. Klasse (Abschlussklasse)
+	
+// Kurse der 13. Klasse (Abschlussklasse)
+$kurse_a = array(
 	'Bio_13\/5' => "Bio bei Frau S.",
 	'Bio_13\/6' => "Bio bei Frau N.",
 	'Bio_13\/1' => "Bio LK bei G.",
@@ -186,11 +200,15 @@ $kurse_a = array(									// Kurse der 13. Klasse (Abschlussklasse)
 	'T_13\/4' => "Sport bei Frau F. [T04]",
 	'T_13\/9' => "Sport bei Herrn S.",
 	'T_13\/6' => "Sport bei Herrn P." );
-$z = array(										// Zweig
+
+// Zweig
+$z = array(
 	"G" => "Gymnasium",
 	" R" => "Realschule",
 	"  H" => "Hauptschule" );
-$jg = array(										// Jahrgangsstufe
+	
+// Jahrgangsstufe
+$jg = array(
 	"05" => "5. Klasse",
 	"06" => "6. Klasse",
 	"07" => "7. Klasse",
@@ -199,7 +217,9 @@ $jg = array(										// Jahrgangsstufe
 	"EP " => "E-Phase",
 	"12" => "Q1 und Q2",
 	"13" => "Q3 und Q4" );
-$p = array(										// Parallel Klassen
+	
+// Parallel Klassen
+$p = array(
 	"-" => "bitte w&auml;hlen",
 	"a" => "a",
 	"b" => "b",
@@ -207,7 +227,9 @@ $p = array(										// Parallel Klassen
 	"d" => "d",
 	"e" => "e",
 	"f" => "f" );
-$ep = array(										// Parallel Klassen der E-Phase
+	
+// Parallel Klassen der E-Phase
+$ep = array(
 	"-" => "bitte w&auml;hlen",
 	'01' => "01",
 	'02' => "02",
@@ -362,11 +384,16 @@ function kurse_visibility() {
 <div align="center">
 ';
 
-// Debug Mode
+// Debug settings
 if ($debug) {
-echo "REQUEST_URI=|" . $_SERVER["REQUEST_URI"] . "|<br> debug=|$debug|<br> QUERY_STRING=|" . $_SERVER["QUERY_STRING"] . "|<br>var_dump(\$_POST)=|";
-var_dump($_POST);
-echo "|<br>\$_SESSION['uinfo']=|" . $_SESSION['uinfo'] . "|<br>\$_SERVER['HTTP_USER_AGENT']=|" . $_SERVER['HTTP_USER_AGENT'] . "|<br>";
+	echo "REQUEST_URI=|" . $_SERVER["REQUEST_URI"] .
+		"|<br> debug=|$debug|<br> QUERY_STRING=|" . $_SERVER["QUERY_STRING"] .
+		"|<br>var_dump(\$_POST)=|";
+	var_dump($_POST);
+	if (strpos($_SERVER["QUERY_STRING"], "iframe") === false) {
+		echo "|<br>\$_SESSION['uinfo']=|" . $_SESSION['uinfo'] . "";
+	}
+	echo "|<br>\$_SERVER['HTTP_USER_AGENT']=|" . $_SERVER['HTTP_USER_AGENT'] . "|<br>";
 }
 
 if (isset($_COOKIE['k']) && isset($_POST['submit']) && strcmp($_POST['submit'], $dc) == 0) {
@@ -450,7 +477,8 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 	}
 	$temp = "";
 	
-	$handle = fopen("$source_url", "r");						// Oeffnen des Vertretungsplans
+	// opening the substitution-plan file
+	$handle = fopen("$source_url", "r");
 	if ($handle) {
     		while (($buffer = fgets($handle, 4096)) !== false) {
 			if (preg_match('/<HR>/', $buffer) == 1) {
@@ -466,21 +494,19 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 				newlineif();
 			}
 			if ( $p == 1 ) {
-				echo $buffer;						// Ausdrucken der selektierten Zeile
+				// printing the selected lines
+				echo $buffer;
 				$l++;
 			}
 		}
 	}
-	fclose($handle);								// Schließen des Vertretungsplans
+	// closing the susbtitution-plan file
+	fclose($handle);
 	
 	// Resetting $value for the purpose of showing it of
 	$value =  $value_old;
 	
-	while ($l++ <= 12) {
-		echo $br;
-	}
-	echo "</table>\n<br>\n<div class=\"footer\">Aktualisiert am: " . date('j') . "." . date('m') . "." . date('y')
-	. " " . date('H') . ":" . date('i') . "</div>";
+	// debug settings
 	if ($debug) {
 		$value = str_replace("| ", "|", $value);
 		$value = str_replace("( ", "(", $value);
@@ -491,6 +517,13 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 				$value = substr($value, 0, $temp);
 		}
 	}
+	
+	// printing the footer
+	while ($l++ <= 12) {
+		echo $br;
+	}
+	echo "</table>\n<br>\n<div class=\"footer\">Aktualisiert am: " . date('j') . "." . date('m') . "." . date('y')
+	. " " . date('H') . ":" . date('i') . "</div>";
 	echo "<div class=\"footer\">KEINE GEW&Auml;HR<br>\nJahrgangsstufe/Klasse: $value</div>\n";
 	echo "<form method=\"post\" action=\"" . htmlspecialchars($_SERVER["REQUEST_URI"]) . "\">";
 	echo "<input type=\"submit\" name=\"submit\" value=\"$dc\">";
@@ -584,7 +617,9 @@ if ($flagg == 0 && ($_SERVER["REQUEST_METHOD"] == "POST" || (isset($_COOKIE['k']
 	} else {
 		echo "<br><input type=\"submit\" name=\"submit\" value=\"senden\"><br>\n";
 	}
-	if (strpos($_SESSION['uinfo'], "?m") !== False) echo "<br>\n";
+	if (strpos($_SERVER["QUERY_STRING"], "iframe") === false) {
+		if (strpos($_SESSION['uinfo'], "?m") !== False) echo "<br>\n";
+	}
 	
 	echo "\n<table id=\"12_table\">$br<tr><td>Kurse der Q1 und Q2: </td>" . $td . "</tr>\n<tr>";
 	$n = 0;	
