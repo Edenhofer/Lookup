@@ -69,10 +69,10 @@ $br = "\n<tr><td>&nbsp;</td>" . $td . "</tr>\n";
 
 // Kurse der 12. Klasse (Beginnende Q-Phase)
 $kurse_q = array(
-	'Bio_14\/5' => "Bio bei Frau S.",
-	'Bio_14\/6' => "Bio bei Frau N.",
-	'Bio_14\/1' => "Bio LK bei Herrn G.",
-	'Bio_14\/2' => "Bio LK bei Herrn H.",
+	'B_14\/5' => "Bio bei Frau S.",
+	'B_14\/6' => "Bio bei Frau N.",
+	'B_14\/1' => "Bio LK bei Herrn G.",
+	'B_14\/2' => "Bio LK bei Herrn H.",
 	'Ch_14\/5' => "Chemie bei Frau S.",
 	'Ch_14\/6' => "Chemie bei Herrn S. [CH06]",
 	'Ch_14\/7' => "Chemie bei Herrn S. [CH07]",
@@ -134,10 +134,10 @@ $kurse_q = array(
 	
 // Kurse der 13. Klasse (Abschlussklasse)
 $kurse_a = array(
-	'Bio_13\/5' => "Bio bei Frau S.",
-	'Bio_13\/6' => "Bio bei Frau N.",
-	'Bio_13\/1' => "Bio LK bei G.",
-	'Bio_13\/2' => "Bio LK bei Herrn H.",
+	'B_13\/5' => "Bio bei Frau S.",
+	'B_13\/6' => "Bio bei Frau N.",
+	'B_13\/1' => "Bio LK bei G.",
+	'B_13\/2' => "Bio LK bei Herrn H.",
 	'Ch_13\/5' => "Chemie bei Frau S.",
 	'Ch_13\/7' => "Chemie bei Herrn S.",
 	'Ch_13\/1' => "Chemie LK bei Frau M.",
