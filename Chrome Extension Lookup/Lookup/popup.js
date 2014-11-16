@@ -225,9 +225,11 @@ function archlinux() {
 
 // Function for Google Translate
 function g_translate() {
-	/* Funktioniert leider nur in der Theorie.
-	Der Source Code, den Google einen schickt ist ein anderer als,
-	der, der ein normaler Nutzer bekommt. !!!!!!!!!!!!!!!*/
+	/*
+	Works only in theory. The source code which is send to an
+	ordinary user by Google differs from that which this
+	extension receives by getting the code from Google.
+	*/
 	begin = data.search(/<span id=result_box/i);
 	
 	if (begin != -1) {
@@ -279,7 +281,6 @@ function dict() {
 
 // The main search function
 function query_search() {
-	event.preventDefault();
 	var current_url = "";
 	
 	// Getting the input
@@ -339,7 +340,7 @@ function query_search() {
 				document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
 					+ query.replace("\"", "%22") + "\" target=\"_blank\">Google for \"" + temp + "\"</a></p>";
 				
-				// Set  what to display
+				// Set what to display
 				document.getElementById("loading").style.display="none";
 				document.getElementById("noresult").style.display="inline";
 			}			
@@ -351,8 +352,18 @@ function query_search() {
 
 // Adding some EventListeners and one starup function (init())
 window.addEventListener('load', function(evt) {
+	// Opening options page
+	document.getElementById('options_page').addEventListener('click', function open_options_page() {
+		window.open(chrome.extension.getURL("options.html"));
+	});
+
 	init();
 	document.getElementById('grounding').addEventListener('change', switcher_grounding);
 	document.getElementById('input_language').addEventListener('change', switcher_input_language);
-	document.getElementById('search').addEventListener('submit', query_search);
+	
+	// Prevent the page from reloading after the submit button is triggered
+	document.getElementById('search').addEventListener('submit', function query_search_with_preventDefault() {
+		event.preventDefault();
+		query_search();
+	});
 });
