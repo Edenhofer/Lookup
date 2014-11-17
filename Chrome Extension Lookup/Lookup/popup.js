@@ -141,9 +141,10 @@ function switcher_input_language() {
 
 // Function for Wikipedia specific queries
 function wikipedia() {
+	// Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
+	query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") - 12);
+	
 	begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
-	// old version with error on "Deutschland"
-	//begin = data.search(new RegExp("<p>[^<]*(<i>|)<b>" + query, "i"));
 	
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
