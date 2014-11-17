@@ -55,6 +55,9 @@ function init() {
 			}
 		}
 		
+		// Not displaying "input_language" by default
+		document.getElementById("input_language").style.display = 'none';
+		
 		// Putting together the first part of the url containing the language and grounding
 		if (grounding == "wikipedia") url = "http://" + language + ".wikipedia.org/wiki/";
 		else if (grounding == "ger_d") url = "http://www.duden.de/rechtschreibung/";
@@ -71,6 +74,11 @@ function init() {
 				if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) url = "http://www.dict.cc/?s=";
 				else if (input_language == language) url = "";
 				else url = "http://" + language + input_language + ".dict.cc/?s=";
+				
+				// Setting up switcher_input_language
+				document.getElementById("input_language").style.display = 'inline';
+				// Suppressing the currently selected language as an displayed option of the switcher_input_language
+				document.getElementById("input_language_" + language).style.display = 'none';
 			} else url = "";
 		} else {
 			url = "";
@@ -97,7 +105,6 @@ function init() {
 			else document.getElementById("input_language").style.display = 'none';
 		} else {
 			document.getElementById("grounding").style.display = 'none';
-			document.getElementById("input_language").style.display = 'none';
 			document.getElementById("icon").style.display = 'inline';
 		}
 	});
@@ -110,7 +117,7 @@ function init() {
 				document.getElementById("query").value = result[0];
 				query = result[0];
 				
-				// Search directly after the button click (not working!!!!!!!!!)
+				// Search directly after the button click
 				query_search();
 			}
 	});
@@ -137,7 +144,9 @@ function switcher_input_language() {
 
 // Function for Wikipedia specific queries
 function wikipedia() {
-	begin = data.search(new RegExp("<p>[^<]*(<i>|)<b>" + query, "i"));
+	begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+	// old version with error on "Deutschland"
+	//begin = data.search(new RegExp("<p>[^<]*(<i>|)<b>" + query, "i"));
 	
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
@@ -224,7 +233,7 @@ function archlinux() {
 }
 
 // Function for Google Translate
-function g_translate() {
+function google_translate() {
 	/*
 	Works only in theory. The source code which is send to an
 	ordinary user by Google differs from that which this
@@ -297,7 +306,7 @@ function query_search() {
 	
 	// The Url is set in the init() function
 	current_url = url + query;
-	//alert(current_url);
+	//alert(current_url + " - with 'query' having a length of " + query.length);
 	
 	// Filling the loading div with text
 	document.getElementById("loading").innerHTML = "<p>Searching...<\p>";
@@ -316,7 +325,7 @@ function query_search() {
 			// Deleting unneccessary spaces
 			data = data.trim();
 			
-			//alert(data);
+			// alert(data);
 			if (eval(grounding+"()") == 0) {			
 				// Trimming the output to not exceed the maximum length
 				if (data.length >= max_output_length) {

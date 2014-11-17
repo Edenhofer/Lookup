@@ -87,7 +87,7 @@ function init() {
 	
 	// Getting and restoring the input_language
 	chrome.storage.sync.get('input_language', function (result) {
-		if (chrome.runtime.lastError || typeof result.input_language === 'undefined') input_language = "en";
+		if (chrome.runtime.lastError || typeof result.input_language === 'undefined') input_language = "de";
 		else input_language = result.input_language;
 		
 		// Preselecting the saved input_language
@@ -106,7 +106,7 @@ function init() {
 	
 	// Getting and restoring the switcher_grounding
 	chrome.storage.sync.get('switcher_grounding', function (result) {
-		if (chrome.runtime.lastError || typeof result.switcher_grounding === 'undefined') switcher_grounding = false;
+		if (chrome.runtime.lastError || typeof result.switcher_grounding === 'undefined') switcher_grounding = true;
 		else switcher_grounding = result.switcher_grounding;
 		
 		// Preselecting the saved switcher_grounding
