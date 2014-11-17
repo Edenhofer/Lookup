@@ -17,6 +17,12 @@ function init() {
 		// Getting the switcher_grounding
 		if (chrome.runtime.lastError || result.switcher_grounding === undefined) switcher_grounding = true;
 		else switcher_grounding = result.switcher_grounding;
+		
+		/*
+		HTML elements are triggered later because the
+		grounding is needed for setting the icon
+		if 'switcher_grounding' == false
+		*/
 	});
 	
 	chrome.storage.sync.get('language', function (result) {
@@ -86,24 +92,15 @@ function init() {
 			return;
 		}
 		
-		// Setting the icon
-		if (grounding != "") {
-			document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/" + grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
-		}
-		
 		// Setting up the quick grounding switcher
 		if (switcher_grounding === true) {
 			document.getElementById("grounding").style.display = 'inline';
 			document.getElementById("icon").style.display = 'none';
-			
-			// Setting up switcher_input_language
-			if (grounding == "dict") {
-				document.getElementById("input_language").style.display = 'inline';
-				// Suppressing the currently selected language as an displayed option of the switcher_input_language
-				document.getElementById("input_language_" + language).style.display = 'none';
-			}
-			else document.getElementById("input_language").style.display = 'none';
 		} else {
+			// Setting the icon
+			document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
+				+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+		
 			document.getElementById("grounding").style.display = 'none';
 			document.getElementById("icon").style.display = 'inline';
 		}
@@ -153,12 +150,19 @@ function wikipedia() {
 				
 		// Checking for a list of options
 		if (data.slice(end - 1, end) == ":") {
-			// End is where the second checkpoint ends
-			end = data.indexOf("</li>", data.indexOf("</li>", begin) + 5);
+			temp = data.slice(begin);
 			data = data.slice(begin, end);
+			
+			// The end is where the second </li> closes
+			data += temp.slice(temp.indexOf("<li>"), temp.indexOf("</li>", temp.indexOf("<li>")) + 5);
+			temp = temp.slice(temp.indexOf("</li>", temp.indexOf("<li>")) + 5);
+			data += temp.slice(temp.indexOf("<li>"), temp.indexOf("</li>", temp.indexOf("<li>")) + 5);
+			
 			data = data.replace(/<li>/ig, "gorditemp01");
 			data = data.replace(/<\/li>/ig, "gorditemp02");
 			data += "gorditemp03";
+			
+			temp = "";
 		} else data = data.slice(begin, end);
 		
 		// Replacing anything html with nothing
