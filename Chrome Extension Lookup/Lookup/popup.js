@@ -1,7 +1,9 @@
 // Setting up the variables
 var query = "";
 var language = "";
+var input_language = "";
 var grounding = "";
+var switcher_grounding = true;
 var url = "";
 var max_output_length = 540;
 var data = "";
@@ -19,7 +21,7 @@ function init() {
 
 		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
 		else document.getElementById("ger_d").style.display = 'none';
-	});
+  });
 
 	chrome.storage.sync.get('input_language', function (result) {
 		// Getting the input_language
@@ -33,7 +35,7 @@ function init() {
 				break;
 			}
 		}
-	});
+  });
 
 	chrome.storage.sync.get('grounding', function (result) {
 		// Getting the grounding
@@ -78,26 +80,26 @@ function init() {
 			grounding = "";
 			return;
 		}
-
-    chrome.storage.sync.get('switcher_grounding', function (result) {
-		// Getting the switcher_grounding
-	  	if (chrome.runtime.lastError || result.switcher_grounding === undefined) switcher_grounding = true;
-	  	else switcher_grounding = result.switcher_grounding;
-
-	  	// Setting up the quick grounding switcher
-	  	if (switcher_grounding === true) {
-	  		document.getElementById("grounding").style.display = 'inline';
-	  		document.getElementById("icon").style.display = 'none';
-	  	} else {
-	  		// Setting the icon
-	  		document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
-	  			+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
-
-  			document.getElementById("grounding").style.display = 'none';
-  			document.getElementById("icon").style.display = 'inline';
-  		}
-  	});
 	});
+
+	chrome.storage.sync.get('switcher_grounding', function (result) {
+	// Getting the switcher_grounding
+	 	if (chrome.runtime.lastError || result.switcher_grounding === undefined) switcher_grounding = true;
+	 	else switcher_grounding = result.switcher_grounding;
+
+	  // Setting up the quick grounding switcher
+  	if (switcher_grounding === true) {
+  		document.getElementById("grounding").style.display = 'inline';
+  		document.getElementById("icon").style.display = 'none';
+  	} else {
+  		// Setting the icon
+  		document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
+  			+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+
+  		document.getElementById("grounding").style.display = 'none';
+			document.getElementById("icon").style.display = 'inline';
+		}
+  });
 }
 
 // Function for quickly switching the grounding
@@ -131,7 +133,7 @@ function wikipedia() {
     temp += ".";
     data = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3);
     begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
-    if (temp.length >= 3) return -1;
+    if (begin == -1 && temp.length >= 2) return -1;
   }
   temp = "";
 
@@ -397,6 +399,9 @@ window.addEventListener('load', function(evt) {
 			if (!chrome.runtime.lastError || result !== undefined) {
 				document.getElementById("query").value = result[0];
 				query = result[0];
+
+        // Debug code!!!!!!!!!!!!!!!!!
+        alert("Copying from selection");
 
 				// Search directly after the button click
 				query_search();
