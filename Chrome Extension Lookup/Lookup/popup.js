@@ -14,7 +14,7 @@ function init() {
 // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
 	chrome.storage.sync.get('language', function (result) {
 		// Getting the language
-		if (chrome.runtime.lastError || typeof result.language === 'undefined') language = "en";
+		if (chrome.runtime.lastError || typeof result.language === undefined) language = "en";
 		else language = result.language;
 
 		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
@@ -23,7 +23,7 @@ function init() {
 
 	chrome.storage.sync.get('input_language', function (result) {
 		// Getting the input_language
-		if (chrome.runtime.lastError || typeof result.input_language === 'undefined') input_language = "de";
+		if (chrome.runtime.lastError || typeof result.input_language === undefined) input_language = "de";
 		else input_language = result.input_language;
 
 		// Preselecting the saved input_language
@@ -37,7 +37,7 @@ function init() {
 
 	chrome.storage.sync.get('grounding', function (result) {
 		// Getting the grounding
-		if (chrome.runtime.lastError || typeof result.grounding === 'undefined') grounding = "wikipedia";
+		if (chrome.runtime.lastError || typeof result.grounding === undefined) grounding = "wikipedia";
 		else grounding = result.grounding;
 
 		// Preselecting the saved grounding
@@ -81,7 +81,7 @@ function init() {
 
     chrome.storage.sync.get('switcher_grounding', function (result) {
 		// Getting the switcher_grounding
-	  	if (chrome.runtime.lastError || result.switcher_grounding === 'undefined') switcher_grounding = true;
+	  	if (chrome.runtime.lastError || result.switcher_grounding === undefined) switcher_grounding = true;
 	  	else switcher_grounding = result.switcher_grounding;
 
 	  	// Setting up the quick grounding switcher
@@ -97,7 +97,6 @@ function init() {
   			document.getElementById("icon").style.display = 'inline';
   		}
   	});
-
 	});
 }
 
