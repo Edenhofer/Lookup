@@ -1,4 +1,3 @@
-/* IS NOT WORKING WITH ÖÄÜ!!!!!!!!!!!!!!!!!!!!!! (current_url is correct) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 // Setting up the variables
 var query = "";
 var language = "";
@@ -12,19 +11,7 @@ var end = -1;
 
 // On page load function
 function init() {
-	// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
-	chrome.storage.sync.get('switcher_grounding', function (result) {
-		// Getting the switcher_grounding
-		if (chrome.runtime.lastError || result.switcher_grounding === 'undefined') switcher_grounding = true;
-		else switcher_grounding = result.switcher_grounding;
-
-		/*
-		HTML elements are triggered later because the
-		grounding is needed for setting the icon
-		if 'switcher_grounding' == false
-		*/
-	});
-
+// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
 	chrome.storage.sync.get('language', function (result) {
 		// Getting the language
 		if (chrome.runtime.lastError || typeof result.language === 'undefined') language = "en";
@@ -92,18 +79,25 @@ function init() {
 			return;
 		}
 
-		// Setting up the quick grounding switcher
-		if (switcher_grounding === true) {
-			document.getElementById("grounding").style.display = 'inline';
-			document.getElementById("icon").style.display = 'none';
-		} else {
-			// Setting the icon
-			document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
-				+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+    chrome.storage.sync.get('switcher_grounding', function (result) {
+		// Getting the switcher_grounding
+	  	if (chrome.runtime.lastError || result.switcher_grounding === 'undefined') switcher_grounding = true;
+	  	else switcher_grounding = result.switcher_grounding;
 
-			document.getElementById("grounding").style.display = 'none';
-			document.getElementById("icon").style.display = 'inline';
-		}
+	  	// Setting up the quick grounding switcher
+	  	if (switcher_grounding === true) {
+	  		document.getElementById("grounding").style.display = 'inline';
+	  		document.getElementById("icon").style.display = 'none';
+	  	} else {
+	  		// Setting the icon
+	  		document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
+	  			+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+
+  			document.getElementById("grounding").style.display = 'none';
+  			document.getElementById("icon").style.display = 'inline';
+  		}
+  	});
+
 	});
 }
 
@@ -129,28 +123,18 @@ function switcher_input_language() {
 // Function for Wikipedia specific queries
 function wikipedia() {
 	// Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
-	temp = query;
 	query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
 
   // Searching for the beginning "<p>"
-  begin = data.indexOf("<p>");
-  if (data.slice(begin + 3).search(new RegExp("<b>" + query, "i"))) {
-  // Check whether there is a wiki entry or not, if not break
-    query = temp;
-    return -1;
-  } else {
-    temp = "";
+  temp = "";
+  begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+  while (begin == -1) {
+    temp += ".";
+    data = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3);
+    begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+    if (temp.length >= 3) return -1;
   }
-  if (data.slice(begin + 3).search(new RegExp("<b>" + query, "i")) > data.slice(begin + 3).indexOf("<p>")) {
-    data = "ERROR CODE WIKI_NO_START_FF01";
-    /*
-	  begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
-	  if (begin == -1) {
-    begin = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3).data.search(new RegExp("<b>" + query, "i")).lastIndexOf("<p>");
-	  }
-	  */
-    return 0;
-  }
+  temp = "";
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
