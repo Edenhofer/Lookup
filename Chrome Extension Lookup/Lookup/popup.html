@@ -1,20 +1,11 @@
-<!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
--->
-
 <!doctype html>
 <html>
 <script	src="popup.js"></script>
 <head>
 <title>Look Up</title>
+<link rel="stylesheet" href="styles.css">
 <style>
-	* {
-		font-family: Arial, Helvetica, sans-serif;
-	}
-	span.tab{
+	span.tab {
 		padding: 0.7em;
 	}
 	#loading {
@@ -43,8 +34,8 @@
 		color: #999999;
 	}
 	body {
-		min-width: 375px;
-		min-height: 75px;
+		min-width: 32em;
+		min-height: 6em;
 	}
 	td {
 		padding-left: .5em;
@@ -59,11 +50,10 @@
 		text-decoration: underline;
 	}
 	input[type=text] {
-		min-width: 250px;
+		min-width: 19em;
 	}
 	input[type=submit] {
-		width: 75px;
-		height: 27px;
+		height: 2em;
 		background-color: #4488ee;
 		color: #f2f2f2;
 		border: 0px solid;
@@ -85,10 +75,10 @@
 <body>
 	<form id="search">
 		<input type="text" id="query" name="input" autofocus="autofocus">
-		<!--<span class="tab"></span>-->
-		<input type="submit" value="submit">
+		<span style="padding: 0.4em;"></span>
+		<input type="submit" value="&nbsp;&nbsp;submit&nbsp;&nbsp;">
 	</form>
-	
+
 	<div id="loading"></div>
 	<div id="output"></div>
 	<div id="noresult"></div>
