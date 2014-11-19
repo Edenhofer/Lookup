@@ -1,3 +1,8 @@
+/*
+  Be aware of that slicing data (str.slice) with one arguemente actualĺy not being found
+  than slice will still work, because the not found arguements equales -1!!
+*/
+
 // Setting up the variables
 var query = "";
 var language = "";
@@ -9,7 +14,6 @@ var url = "";
 var max_output_length = 540;
 var data = "";
 var temp = "";
-var result = "";
 var begin = -1;
 var end = -1;
 
@@ -123,14 +127,16 @@ function wikipedia() {
 
   // Searching for the beginning "<p>"
   temp = "";
-  begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
-  while (begin == -1) {
-    temp += ".";
-    data = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3);
-    begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
-    if (begin == -1 && temp.length >= 2) return -1;
-  }
-  temp = "";
+  if (data.search(new RegExp("<b>" + query, "i")) != -1) {
+      begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+    while (begin == -1) {
+      temp += ".";
+      data = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3);
+      begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+      if (begin == -1 && temp.length >= 2) break;
+    }
+    temp = "";
+  } else begin = -1;
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
