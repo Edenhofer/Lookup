@@ -192,17 +192,21 @@ function archlinux() {
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
 		temp = data.slice(begin, end);
+		// If the article is to short it is probabaly a quotation, then things have to handled differently
 		if (temp.replace(/(<([^>]+)>)/ig, "").length < 50) {
+		  data = data.slice(end + 4);
+		  begin = data.indexOf("<p>");
+		  // Searching for the second closing "</p>"
 			end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
 			if (data.indexOf("<div", data.indexOf("</p>", begin) + 4) < end) end = data.indexOf("<div", data.indexOf("</p>", begin));
+
+      data = data.slice(begin, end);
 
 			// Saving the cursive writing
 			data = data.replace(/<i>/ig, "gorditemp01");
 			data = data.replace(/<\/i>/ig, "gorditemp02");
-
-			data = data.slice(begin, end);
 		}
-		else data = temp
+		else data = temp;
 
 		// Replacing anything html with nothing
 		data = data.replace(/(<([^>]+)>)/ig, "");
@@ -340,7 +344,7 @@ function query_search() {
 
 			if (eval(grounding+"()") == 0) {
 				// Trimming the output to not exceed the maximum length
-				if (data.length >= max_output_length) {
+				if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
 					data = data.slice(0, max_output_length);
 					data = data.slice(0, data.lastIndexOf(" "))+ "...";
 				}
