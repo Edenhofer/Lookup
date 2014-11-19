@@ -3,30 +3,42 @@ var query = "";
 var language = "";
 var input_language = "";
 var grounding = "";
-var switcher_grounding = true;
+var switcher_grounding;
+var saves = ["language", "input_language", "grounding", "switcher_grounding"];
 var url = "";
 var max_output_length = 540;
 var data = "";
 var temp = "";
+var result = "";
 var begin = -1;
 var end = -1;
 
 // On page load function
 function init() {
 // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
-	chrome.storage.sync.get('language', function (result) {
+	chrome.storage.sync.get(saves, function (result) {
+	  if (chrome.runtime.lasError || !result) {
+	    alert("Runtime Error, code:FF9932");
+	  }
 		// Getting the language
-		if (chrome.runtime.lastError || typeof result.language === undefined) language = "en";
+		if (!result.language) language = "en";
 		else language = result.language;
+		// Getting the input_language
+		if (!result.input_language) input_language = "de";
+		else input_language = result.input_language;
+		// Getting the grounding
+		if (!result.grounding) grounding = "wikipedia";
+		else grounding = result.grounding;
+		// Getting the switcher_grounding
+  	if (!result.switcher_grounding) switcher_grounding = true;
+  	else switcher_grounding = result.switcher_grounding;
 
+		// Not displaying "input_language" by default
+		document.getElementById("input_language").style.display = 'none';
+
+		// If language is de make the german duden available
 		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
 		else document.getElementById("ger_d").style.display = 'none';
-  });
-
-	chrome.storage.sync.get('input_language', function (result) {
-		// Getting the input_language
-		if (chrome.runtime.lastError || typeof result.input_language === undefined) input_language = "de";
-		else input_language = result.input_language;
 
 		// Preselecting the saved input_language
 		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
@@ -35,12 +47,6 @@ function init() {
 				break;
 			}
 		}
-  });
-
-	chrome.storage.sync.get('grounding', function (result) {
-		// Getting the grounding
-		if (chrome.runtime.lastError || typeof result.grounding === undefined) grounding = "wikipedia";
-		else grounding = result.grounding;
 
 		// Preselecting the saved grounding
 		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
@@ -49,9 +55,6 @@ function init() {
 				break;
 			}
 		}
-
-		// Not displaying "input_language" by default
-		document.getElementById("input_language").style.display = 'none';
 
 		// Putting together the first part of the url containing the language and grounding
 		if (grounding == "wikipedia") url = "http://" + language + ".wikipedia.org/wiki/";
@@ -69,46 +72,38 @@ function init() {
 				if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) url = "http://www.dict.cc/?s=";
 				else if (input_language == language) url = "";
 				else url = "http://" + language + input_language + ".dict.cc/?s=";
-
-				// Setting up switcher_input_language
-				document.getElementById("input_language").style.display = 'inline';
-				// Suppressing the currently selected language as an displayed option of the switcher_input_language
-				document.getElementById("input_language_" + language).style.display = 'none';
 			} else url = "";
+
+			// Setting up switcher_input_language
+			document.getElementById("input_language").style.display = 'inline';
+			// Suppressing the currently selected language as an displayed option of the switcher_input_language
+			document.getElementById("input_language_" + language).style.display = 'none';
 		} else {
 			url = "";
 			grounding = "";
 			return;
 		}
-	});
 
-	chrome.storage.sync.get('switcher_grounding', function (result) {
-	// Getting the switcher_grounding
-	 	if (chrome.runtime.lastError || result.switcher_grounding === undefined) switcher_grounding = true;
-	 	else switcher_grounding = result.switcher_grounding;
-
-	  // Setting up the quick grounding switcher
+    // Setting up the quick grounding switcher
   	if (switcher_grounding === true) {
-  		document.getElementById("grounding").style.display = 'inline';
+    	document.getElementById("grounding").style.display = 'inline';
   		document.getElementById("icon").style.display = 'none';
   	} else {
   		// Setting the icon
   		document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
   			+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
-
-  		document.getElementById("grounding").style.display = 'none';
-			document.getElementById("icon").style.display = 'inline';
-		}
+    		document.getElementById("grounding").style.display = 'none';
+  		document.getElementById("icon").style.display = 'inline';
+  	}
   });
+
+  result = "";
 }
 
 // Function for quickly switching the grounding
 function switcher_grounding() {
 	grounding = document.getElementById("grounding").value;
 	chrome.storage.sync.set({'grounding': grounding});
-
-	if (grounding == "dict") document.getElementById("input_language").style.display = 'inline';
-	else document.getElementById("input_language").style.display = 'none';
 
 	init();
 }
@@ -349,7 +344,6 @@ function query_search() {
 			// Deleting unneccessary spaces
 			data = data.trim();
 
-			//alert(current_url + "|" + query.length + "|" + data);
 			if (eval(grounding+"()") == 0) {
 				// Trimming the output to not exceed the maximum length
 				if (data.length >= max_output_length) {

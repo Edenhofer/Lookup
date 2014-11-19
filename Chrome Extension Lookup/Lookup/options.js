@@ -32,7 +32,9 @@ function save_options() {
 	var switcher_grounding = document.getElementById("switcher_grounding").checked;
 
 	// Saving the selected options
-	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'input_language': input_language, 'switcher_grounding': switcher_grounding});
+	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'input_language': input_language, 'switcher_grounding': switcher_grounding}, function() {
+		if (chrome.runtime.error) console.log("Runtime error.");
+  });
 
 	// Displaying a message for a fixed time
 	document.getElementById("status").innerHTML = "Settings saved.";
