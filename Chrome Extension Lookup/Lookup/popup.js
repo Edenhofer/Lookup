@@ -185,17 +185,11 @@ function ger_d() {
 
 // Function for Arch Linux queries
 function archlinux() {
-	begin = data.toLowerCase().indexOf("<!-- start content -->");
-	if (data.toLowerCase().indexOf("<div class=\"noarticletext\">", begin) != -1) begin = -1;
-	else begin = data.toLowerCase().indexOf("</div>", begin);
+  // No-Article site
+  if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
+	else begin = data.indexOf("<p>", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i")));
 
 	if (begin != -1) {
-		// German Arch Linux wiki entrys starts on the third "</div>"
-		if (language == "de/title") {
-			begin = data.toLowerCase().indexOf("</div>", begin + 6);
-			begin = data.toLowerCase().indexOf("</div>", begin + 6);
-		}
-
 		end = data.indexOf("</p>", begin);
 		temp = data.slice(begin, end);
 		if (temp.replace(/(<([^>]+)>)/ig, "").length < 50) {
@@ -393,9 +387,6 @@ window.addEventListener('load', function(evt) {
 			if (!chrome.runtime.lastError || result !== undefined) {
 				document.getElementById("query").value = result[0];
 				query = result[0];
-
-        // Debug code!!!!!!!!!!!!!!!!!
-        alert("Copying from selection");
 
 				// Search directly after the button click
 				query_search();

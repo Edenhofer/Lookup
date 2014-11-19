@@ -1,4 +1,4 @@
-// Modified version of http://stackoverflow.com/questions/13804213/how-can-i-capture-events-triggered-on-an-extension-icon
+/* Modified version of http://stackoverflow.com/questions/13804213/how-can-i-capture-events-triggered-on-an-extension-icon
 // Set click to false at beginning
 var alreadyClicked = false;
 // Declare a timer variable
@@ -14,7 +14,7 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 
 		// Doubleclick DO STH:
 		alert("Doubleclick");
-		
+
 		// Clear all Clicks
 		alreadyClicked = false;
 		return;
@@ -37,3 +37,4 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 		alreadyClicked = false;
 	}, 250);
 });
+*/
