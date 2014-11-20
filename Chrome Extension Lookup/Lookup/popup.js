@@ -127,16 +127,14 @@ function wikipedia() {
 
   // Searching for the beginning "<p>"
   temp = "";
-  if (data.search(new RegExp("<b>" + query, "i")) != -1) {
-      begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
-    while (begin == -1) {
-      temp += ".";
-      data = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3);
-      begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
-      if (begin == -1 && temp.length >= 2) break;
-    }
-    temp = "";
-  } else begin = -1;
+  if (data.search(new RegExp("<b>" + query, "i")) != -1) begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+  while (begin == -1) {
+    temp += ".";
+    if (data.search(new RegExp("<b>" + query, "i")) != -1) data = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3);
+    if (data.search(new RegExp("<b>" + query, "i")) != -1) begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+    if (begin == -1 && temp.length >= 2) break;
+  }
+  temp = "";
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
@@ -383,6 +381,7 @@ function query_search() {
 
 // Adding some EventListeners, one starup function [init()] and the "get selection to query" function
 window.addEventListener('load', function(evt) {
+  document.getElementById('options_page').innerHTML = "<a href=\"" + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 	// Opening options page
 	document.getElementById('options_page').addEventListener('click', function open_options_page() {
 		window.open(chrome.extension.getURL("options.html"));
