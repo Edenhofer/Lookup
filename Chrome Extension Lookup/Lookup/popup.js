@@ -3,29 +3,25 @@
   than slice will still work, because the not found arguements equales -1!!
 
   SNIPPETS FOR LATER:
-  for (var i = 0; i < search_engines.length; i++) {
-    if (search_engines[i] == 0) break;
-  }
 */
 
-// Setting up the variables
-var query = "";
+// Setting up some global variables
 var language = "";
 var input_language = "";
-var grounding = "";
-var switcher_grounding;
-var saves = ["language", "input_language", "grounding", "switcher_grounding"];
+var query = "";
 var search_engines;
-var url = "";
 var max_output_length = 540;
 var data = "";
-var temp = "";
-var begin = -1;
-var end = -1;
 
 // On page load function
 function init() {
-// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
+  var grounding = "";
+  var switcher_grounding;
+  var switcher_ranked = true;
+  var saves = ["language", "input_language", "grounding", "switcher_grounding"];
+  var tmp = "";
+
+  // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
 	chrome.storage.sync.get(saves, function (result) {
 	  if (chrome.runtime.lasError || !result) {
 	    alert("Runtime Error, code:FF9932");
@@ -43,18 +39,13 @@ function init() {
   	if (!result.switcher_grounding) switcher_grounding = true;
   	else switcher_grounding = result.switcher_grounding;
 
-    // Defining the search_engines
-    if (language == "en") search_engines = ["wikipedia", "dict"];
-    if (language == "de") search_engines = ["ger_d", "wikipedia", "dict"];
-    // If no valid language is detected, than the english style will be used
-    else search_engines = ["wikipedia", "dict"];
+    switcher_grounding = false;
+    document.getElementById("grounding").style.display = 'none';
 
-		// Not displaying "input_language" by default
-		document.getElementById("input_language").style.display = 'none';
-
-		// If language is de make the german duden available
-		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
-		else document.getElementById("ger_d").style.display = 'none';
+    // Setting up switcher_input_language
+		document.getElementById("input_language").style.display = 'inline';
+		// Suppressing the currently selected language as an displayed option of the switcher_input_language
+		document.getElementById("input_language_" + language).style.display = 'none';
 
 		// Preselecting the saved input_language
 		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
@@ -64,55 +55,27 @@ function init() {
 			}
 		}
 
-		// Preselecting the saved grounding
-		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
-			if (document.getElementById("grounding").options[i].value == grounding) {
-				document.getElementById("grounding").options[i].selected = true;
-				break;
-			}
+		// Assembling the corresponding URLs
+		wikipedia_url = "http://" + language + ".wikipedia.org/wiki/";
+		duden_url = "http://www.duden.de/rechtschreibung/";
+		if (language == "de") tmp = "de/title";
+		// The last option must be "en"
+		else tmp = "org/index.php";
+		archlinux_url = "https://wiki.archlinux." + tmp + "/";
+		google_translate_url = "https://translate.google.de/#auto/" + language + "/";
+		if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) dict_url = "http://www.dict.cc/?s=";
+		else if (input_language == language) {
+		  dict_url = "";
+		  document.getElementbyId('tip').innerHTML = "<i><p>Tip: Change the input language for the dictionary.</p></i>"
 		}
+		else dict_url = "http://" + language + input_language + ".dict.cc/?s=";
 
-		// Putting together the first part of the url containing the language and grounding
-		if (grounding == "wikipedia") url = "http://" + language + ".wikipedia.org/wiki/";
-		else if (grounding == "ger_d") url = "http://www.duden.de/rechtschreibung/";
-		else if (grounding == "archlinux") {
-			if (language == "de") language = "de/title";
-			// The last option must be "en"
-			else language = "org/index.php";
-			url = "https://wiki.archlinux." + language + "/";
-		}
-		else if (grounding == "google_translate") url = "https://translate.google.de/#auto/" + language + "/";
-		else if (grounding == "dict") {
-			// Dict.cc only works with english and german
-			if (language == "de" || language == "en") {
-				if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) url = "http://www.dict.cc/?s=";
-				else if (input_language == language) url = "";
-				else url = "http://" + language + input_language + ".dict.cc/?s=";
-			} else url = "";
-
-			// Setting up switcher_input_language
-			document.getElementById("input_language").style.display = 'inline';
-			// Suppressing the currently selected language as an displayed option of the switcher_input_language
-			document.getElementById("input_language_" + language).style.display = 'none';
-		} else {
-			url = "";
-			grounding = "";
-			return;
-		}
-
-    // Setting up the quick grounding switcher
-  	if (switcher_grounding === true) {
-    	document.getElementById("grounding").style.display = 'inline';
-  		document.getElementById("icon").style.display = 'none';
-  	} else {
-  		// Setting the icon
-  		document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
-  			+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
-    		document.getElementById("grounding").style.display = 'none';
-  		document.getElementById("icon").style.display = 'inline';
-  	}
+		// Defining the search_engines
+    if (language == "en") search_engines = [["wikipedia",wikipedia_url],["dict",dict_url]];
+    if (language == "de") search_engines = [["duden",duden_url],["wikipedia",wikipedia_url],["dict",dict_url]];
+    // If no valid language is detected, than the english style will be used
+    else search_engines = [["wikipedia",wikipedia_url],["dict",dict_url]];
   });
-
   result = "";
 }
 
@@ -134,6 +97,10 @@ function switcher_input_language() {
 
 // Function for Wikipedia specific queries
 function wikipedia() {
+  var begin = -1;
+  var end = -1;
+  var tmp = "";
+
 	// Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
 	query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
 	// Removing note from the "<title>"-query e.g. "(Begriffserklärung)"
@@ -154,27 +121,27 @@ function wikipedia() {
 
 		// Checking for a list of options
 		if (data.slice(end - 1, end) == ":") {
-			temp = data.slice(begin);
+			tmp = data.slice(begin);
 			data = data.slice(begin, end);
 
 			// The end is where the second </li> closes
-			data += temp.slice(temp.indexOf("<li>"), temp.indexOf("</li>", temp.indexOf("<li>")) + 5);
-			temp = temp.slice(temp.indexOf("</li>", temp.indexOf("<li>")) + 5);
-			data += temp.slice(temp.indexOf("<li>"), temp.indexOf("</li>", temp.indexOf("<li>")) + 5);
+			data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+			tmp = tmp.slice(tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+			data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
 
-			data = data.replace(/<li>/ig, "gorditemp01");
-			data = data.replace(/<\/li>/ig, "gorditemp02");
-			data += "gorditemp03";
+			data = data.replace(/<li>/ig, "gorditmp01");
+			data = data.replace(/<\/li>/ig, "gorditmp02");
+			data += "gorditmp03";
 
-			temp = "";
+			tmp = "";
 		} else data = data.slice(begin, end);
 
 		// Replacing anything html with nothing
 		data = data.replace(/(<([^>]+)>)/ig, "");
 		data = data.replace(/\[\d+\]/ig, "");
-		data = data.replace(/gorditemp01/ig, "<li>");
-		data = data.replace(/gorditemp02/ig, "</li>");
-		data = data.replace(/gorditemp03/ig, "<li>...</li>");
+		data = data.replace(/gorditmp01/ig, "<li>");
+		data = data.replace(/gorditmp02/ig, "</li>");
+		data = data.replace(/gorditmp03/ig, "<li>...</li>");
 
 		return 0;
 	}
@@ -182,7 +149,10 @@ function wikipedia() {
 }
 
 // Function for Duden (german_dictionary) specific queries
-function ger_d() {
+function duden() {
+  var begin = -1;
+  var end = -1;
+
 	begin = data.search(new RegExp("span>Bedeutungen<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")) + 16;
 	if (begin != -1) data = data.slice(begin);
 
@@ -191,9 +161,9 @@ function ger_d() {
 		data = data.slice(0, end);
 
 		// Replacing anything html with nothing
-		data = data.replace(/<span class="content">/ig, "gorditemp");
+		data = data.replace(/<span class="content">/ig, "gorditmp");
 		data = data.replace(/(<([^>]+)>)/ig, "");
-		data = data.replace(/gorditemp/ig, "<p></p> -");
+		data = data.replace(/gorditmp/ig, "<p></p> -");
 
 		return 0;
 	}
@@ -202,15 +172,19 @@ function ger_d() {
 
 // Function for Arch Linux queries
 function archlinux() {
+  var begin = -1;
+  var end = -1;
+  var temp = "";
+
   // No-Article site
   if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
 	else begin = data.indexOf("<p>", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i")));
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
-		temp = data.slice(begin, end);
+		tmp = data.slice(begin, end);
 		// If the article is to short it is probabaly a quotation, then things have to handled differently
-		if (temp.replace(/(<([^>]+)>)/ig, "").length < 50) {
+		if (tmp.replace(/(<([^>]+)>)/ig, "").length < 50) {
 		  data = data.slice(end + 4);
 		  begin = data.indexOf("<p>");
 		  // Searching for the second closing "</p>"
@@ -220,18 +194,18 @@ function archlinux() {
       data = data.slice(begin, end);
 
 			// Saving the cursive writing
-			data = data.replace(/<i>/ig, "gorditemp01");
-			data = data.replace(/<\/i>/ig, "gorditemp02");
+			data = data.replace(/<i>/ig, "gorditmp01");
+			data = data.replace(/<\/i>/ig, "gorditmp02");
 		}
-		else data = temp;
+		else data = tmp;
 
 		// Replacing anything html with nothing
 		data = data.replace(/(<([^>]+)>)/ig, "");
 		data = data.replace(/\[\d+\]/ig, "");
 
 		// Saving the cursive writing
-		data = data.replace(/gorditemp01/ig, "<i>");
-		data = data.replace(/gorditemp02/ig, "</i>");
+		data = data.replace(/gorditmp01/ig, "<i>");
+		data = data.replace(/gorditmp02/ig, "</i>");
 
 		return 0;
 	}
@@ -261,13 +235,17 @@ function google_translate() {
 
 // Function for dict.cc
 function dict() {
+  var begin = -1;
+  var end = -1;
+  var tmp = "";
+
 	begin = data.search(/<tr id='tr1'>/i);
 
 	if (begin != -1) {
 		// Searching for the third ocurrance of "</tr>" or the first of "</table>
 		end = data.indexOf("</tr>", data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5) + 5;
-		temp = data.indexOf("</table>", begin);
-		if (temp < end) end = temp;
+		tmp = data.indexOf("</table>", begin);
+		if (tmp < end) end = tmp;
 
 		data = data.slice(begin, end);
 		data = "<table>" + data + "</table>";
@@ -294,16 +272,12 @@ function dict() {
 	else return -1;
 }
 
-// The main search function
-function query_search() {
-	var current_url = "";
-
-	// Getting the input
+function query_setup() {
+  // Getting the input
 	query = document.getElementById("query").value;
 
 	// Break if there is no input
 	if (query == "") return;
-
   // Replacing special characters in query, this is only neccessary for "dict.cc"
 	// Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
 	var diacriticsMap = [
@@ -336,12 +310,8 @@ function query_search() {
     query = query.replace(diacriticsMap[i].letters, diacriticsMap[i].base);
   }
 
-	// The Url is set in the init() function
-	current_url = url + query;
-
 	// Filling the loading div with text
 	document.getElementById("loading").innerHTML = "<p>Searching...<\p>";
-
 	// Set  what to display
 	document.getElementById("loading").style.display="inline";
 	document.getElementById("output").style.display="none";
@@ -349,53 +319,69 @@ function query_search() {
 	document.getElementById("source").style.display="none";
 	document.getElementById("tip").style.display="none";
 
-	var xmlhttp = new XMLHttpRequest();
-	xmlhttp.onreadystatechange = function() {
-		if (xmlhttp.readyState == 4){
-			data = xmlhttp.responseText;
-			// Deleting unneccessary spaces
-			data = data.trim();
+	return 0;
+}
 
-			if (eval(grounding+"()") == 0) {
-				// Trimming the output to not exceed the maximum length
-				if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-					data = data.slice(0, max_output_length);
-					data = data.slice(0, data.lastIndexOf(" "))+ "...";
-				}
+// The main search function
+function query_search() {
+	var current_url = "";
+	var current_search_engine = "";
+	var tmp = "";
 
-				document.getElementById("output").innerHTML = "<p></p>" + data;
-				document.getElementById("source").innerHTML = "<span class=\"tab\"></span><i><a href=\"" + current_url
-					+ "\" target=\"_blank\">" + current_url + "</a><\i>";
+  query_setup();
 
-				// Set what to display
-				document.getElementById("loading").style.display="none";
-				document.getElementById("output").style.display="inline";
-				document.getElementById("source").style.display="inline";
-			} else {
-			// No Match Case
-				// Presenting a Google-Link to look for results
-				if (query.length > 20) temp = query.slice(0, 20) + "...";
-				else temp = query;
-				document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
-					+ query.replace("\"", "%22") + "\" target=\"_blank\">Google for \"" + temp + "\"</a></p>";
+	for (var i = 0; i < search_engines.length; i++) {
+    // The Url is set in the init() function
+  	current_url = search_engines[i][1] + query;
+  	current_search_engine = search_engines[i][0] + "()";
+  	alert("THIS IS OUTSIDE OF THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
 
-				// Set what to display
-				document.getElementById("loading").style.display="none";
-				document.getElementById("noresult").style.display="inline";
-			}
-		}
-	};
-	xmlhttp.open("GET", current_url, true);
-	xmlhttp.send();
+  	var xmlhttp = new XMLHttpRequest();
+  	xmlhttp.onreadystatechange = function() {
+  		if (xmlhttp.readyState == 4){
+  			data = xmlhttp.responseText;
+  			// Deleting unneccessary spaces
+  			data = data.trim();
+
+  			if (eval(current_search_engine) == 0) {
+  				// Trimming the output to not exceed the maximum length
+  				if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+  					data = data.slice(0, max_output_length);
+  					data = data.slice(0, data.lastIndexOf(" "))+ "...";
+  				}
+
+  				document.getElementById("output").innerHTML = "<p></p>" + data;
+  				document.getElementById("source").innerHTML = "<span class=\"tab\"></span><i><a href=\"" + current_url
+  					+ "\" target=\"_blank\">" + current_url + "</a><\i>";
+
+  				// Set what to display
+  				document.getElementById("loading").style.display="none";
+  				document.getElementById("output").style.display="inline";
+  				document.getElementById("source").style.display="inline";
+  				return 0;
+  			} else if (i == search_engines.length) {
+			    // No Match Case
+			  	// Presenting a Google-Link to look for results
+			  	if (query.length > 20) temp = query.slice(0, 20) + "...";
+			  	else temp = query;
+			  	document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
+			  		+ query.replace("\"", "%22") + "\" target=\"_blank\">Google for \"" + temp + "\"</a></p>";
+
+  				// Set what to display
+  				document.getElementById("loading").style.display="none";
+  				document.getElementById("noresult").style.display="inline";
+  			}
+  			alert("THIS IS IN THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
+  		}
+  	};
+  	xmlhttp.open("GET", current_url, true);
+  	xmlhttp.send();
+  }
 }
 
 // Adding some EventListeners, one starup function [init()] and the "get selection to query" function
 window.addEventListener('load', function(evt) {
   document.getElementById('options_page').innerHTML = "<a href=\"" + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
-	// Opening options page
-	document.getElementById('options_page').addEventListener('click', function open_options_page() {
-		window.open(chrome.extension.getURL("options.html"));
-	});
 
   init();
 
