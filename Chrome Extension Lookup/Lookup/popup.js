@@ -17,15 +17,16 @@ var data = "";
 function init() {
   var grounding = "";
   var switcher_grounding;
-  var switcher_ranked = true;
-  var saves = ["language", "input_language", "grounding", "switcher_grounding"];
+  var switcher_ranked_search;
+  var saves = ["language", "input_language", "grounding", "switcher_grounding", "switcher_ranked_search"];
   var tmp = "";
 
   // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
 	chrome.storage.sync.get(saves, function (result) {
 	  if (chrome.runtime.lasError || !result) {
-	    alert("Runtime Error, code:FF9932");
+	    console.log("Runtime Error, code:FF9932");
 	  }
+	  // The default values are set here!
 		// Getting the language
 		if (!result.language) language = "en";
 		else language = result.language;
@@ -38,22 +39,34 @@ function init() {
 		// Getting the switcher_grounding
   	if (!result.switcher_grounding) switcher_grounding = true;
   	else switcher_grounding = result.switcher_grounding;
+  	// Getting the switcher_ranked_search
+  	if (!result.switcher_ranked_search) switcher_ranked_search = true;
+  	else switcher_ranked_search = result.switcher_ranked_search;
 
-    switcher_grounding = false;
-    document.getElementById("grounding").style.display = 'none';
+    // Setting what to display
+    if (switcher_grounding === true) document.getElementById("grounding").style.display = 'inline';
+    else document.getElementById("grounding").style.display = 'none';
+    if (switcher_ranked_search === true || grounding == "duden") {
+      // Setting up switcher_input_language
+	  	document.getElementById("input_language").style.display = 'inline';
+	  	// Suppressing the currently selected language as an displayed option of the switcher_input_language
+	  	document.getElementById("input_language_" + language).style.display = 'none';
 
-    // Setting up switcher_input_language
-		document.getElementById("input_language").style.display = 'inline';
-		// Suppressing the currently selected language as an displayed option of the switcher_input_language
-		document.getElementById("input_language_" + language).style.display = 'none';
-
-		// Preselecting the saved input_language
-		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
-			if (document.getElementById("input_language").options[i].value == input_language) {
-				document.getElementById("input_language").options[i].selected = true;
-				break;
-			}
-		}
+  		// Preselecting the saved input_language
+  		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
+  			if (document.getElementById("input_language").options[i].value == input_language) {
+  				document.getElementById("input_language").options[i].selected = true;
+  				break;
+  			}
+  		}
+    }
+    if (!switcher_grounding && !switcher_ranked_search) {
+      // Setting the icon
+  		document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
+  			+ grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+    		document.getElementById("grounding").style.display = 'none';
+  		document.getElementById("icon").style.display = 'inline';
+    }
 
 		// Assembling the corresponding URLs
 		wikipedia_url = "http://" + language + ".wikipedia.org/wiki/";
@@ -75,8 +88,11 @@ function init() {
     if (language == "de") search_engines = [["duden",duden_url],["wikipedia",wikipedia_url],["dict",dict_url]];
     // If no valid language is detected, than the english style will be used
     else search_engines = [["wikipedia",wikipedia_url],["dict",dict_url]];
+    // If switcher_grounding is true then set the selected search engine to the top of the search_engines array
+    if (switcher_grounding === true) search_engines.unshift([grounding, eval(grounding + "_url")]);
+    // In case switcher_ranked_search if NOT true then make the selected search engine the only one in the search_engines array
+    if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url")]];
   });
-  result = "";
 }
 
 // Function for quickly switching the grounding
@@ -277,7 +293,8 @@ function query_setup() {
 	query = document.getElementById("query").value;
 
 	// Break if there is no input
-	if (query == "") return;
+	if (query == (""|" ")) return -1;
+
   // Replacing special characters in query, this is only neccessary for "dict.cc"
 	// Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
 	var diacriticsMap = [
@@ -328,13 +345,14 @@ function query_search() {
 	var current_search_engine = "";
 	var tmp = "";
 
-  query_setup();
+  if(query_setup() != 0) return;
 
 	for (var i = 0; i < search_engines.length; i++) {
     // The Url is set in the init() function
   	current_url = search_engines[i][1] + query;
   	current_search_engine = search_engines[i][0] + "()";
-  	alert("THIS IS OUTSIDE OF THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
+  	// DEBUG CODE
+  	//alert("THIS IS OUTSIDE OF THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
 
   	var xmlhttp = new XMLHttpRequest();
   	xmlhttp.onreadystatechange = function() {
@@ -371,7 +389,8 @@ function query_search() {
   				document.getElementById("loading").style.display="none";
   				document.getElementById("noresult").style.display="inline";
   			}
-  			alert("THIS IS IN THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
+  			// DEBUG CODE
+  			//alert("THIS IS IN THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
   		}
   	};
   	xmlhttp.open("GET", current_url, true);

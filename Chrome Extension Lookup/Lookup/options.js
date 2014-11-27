@@ -4,10 +4,10 @@ function style_display_language() {
 	var input_language = document.getElementById("input_language").value;
 	var grounding = document.getElementById("grounding").value;
 
-	if (language == "de") document.getElementById("ger_d").style.display = 'inline';
+	if (language == "de") document.getElementById("duden").style.display = 'inline';
 	else {
-		if (grounding == "ger_d") document.getElementById("grounding").options[0].selected = true;
-		document.getElementById("ger_d").style.display = 'none';
+		if (grounding == "duden") document.getElementById("grounding").options[0].selected = true;
+		document.getElementById("duden").style.display = 'none';
 	}
 
 	if (language == "de" || language == "en") {
@@ -30,10 +30,11 @@ function save_options() {
 	var grounding = document.getElementById("grounding").value;
 	var input_language = document.getElementById("input_language").value;
 	var switcher_grounding = document.getElementById("switcher_grounding").checked;
+	var switcher_ranked_search = document.getElementById("switcher_ranked_search").checked;
 
 	// Saving the selected options
-	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'input_language': input_language, 'switcher_grounding': switcher_grounding}, function() {
-		if (chrome.runtime.error) console.log("Runtime error.");
+	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'input_language': input_language, 'switcher_grounding': switcher_grounding, 'switcher_ranked_search': switcher_ranked_search}, function() {
+		if (chrome.runtime.error) console.log("Runtime Error, code:BB7742");
   });
 
 	// Displaying a message for a fixed time
@@ -54,12 +55,31 @@ function init() {
 	var language = "";
 	var grounding = "";
 	var input_language = "";
-	var switcher_grounding = "";
+	var switcher_grounding;
+	var switcher_ranked_search;
+  var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
 
-	// Getting and restoring the language
-	chrome.storage.sync.get('language', function (result) {
-		if (chrome.runtime.lastError || typeof result.language === 'undefined') language = "en";
+  // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
+	chrome.storage.sync.get(saves, function (result) {
+	  if (chrome.runtime.lasError || !result) {
+	    alert("Runtime Error, code:FF9931");
+	  }
+	  // The default values are set here!
+		// Getting the language
+		if (!result.language) language = "en";
 		else language = result.language;
+		// Getting the input_language
+		if (!result.input_language) input_language = "de";
+		else input_language = result.input_language;
+		// Getting the grounding
+		if (!result.grounding) grounding = "wikipedia";
+		else grounding = result.grounding;
+		// Getting the switcher_grounding
+  	if (!result.switcher_grounding) switcher_grounding = true;
+  	else switcher_grounding = result.switcher_grounding;
+  	// Getting the switcher_ranked_search
+  	if (!result.switcher_ranked_search) switcher_ranked_search = true;
+  	else switcher_ranked_search = result.switcher_ranked_search;
 
 		// Preselecting the saved language
 		for (var i = 0; i < document.getElementById("language").options.length; i++) {
@@ -69,14 +89,8 @@ function init() {
 			}
 		}
 
-		if (language == "de") document.getElementById("ger_d").style.display = 'inline';
-		else document.getElementById("ger_d").style.display = 'none';
-	});
-
-	// Getting and restoring the grounding
-	chrome.storage.sync.get('grounding', function (result) {
-		if (chrome.runtime.lastError || typeof result.grounding === 'undefined') grounding = "wikipedia";
-		else grounding = result.grounding;
+		if (language == "de") document.getElementById("duden").style.display = 'inline';
+		else document.getElementById("duden").style.display = 'none';
 
 		// Preselecting the saved grounding
 		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
@@ -85,12 +99,6 @@ function init() {
 				break;
 			}
 		}
-	});
-
-	// Getting and restoring the input_language
-	chrome.storage.sync.get('input_language', function (result) {
-		if (chrome.runtime.lastError || typeof result.input_language === 'undefined') input_language = "de";
-		else input_language = result.input_language;
 
 		// Preselecting the saved input_language
 		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
@@ -104,16 +112,14 @@ function init() {
 		if (language == input_language) {
 			document.getElementById("warning").innerHTML = "The values of \"Language\" and \"Input Language\" should be different.<br><br>";
 		} else document.getElementById("warning").innerHTML = "";
-	});
-
-	// Getting and restoring the switcher_grounding
-	chrome.storage.sync.get('switcher_grounding', function (result) {
-		if (chrome.runtime.lastError || typeof result.switcher_grounding === 'undefined') switcher_grounding = true;
-		else switcher_grounding = result.switcher_grounding;
 
 		// Preselecting the saved switcher_grounding
 		if (switcher_grounding === true) document.getElementById("switcher_grounding").checked = true;
 		else if (switcher_grounding === false) document.getElementById("switcher_grounding").checked = false;
+
+		// Preselecting the saved switcher_ranked_search
+		if (switcher_ranked_search === true) document.getElementById("switcher_ranked_search").checked = true;
+		else if (switcher_ranked_search === false) document.getElementById("switcher_ranked_search").checked = false;
 	});
 }
 
