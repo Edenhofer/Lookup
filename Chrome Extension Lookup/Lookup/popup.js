@@ -18,7 +18,7 @@ function init() {
   var grounding = "";
   var switcher_grounding;
   var switcher_ranked_search;
-  var saves = ["language", "input_language", "grounding", "switcher_grounding", "switcher_ranked_search"];
+  var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
   var tmp = "";
 
   // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
@@ -36,30 +36,37 @@ function init() {
 		// Getting the grounding
 		if (!result.grounding) grounding = "wikipedia";
 		else grounding = result.grounding;
-		// Getting the switcher_grounding
-  	if (!result.switcher_grounding) switcher_grounding = true;
+		// Getting the switcher_grounding (!variable also checks whether variable is false, so it is necessary to exlude this case)
+  	if (!result.switcher_grounding && result.switcher_grounding !== false) switcher_grounding = true;
   	else switcher_grounding = result.switcher_grounding;
-  	// Getting the switcher_ranked_search
-  	if (!result.switcher_ranked_search) switcher_ranked_search = true;
+  	// Getting the switcher_ranked_search (!variable also checks whether variable is false, so it is necessary to exlude this case)
+  	if (!result.switcher_ranked_search && result.switcher_ranked_search !== false) switcher_ranked_search = true;
   	else switcher_ranked_search = result.switcher_ranked_search;
 
-    // Setting what to display
+    // Preselecting the saved grounding
+		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
+			if (document.getElementById("grounding").options[i].value == grounding) {
+				document.getElementById("grounding").options[i].selected = true;
+				break;
+			}
+		}
+		// Preselecting the saved input_language
+  	for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
+  		if (document.getElementById("input_language").options[i].value == input_language) {
+  			document.getElementById("input_language").options[i].selected = true;
+  			break;
+  		}
+  	}
+
+  	// Setting what to display
     if (switcher_grounding === true) document.getElementById("grounding").style.display = 'inline';
     else document.getElementById("grounding").style.display = 'none';
-    if (switcher_ranked_search === true || grounding == "duden") {
+    if (switcher_ranked_search === true || grounding == "dict") {
       // Setting up switcher_input_language
 	  	document.getElementById("input_language").style.display = 'inline';
 	  	// Suppressing the currently selected language as an displayed option of the switcher_input_language
 	  	document.getElementById("input_language_" + language).style.display = 'none';
-
-  		// Preselecting the saved input_language
-  		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
-  			if (document.getElementById("input_language").options[i].value == input_language) {
-  				document.getElementById("input_language").options[i].selected = true;
-  				break;
-  			}
-  		}
-    }
+    } else document.getElementById("input_language").style.display = 'none';
     if (!switcher_grounding && !switcher_ranked_search) {
       // Setting the icon
   		document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/"
@@ -120,7 +127,7 @@ function wikipedia() {
 	// Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
 	query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
 	// Removing note from the "<title>"-query e.g. "(Begriffserklärung)"
-	if (query.indexOf("(")) query = query.replace(/ ([^)]*)/i, "").slice(0, -1);
+	if (query.indexOf("(") != -1) query = query.replace(/ ([^)]*)/i, "").slice(0, -1);
 
   // Searching for the beginning "<p>"
   if (data.search(new RegExp("<b>" + query, "i")) != -1) begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
@@ -190,11 +197,11 @@ function duden() {
 function archlinux() {
   var begin = -1;
   var end = -1;
-  var temp = "";
+  var tmp = "";
 
   // No-Article site
   if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
-	else begin = data.indexOf("<p>", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i")));
+	else begin = data.indexOf("\n<p>", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i")));
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
@@ -340,62 +347,64 @@ function query_setup() {
 }
 
 // The main search function
-function query_search() {
+function query_search(step) {
 	var current_url = "";
 	var current_search_engine = "";
 	var tmp = "";
 
   if(query_setup() != 0) return;
 
-	for (var i = 0; i < search_engines.length; i++) {
-    // The Url is set in the init() function
-  	current_url = search_engines[i][1] + query;
-  	current_search_engine = search_engines[i][0] + "()";
-  	// DEBUG CODE
-  	//alert("THIS IS OUTSIDE OF THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
+  // The Url is set in the init() function
+	current_url = search_engines[step][1] + query;
+	current_search_engine = search_engines[step][0] + "()";
 
-  	var xmlhttp = new XMLHttpRequest();
-  	xmlhttp.onreadystatechange = function() {
-  		if (xmlhttp.readyState == 4){
-  			data = xmlhttp.responseText;
-  			// Deleting unneccessary spaces
-  			data = data.trim();
+	// DEBUG CODE
+	//alert("THIS IS OUTSIDE OF THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
 
-  			if (eval(current_search_engine) == 0) {
-  				// Trimming the output to not exceed the maximum length
-  				if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-  					data = data.slice(0, max_output_length);
-  					data = data.slice(0, data.lastIndexOf(" "))+ "...";
-  				}
+	var xmlhttp = new XMLHttpRequest();
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState == 4){
+			data = xmlhttp.responseText;
+			// Deleting unneccessary spaces
+			data = data.trim();
 
-  				document.getElementById("output").innerHTML = "<p></p>" + data;
-  				document.getElementById("source").innerHTML = "<span class=\"tab\"></span><i><a href=\"" + current_url
-  					+ "\" target=\"_blank\">" + current_url + "</a><\i>";
+			if (eval(current_search_engine) == 0) {
+				// Trimming the output to not exceed the maximum length
+				if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+					data = data.slice(0, max_output_length);
+					data = data.slice(0, data.lastIndexOf(" "))+ "...";
+				}
 
-  				// Set what to display
-  				document.getElementById("loading").style.display="none";
-  				document.getElementById("output").style.display="inline";
-  				document.getElementById("source").style.display="inline";
-  				return 0;
-  			} else if (i == search_engines.length) {
-			    // No Match Case
-			  	// Presenting a Google-Link to look for results
-			  	if (query.length > 20) temp = query.slice(0, 20) + "...";
-			  	else temp = query;
-			  	document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
-			  		+ query.replace("\"", "%22") + "\" target=\"_blank\">Google for \"" + temp + "\"</a></p>";
+				document.getElementById("output").innerHTML = "<p></p>" + data;
+				document.getElementById("source").innerHTML = "<span class=\"tab\"></span><i><a href=\"" + current_url
+					+ "\" target=\"_blank\">" + current_url + "</a><\i>";
 
-  				// Set what to display
-  				document.getElementById("loading").style.display="none";
-  				document.getElementById("noresult").style.display="inline";
-  			}
-  			// DEBUG CODE
-  			//alert("THIS IS IN THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
-  		}
-  	};
-  	xmlhttp.open("GET", current_url, true);
-  	xmlhttp.send();
-  }
+	  		// Set what to display
+	  		document.getElementById("loading").style.display="none";
+	  		document.getElementById("output").style.display="inline";
+	  		document.getElementById("source").style.display="inline";
+  		} else if (step == (search_engines.length - 1)) {
+		    // No Match Case
+		  	// Presenting a Google-Link to look for results
+		  	if (query.length > 20) tmp = query.slice(0, 20) + "...";
+		  	else tmp = query;
+		  	document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
+		  		+ query.replace("\"", "%22") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+
+				// Set what to display
+				document.getElementById("loading").style.display="none";
+				document.getElementById("noresult").style.display="inline";
+			} else {
+			  step++;
+			  query_search(step);
+			}
+
+			// DEBUG CODE
+			//alert("THIS IS IN THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
+		}
+	};
+	xmlhttp.open("GET", current_url, true);
+	xmlhttp.send();
 }
 
 // Adding some EventListeners, one starup function [init()] and the "get selection to query" function
@@ -413,7 +422,7 @@ window.addEventListener('load', function(evt) {
 				query = result[0];
 
 				// Search directly after the button click
-				query_search();
+				query_search(0);
 			}
 	});
 
@@ -423,6 +432,6 @@ window.addEventListener('load', function(evt) {
 	// Prevent the page from reloading after the submit button is triggered
 	document.getElementById('search').addEventListener('submit', function query_search_with_preventDefault() {
 		event.preventDefault();
-		query_search();
+		query_search(0);
 	});
 });

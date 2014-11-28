@@ -64,6 +64,7 @@ function init() {
 	  if (chrome.runtime.lasError || !result) {
 	    alert("Runtime Error, code:FF9931");
 	  }
+
 	  // The default values are set here!
 		// Getting the language
 		if (!result.language) language = "en";
@@ -74,11 +75,11 @@ function init() {
 		// Getting the grounding
 		if (!result.grounding) grounding = "wikipedia";
 		else grounding = result.grounding;
-		// Getting the switcher_grounding
-  	if (!result.switcher_grounding) switcher_grounding = true;
+		// Getting the switcher_grounding (!variable also checks whether variable is false, so it is necessary to exlude this case)
+  	if (!result.switcher_grounding && result.switcher_grounding !== false) switcher_grounding = true;
   	else switcher_grounding = result.switcher_grounding;
-  	// Getting the switcher_ranked_search
-  	if (!result.switcher_ranked_search) switcher_ranked_search = true;
+  	// Getting the switcher_ranked_search (!variable also checks whether variable is false, so it is necessary to exlude this case)
+  	if (!result.switcher_ranked_search && result.switcher_ranked_search !== false) switcher_ranked_search = true;
   	else switcher_ranked_search = result.switcher_ranked_search;
 
 		// Preselecting the saved language
@@ -145,4 +146,13 @@ window.addEventListener("load", function(evt) {
 	document.getElementById("language").addEventListener("change", style_display_language);
 	document.getElementById("input_language").addEventListener("change", style_display_language);
 	document.getElementById("donate").addEventListener("click", donate);
+});
+
+// Printing the changes in the chrome.storage.sync into the console log
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+  for (key in changes) {
+    var storageChange = changes[key];
+    console.log('Storage key "%s" in namespace "%s" changed: The old value was "%s" and now the new value is "%s".',
+                key, namespace, storageChange.oldValue, storageChange.newValue);
+  }
 });
