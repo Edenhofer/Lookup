@@ -96,7 +96,12 @@ function init() {
     // If no valid language is detected, than the english style will be used
     else search_engines = [["wikipedia",wikipedia_url],["dict",dict_url]];
     // If switcher_grounding is true then set the selected search engine to the top of the search_engines array
-    if (switcher_grounding === true) search_engines.unshift([grounding, eval(grounding + "_url")]);
+    if (switcher_grounding === true) {
+      // Removing the next occurance of grounding in search_engines to avoid fetching the site twice
+      for (var i = 0; i < search_engines.length; i++)
+        if (search_engines[i][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
+      search_engines.unshift([grounding, eval(grounding + "_url")]);
+    }
     // In case switcher_ranked_search if NOT true then make the selected search engine the only one in the search_engines array
     if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url")]];
   });
@@ -295,10 +300,14 @@ function dict() {
 	else return -1;
 }
 
-function query_setup() {
+// The main search function
+function query_search(step) {
+	var current_url = "";
+	var current_search_engine = "";
+	var tmp = "";
+
   // Getting the input
 	query = document.getElementById("query").value;
-
 	// Break if there is no input
 	if (query == (""|" ")) return -1;
 
@@ -334,8 +343,8 @@ function query_setup() {
     query = query.replace(diacriticsMap[i].letters, diacriticsMap[i].base);
   }
 
-	// Filling the loading div with text
-	document.getElementById("loading").innerHTML = "<p>Searching...<\p>";
+  // Filling the loading div with text, it will be displayed later in the query_setup funtcion
+  document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + " (" + (step + 1) + "/" + search_engines.length + ")" + "...<\p>";
 	// Set  what to display
 	document.getElementById("loading").style.display="inline";
 	document.getElementById("output").style.display="none";
@@ -343,23 +352,9 @@ function query_setup() {
 	document.getElementById("source").style.display="none";
 	document.getElementById("tip").style.display="none";
 
-	return 0;
-}
-
-// The main search function
-function query_search(step) {
-	var current_url = "";
-	var current_search_engine = "";
-	var tmp = "";
-
-  if(query_setup() != 0) return;
-
   // The Url is set in the init() function
 	current_url = search_engines[step][1] + query;
 	current_search_engine = search_engines[step][0] + "()";
-
-	// DEBUG CODE
-	//alert("THIS IS OUTSIDE OF THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
@@ -398,9 +393,6 @@ function query_search(step) {
 			  step++;
 			  query_search(step);
 			}
-
-			// DEBUG CODE
-			//alert("THIS IS IN THE PAGELOAD FUNCTION|I: " + i + "|CURRENT_SEARCH_ENGINE: " + current_search_engine + "|SEARCH_ENGINES.LENGTH: " + search_engines.length);
 		}
 	};
 	xmlhttp.open("GET", current_url, true);
