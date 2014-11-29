@@ -206,7 +206,10 @@ function archlinux() {
 
   // No-Article site
   if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
-	else begin = data.indexOf(new RegExp("<(|/)div[^>]*>(|\n)<p>"), data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i")));
+	else {
+	  data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
+	  begin = data.search(new RegExp("<(|/)div[^>]*>(|\n)<p>"));
+	}
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
