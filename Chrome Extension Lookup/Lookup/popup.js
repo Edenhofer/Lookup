@@ -206,7 +206,7 @@ function archlinux() {
 
   // No-Article site
   if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
-	else begin = data.indexOf("\n<p>", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i")));
+	else begin = data.indexOf(new RegExp("<(|/)div[^>]*>(|\n)<p>"), data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i")));
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
@@ -343,8 +343,9 @@ function query_search(step) {
     query = query.replace(diacriticsMap[i].letters, diacriticsMap[i].base);
   }
 
-  // Filling the loading div with text, it will be displayed later in the query_setup funtcion
-  document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + " (" + (step + 1) + "/" + search_engines.length + ")" + "...<\p>";
+  // Filling the loading div with text
+  if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + " (" + (step + 1) + "/" + search_engines.length + ")" + "...<\p>";
+  else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + "...<\p>";
 	// Set  what to display
 	document.getElementById("loading").style.display="inline";
 	document.getElementById("output").style.display="none";
