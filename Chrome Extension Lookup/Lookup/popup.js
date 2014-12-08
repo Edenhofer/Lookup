@@ -136,11 +136,14 @@ function wikipedia() {
 	if (query.indexOf("(") != -1) query = query.replace(/ ([^)]*)/i, "").slice(0, -1);
 
   // Searching for the beginning "<p>"
-  if (data.search(new RegExp("<b>" + query, "i")) != -1) begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+  if (data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1)
+    begin = data.slice(0, data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
   if (begin == -1) {
     for (var i = 0; i < 3; i++) {
-      if (data.search(new RegExp("<b>" + query, "i")) != -1) data = data.slice(data.search(new RegExp("<b>" + query, "i")) + query.length + 3);
-      if (data.search(new RegExp("<b>" + query, "i")) != -1) begin = data.slice(0, data.search(new RegExp("<b>" + query, "i"))).lastIndexOf("<p>");
+      if (data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1)
+        data = data.slice(data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) + query.length + 3);
+      if (data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1)
+        begin = data.slice(0, data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
       if (begin != -1) break;
     }
   }
