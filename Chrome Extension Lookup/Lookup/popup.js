@@ -136,15 +136,15 @@ function wikipedia() {
 	if (query.indexOf("(") != -1) query = query.replace(/ ([^)]*)/i, "").slice(0, -1);
 
   // Searching for the beginning "<p>"
-  if (data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1)
-    begin = data.slice(0, data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
-  if (begin == -1) {
-    for (var i = 0; i < 3; i++) {
-      if (data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1)
-        data = data.slice(data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) + query.length + 3);
-      if (data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1)
-        begin = data.slice(0, data.search(new RegExp("<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
+  for (var i = 0; i < 3; i++) {
+    // "[^|][^<]" is used to avoid year figures
+    if (data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1) {
+      begin = data.slice(0, data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
       if (begin != -1) break;
+      else data = data.slice(data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) + query.length + 3);
+    } else {
+      begin = -1;
+      break;
     }
   }
 
@@ -297,7 +297,7 @@ function dict() {
 		data = data.replace(/<\/[^t]([^d]*)>/ig, "");
 
 		// Removing some notes
-		data = data.replace(/([\d]+)/ig, "");
+		data = data.replace(/\([\d]+\)/ig, "");
 		data = data.replace(/\[[^(\])]*\]/ig, "");
 		data = data.replace(/{[a-zA-Z.-]+}/ig, "");
 		data = data.replace(/&lt;([^&]*)&gt;/ig, "");
