@@ -363,7 +363,7 @@ function query_search(step) {
 	document.getElementById("source").style.display="none";
 	document.getElementById("tip").style.display="none";
 
-  // The Url is set in the init() function
+  // The URL is set in the init() function
 	current_url = search_engines[step][1] + query;
 	current_search_engine = search_engines[step][0] + "()";
 
