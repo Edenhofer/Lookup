@@ -129,19 +129,21 @@ function wikipedia() {
   var begin = -1;
   var end = -1;
   var tmp = "";
+  // The real query shell not be altered
+  var wiki_query = query;
 
 	// Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
-	query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
-	// Removing note from the "<title>"-query e.g. "(Begriffserklärung)"
-	if (query.indexOf("(") != -1) query = query.replace(/ ([^)]*)/i, "").slice(0, -1);
+	wiki_query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
+	// Removing note from the "<title>"-wiki_query e.g. "(Begriffserklärung)"
+	if (wiki_query.indexOf("(") != -1) wiki_query = wiki_query.replace(/ ([^)]*)/i, "").slice(0, -1);
 
   // Searching for the beginning "<p>"
   for (var i = 0; i < 3; i++) {
     // "[^|][^<]" is used to avoid year figures
-    if (data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) != -1) {
-      begin = data.slice(0, data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
+    if (data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i")) != -1) {
+      begin = data.slice(0, data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
       if (begin != -1) break;
-      else data = data.slice(data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i")) + query.length + 3);
+      else data = data.slice(data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i")) + wiki_query.length + 3);
     } else {
       begin = -1;
       break;
@@ -150,6 +152,8 @@ function wikipedia() {
 
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
+		// Checks whether the <p> ends before the wiki_query was even mentioned (needed for e.g. "1782")
+		if (end < data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i"))) return -1;
 
 		// Checking for a list of options
 		if (data.slice(end + 5, end + 9).localeCompare("<ul>") == 0) {
@@ -287,6 +291,8 @@ function dict() {
 
 		// Removing some headings, e.g. "</div><b>Substantive</b>"
 		data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
+		// Removing the little gray numbers
+		data = data.replace(/<div[^>]*>([\d]+)<\/div>/ig, "");
 
 		// Removing some uneccessary html code
 		data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
@@ -294,10 +300,9 @@ function dict() {
 
 		// Removing html but not <td> or </td>
 		data = data.replace(/<[^t]([^>]+)>/ig, "");
-		data = data.replace(/<\/[^t]([^d]*)>/ig, "");
+		data = data.replace(/<\/[^t]([^>]*)>/ig, "");
 
 		// Removing some notes
-		data = data.replace(/\([\d]+\)/ig, "");
 		data = data.replace(/\[[^(\])]*\]/ig, "");
 		data = data.replace(/{[a-zA-Z.-]+}/ig, "");
 		data = data.replace(/&lt;([^&]*)&gt;/ig, "");
@@ -395,7 +400,7 @@ function query_search(step) {
 		  	if (query.length > 20) tmp = query.slice(0, 20) + "...";
 		  	else tmp = query;
 		  	document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
-		  		+ query.replace("\"", "%22") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+		  		+ query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
 
 				// Set what to display
 				document.getElementById("loading").style.display="none";
