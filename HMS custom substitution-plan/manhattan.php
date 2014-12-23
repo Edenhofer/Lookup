@@ -327,7 +327,6 @@ function kurse_visibility() {
 	select {
 		font-size: ' . $input_font_size . ';
 	}
-	
 	.center{										// Alternative zu <div align="center">
 		margin: auto;
 		width: 50%;

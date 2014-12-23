@@ -89,37 +89,78 @@ function visibility() {
 	document.getElementById("yellow_block_2").style.display = "inline";
 }
 </SCRIPT>
-
 <style>
-* {
-	font-family: Arial, Helvetica, sans-serif;
-}
-body {
-	font-size: ' . $font_size . ';
-	text-align: center;
-}
-input {
-	font-size: ' . $input_font_size . ';
-}
-
-.center{
-	text-align: center;
-}
-.left{
-	text-align: left;
-}
-span.tab{
-    padding: 1em;
-}
-.Titel {}
-.footnote {
-	font-size: ' . $footnote_font_size . ';
-}
-.footer {
-	font-size: ' . $footer_font_size . ';
-}
+	* {
+		font-family: Arial, Helvetica, sans-serif;
+	}
+	body {
+		font-size: ' . $font_size . ';
+	}
+	input {
+		font-size: ' . $input_font_size . ';
+	}
+	input[type="checkbox"] {
+		width: 1.2em;
+		height: 1.2em;
+	}
+	select {
+		font-size: ' . $input_font_size . ';
+	}
+	.center{										// Alternative zu <div align="center">
+		margin: auto;
+		width: 50%;
+	}
+	span.tab{
+	    padding: 1
+	}
+	.Titel {}
+	.footnote {
+		font-size: ' . $footnote_font_size . ';
+	}
+	.footer {
+		font-size: ' . $footer_font_size . ';
+	}
+	select {
+		font-size: 0.95em;
+		background-color: #ffffff;
+		color: #454545;
+		border: 1px solid;
+		border-color: #929292;
+		border-radius: 1px;
+	}
+	td {
+		padding-left: .5em;
+		padding-right: .5em;
+	}
+	a {
+		color: #3161aa;
+		text-decoration: none;
+	}
+	a:hover {
+		color: #3a75cc;
+		text-decoration: underline;
+	}
+	input[type=submit] {
+		height: 2em;
+		background-color: #0053a8;
+		color: #f2f2f2;
+		border: 0px solid;
+		border-radius: 0.25em;
+	}
+	input[type=submit]:hover {
+		background-color: #4475ee;
+	}
+	input[type=button] {
+		height: 2em;
+		background-color: #0053a8;
+		color: #f2f2f2;
+		border: 0px solid;
+		border-radius: 0.25em;
+	}
+	input[type=button]:hover {
+		background-color: #4475ee;
+	}
 </style>
-
 </head>
 <body>
 <div align="center">

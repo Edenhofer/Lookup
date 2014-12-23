@@ -4,16 +4,19 @@
 
 cd /tmp
 
+# Fetching the html pages
 wget -q www.heinrich-mann-schule.de/vertretung/S_heute.html
 wget -q www.heinrich-mann-schule.de/vertretung/S_morgen.html
 wget -q www.heinrich-mann-schule.de/vertretung/L_heute.html
 wget -q www.heinrich-mann-schule.de/vertretung/L_morgen.html
 
+# Preparing the substitution plan for students
 cat S_heute.html S_morgen.html > v.html
 tr \\r \\n < v.html > vtemp
 /home/edh/www/HMS\ custom\ substitution-plan/sp-converter vtemp > v.html
 rm vtemp S_heute.html S_morgen.html
 
+# Preparing the substitution plan for teachers
 cat L_heute.html L_morgen.html > v-l.html
 tr \\r \\n < v-l.html > vltemp
 /home/edh/www/HMS\ custom\ substitution-plan/sp-converter vltemp > v-l.html
