@@ -1,6 +1,6 @@
 /*
   Be aware of that slicing data (str.slice) with one arguemente actualĺy not being found
-  than slice will still work, because the not found arguements equales -1!!
+  than slice will still work, because the not found arguements equales -1!
 
   SNIPPETS FOR LATER:
 */
@@ -9,8 +9,10 @@
 var language = "";
 var input_language = "";
 var query = "";
+var last_queries = [];
 var search_engines;
 var max_output_length = 540;
+var max_last_queries = 10;
 var data = "";
 
 // On page load function
@@ -106,22 +108,6 @@ function init() {
     // In case switcher_ranked_search if NOT true then make the selected search engine the only one in the search_engines array
     if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url")]];
   });
-}
-
-// Function for quickly switching the grounding
-function switcher_grounding() {
-	grounding = document.getElementById("grounding").value;
-	chrome.storage.sync.set({'grounding': grounding});
-
-	init();
-}
-
-// Function for quickly switching the input_language
-function switcher_input_language() {
-	input_language = document.getElementById("input_language").value;
-	chrome.storage.sync.set({'input_language': input_language});
-
-	init();
 }
 
 // Function for Wikipedia specific queries
@@ -315,11 +301,21 @@ function dict() {
 // The main search function
 function query_search(step) {
 	var current_url = "";
-	var current_search_engine = "";
 	var tmp = "";
+
+  // Filling the loading div with text
+  if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + " (" + (step + 1) + "/" + search_engines.length + ")" + "...<\p>";
+  else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + "...<\p>";
 
   // Only do the following the first time
   if (step == 0) {
+    // Set  what to display
+  	document.getElementById("loading").style.display="inline";
+  	document.getElementById("output").style.display="none";
+  	document.getElementById("noresult").style.display="none";
+  	document.getElementById("source").style.display="none";
+  	document.getElementById("tip").style.display="none";
+
     // Getting the input
   	query = document.getElementById("query").value;
   	// Break if there is no input
@@ -356,21 +352,18 @@ function query_search(step) {
     for(var i = 0; i < diacriticsMap.length; i++) {
       query = query.replace(diacriticsMap[i].letters, diacriticsMap[i].base);
     }
-  }
 
-  // Filling the loading div with text
-  if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + " (" + (step + 1) + "/" + search_engines.length + ")" + "...<\p>";
-  else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + "...<\p>";
-	// Set  what to display
-	document.getElementById("loading").style.display="inline";
-	document.getElementById("output").style.display="none";
-	document.getElementById("noresult").style.display="none";
-	document.getElementById("source").style.display="none";
-	document.getElementById("tip").style.display="none";
+    // Remember the current query
+    last_queries.push(query);
+    // Keeping the maximum length of query below max_last_queries
+    if (last_queries.length > max_last_queries) last_queries.slice(last_queries.length - max_last_queries, last_queries.length);
+    // Sync everything locally
+    chrome.storage.local.set({'last_queries': last_queries});
+    history = last_queries.length;
+  }
 
   // The URL is set in the init() function
 	current_url = search_engines[step][1] + query;
-	current_search_engine = search_engines[step][0] + "()";
 
 	var xmlhttp = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function() {
@@ -379,7 +372,7 @@ function query_search(step) {
 			// Deleting unneccessary spaces
 			data = data.trim();
 
-			if (eval(current_search_engine) == 0) {
+			if (eval(search_engines[step][0] + "()") == 0) {
 				// Trimming the output to not exceed the maximum length
 				if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
 					data = data.slice(0, max_output_length);
@@ -387,8 +380,8 @@ function query_search(step) {
 				}
 
 				document.getElementById("output").innerHTML = "<p></p>" + data;
-				document.getElementById("source").innerHTML = "<span class=\"tab\"></span><i><a href=\"" + current_url
-					+ "\" target=\"_blank\">" + current_url + "</a><\i>";
+				document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" + current_url
+					+ "\" target=\"_blank\">" + current_url + "</a><\i></p>";
 
 	  		// Set what to display
 	  		document.getElementById("loading").style.display="none";
@@ -419,6 +412,19 @@ function query_search(step) {
 window.addEventListener('load', function(evt) {
   document.getElementById('options_page').innerHTML = "<a href=\"" + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
+  // The variable "history" is needed for skipping through old queries
+  var history = 0;
+  // Fetching and defining the last_queries
+  chrome.storage.local.get("last_queries", function (result) {
+    if (!result.last_queries) {
+      last_queries = [];
+      history = 0;
+    } else {
+  	  last_queries = result.last_queries;
+  	  history = last_queries.length;
+  	}
+  });
+
   init();
 
   // Filling the value of #query (the search bar) with the currently selected text
@@ -434,12 +440,60 @@ window.addEventListener('load', function(evt) {
 			}
 	});
 
-	document.getElementById('grounding').addEventListener('change', switcher_grounding);
-	document.getElementById('input_language').addEventListener('change', switcher_input_language);
+  // Function for quickly switching the grounding
+	document.getElementById('grounding').addEventListener('change', function switch_grounding() {
+	  grounding = document.getElementById("grounding").value;
+  	chrome.storage.sync.set({'grounding': grounding});
 
-	// Prevent the page from reloading after the submit button is triggered
+  	init();
+	});
+
+	// Function for quickly switching the input_language
+	document.getElementById('input_language').addEventListener('change', function switch_input_language() {
+	  input_language = document.getElementById("input_language").value;
+	  chrome.storage.sync.set({'input_language': input_language});
+
+	  init();
+	});
+
+  // Trigger the search if ENTER or the search-button is pressed
 	document.getElementById('search').addEventListener('submit', function query_search_with_preventDefault() {
+	  // Prevent the page from reloading after the submit button is triggered
 		event.preventDefault();
 		query_search(0);
 	});
+
+	document.onkeydown = function(event) {
+	  var code = event.keyCode;
+	  if (!event) event = window.event;
+    if (event.charCode && code == 0) code = event.charCode;
+
+	  // Do nothing if the keypress is not from the arrow-keys
+	  if (code == 37 || code == 38 || code == 39 || code == 40) {
+	    event.preventDefault();
+	    if (history == last_queries.length) last_queries.push(document.getElementById('query').value);
+      switch(code) {
+        case 37:
+        // Key left
+          break;
+        case 38:
+        // Key up
+          if (history < last_queries.length - 1) history += 1;
+          document.getElementById('query').value = last_queries[history];
+          document.getElementById('query').select();
+          console.log("[UP](" + history + "): " + last_queries[history] + " out of " + last_queries);
+          break;
+        case 39:
+        // Key right
+          break;
+        case 40:
+        // Key down
+          if (history > 0) history -= 1;
+          document.getElementById('query').value = last_queries[history];
+          document.getElementById('query').select();
+          console.log("[DOWN](" + history + "): " + last_queries[history] + " out of " + last_queries);
+          break;
+      }
+    };
+	}
 });
