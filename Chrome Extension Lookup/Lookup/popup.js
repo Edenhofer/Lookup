@@ -310,23 +310,19 @@ function query_search(step) {
 	var current_url = "";
 	var tmp = "";
 
-  // Filling the loading div with text
-  if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + " (" + (step + 1) + "/" + search_engines.length + ")" + "...<\p>";
-  else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + "...<\p>";
-
   // Only do the following the first time
   if (step == 0) {
-    // Set  what to display
+    // Getting the input
+  	query = document.getElementById("query").value;
+  	// Break if there is no input - THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
+  	if (query == "" || query == " ") return -1;
+
+  	// Set  what to display
   	document.getElementById("loading").style.display="inline";
   	document.getElementById("output").style.display="none";
   	document.getElementById("noresult").style.display="none";
   	document.getElementById("source").style.display="none";
   	document.getElementById("tip").style.display="none";
-
-    // Getting the input
-  	query = document.getElementById("query").value;
-  	// Break if there is no input
-  	if (query == "" || query == " ") return -1;
 
     // Replacing special characters in query, this is only neccessary for "dict.cc"
   	// Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
@@ -368,6 +364,10 @@ function query_search(step) {
     chrome.storage.local.set({'last_queries': last_queries});
     history = last_queries.length;
   }
+
+  // Filling the loading div with text
+  if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + " (" + (step + 1) + "/" + search_engines.length + ")" + "...<\p>";
+  else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[step][0] + "...<\p>";
 
   // The URL is set in the init() function
 	current_url = search_engines[step][1] + query;
@@ -438,7 +438,7 @@ window.addEventListener('load', function(evt) {
 	chrome.tabs.executeScript({
 			code: "window.getSelection().toString();"
 		}, function(result) {
-			if (!chrome.runtime.lastError || result !== undefined) {
+			if (!chrome.runtime.lastError || !result) {
 				document.getElementById("query").value = result[0];
 				query = result[0];
 
@@ -500,4 +500,5 @@ window.addEventListener('load', function(evt) {
 // Handling doucle-click events with the content-script
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   alert("message received");
+  sendResponse({back: "message received"});
 });

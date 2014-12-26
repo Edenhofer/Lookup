@@ -3,5 +3,7 @@ document.body.addEventListener('dblclick', function () {
   if (query == "" || query == " ") return -1;
 
   console.log("dbclick: \"" + window.getSelection().toString() + "\"; sending message to extension");
-  chrome.runtime.sendMessage("hello");
+  chrome.runtime.sendMessage("hello", function(response) {
+    console.log(response.back);
+  });
 });
