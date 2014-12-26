@@ -114,6 +114,7 @@ function init() {
 function wikipedia() {
   var begin = -1;
   var end = -1;
+  var custom_search;
   var tmp = "";
   // The real query shell not be altered
   var wiki_query = query;
@@ -125,11 +126,17 @@ function wikipedia() {
 
   // Searching for the beginning "<p>"
   for (var i = 0; i < 3; i++) {
-    // "[^|][^<]" is used to avoid year figures
-    if (data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i")) != -1) {
-      begin = data.slice(0, data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i"))).lastIndexOf("<p>");
+    custom_search = data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i"));
+    if (custom_search != -1) {
+      /*
+        Search for '"<b>" + wiki_query' and ignore if spaces are filled with e.g. second names, thereby detect whether it is a timeline
+        - this is done by exluding '[^|][^<]' to be the first two characters in front of the search pattern. Then slice the data
+        and search for the last occurance of '<p>', because '[^|][^<]' were excluded one has to add 2 to make the search for '<p>'
+        beginn at the real begin: the occurance of '"<b>" + wiki_query'.
+      */
+      begin = data.slice(0, custom_search + 2).lastIndexOf("<p>");
       if (begin != -1) break;
-      else data = data.slice(data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i")) + wiki_query.length + 3);
+      else data = data.slice(custom_search + wiki_query.length + 3);
     } else {
       begin = -1;
       break;
@@ -139,7 +146,7 @@ function wikipedia() {
 	if (begin != -1) {
 		end = data.indexOf("</p>", begin);
 		// Checks whether the <p> ends before the wiki_query was even mentioned (needed for e.g. "1782")
-		if (end < data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i"))) return -1;
+		if (end < custom_search) return -1;
 
 		// Checking for a list of options
 		if (data.slice(end + 5, end + 9).localeCompare("<ul>") == 0) {
@@ -159,7 +166,7 @@ function wikipedia() {
 		} else data = data.slice(begin, end);
 
 		// Replacing anything html with nothing
-		data = data.replace(/(<([^>]+)>)/ig, "");
+		data = data.replace(/<[^>]+>/ig, "");
 		data = data.replace(/\[\d+\]/ig, "");
 		data = data.replace(/gorditmp01/ig, "<li>");
 		data = data.replace(/gorditmp02/ig, "</li>");
@@ -319,7 +326,7 @@ function query_search(step) {
     // Getting the input
   	query = document.getElementById("query").value;
   	// Break if there is no input
-  	if (query == (""|" ")) return -1;
+  	if (query == "" || query == " ") return -1;
 
     // Replacing special characters in query, this is only neccessary for "dict.cc"
   	// Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
@@ -356,7 +363,7 @@ function query_search(step) {
     // Remember the current query
     last_queries.push(query);
     // Keeping the maximum length of query below max_last_queries
-    if (last_queries.length > max_last_queries) last_queries.slice(last_queries.length - max_last_queries, last_queries.length);
+    if (last_queries.length > max_last_queries) last_queries = last_queries.slice(last_queries.length - max_last_queries, last_queries.length);
     // Sync everything locally
     chrome.storage.local.set({'last_queries': last_queries});
     history = last_queries.length;
@@ -388,7 +395,7 @@ function query_search(step) {
 	  		document.getElementById("output").style.display="inline";
 	  		document.getElementById("source").style.display="inline";
   		} else if (step == (search_engines.length - 1)) {
-		    // No Match Case
+		  // No Match Case
 		  	// Presenting a Google-Link to look for results
 		  	if (query.length > 20) tmp = query.slice(0, 20) + "...";
 		  	else tmp = query;
@@ -408,7 +415,7 @@ function query_search(step) {
 	xmlhttp.send();
 }
 
-// Adding some EventListeners, one starup function [init()] and the "get selection to query" function
+// Adding some EventListeners
 window.addEventListener('load', function(evt) {
   document.getElementById('options_page').innerHTML = "<a href=\"" + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
@@ -441,7 +448,7 @@ window.addEventListener('load', function(evt) {
 	});
 
   // Function for quickly switching the grounding
-	document.getElementById('grounding').addEventListener('change', function switch_grounding() {
+	document.getElementById('grounding').addEventListener('change', function () {
 	  grounding = document.getElementById("grounding").value;
   	chrome.storage.sync.set({'grounding': grounding});
 
@@ -449,7 +456,7 @@ window.addEventListener('load', function(evt) {
 	});
 
 	// Function for quickly switching the input_language
-	document.getElementById('input_language').addEventListener('change', function switch_input_language() {
+	document.getElementById('input_language').addEventListener('change', function () {
 	  input_language = document.getElementById("input_language").value;
 	  chrome.storage.sync.set({'input_language': input_language});
 
@@ -457,7 +464,7 @@ window.addEventListener('load', function(evt) {
 	});
 
   // Trigger the search if ENTER or the search-button is pressed
-	document.getElementById('search').addEventListener('submit', function query_search_with_preventDefault() {
+	document.getElementById('search').addEventListener('submit', function () {
 	  // Prevent the page from reloading after the submit button is triggered
 		event.preventDefault();
 		query_search(0);
@@ -468,32 +475,29 @@ window.addEventListener('load', function(evt) {
 	  if (!event) event = window.event;
     if (event.charCode && code == 0) code = event.charCode;
 
-	  // Do nothing if the keypress is not from the arrow-keys
-	  if (code == 37 || code == 38 || code == 39 || code == 40) {
-	    event.preventDefault();
+    if (code == 37 || code == 40) {
+    // 37: Key left; 40: Key down
+      event.preventDefault();
 	    if (history == last_queries.length) last_queries.push(document.getElementById('query').value);
-      switch(code) {
-        case 37:
-        // Key left
-          break;
-        case 38:
-        // Key up
-          if (history < last_queries.length - 1) history += 1;
-          document.getElementById('query').value = last_queries[history];
-          document.getElementById('query').select();
-          console.log("[UP](" + history + "): " + last_queries[history] + " out of " + last_queries);
-          break;
-        case 39:
-        // Key right
-          break;
-        case 40:
-        // Key down
-          if (history > 0) history -= 1;
-          document.getElementById('query').value = last_queries[history];
-          document.getElementById('query').select();
-          console.log("[DOWN](" + history + "): " + last_queries[history] + " out of " + last_queries);
-          break;
-      }
-    };
-	}
+
+      if (history > 0) history -= 1;
+      document.getElementById('query').value = last_queries[history];
+      document.getElementById('query').select();
+      console.log("[DOWN](" + history + "): " + last_queries[history] + " out of " + last_queries);
+    } else if (code == 38 || code == 39) {
+    // 38: Key up; 39: Key right
+      event.preventDefault();
+	    if (history == last_queries.length) last_queries.push(document.getElementById('query').value);
+
+      if (history < last_queries.length - 1) history += 1;
+      document.getElementById('query').value = last_queries[history];
+      document.getElementById('query').select();
+      console.log("[UP](" + history + "): " + last_queries[history] + " out of " + last_queries);
+    }
+	};
+});
+
+// Handling doucle-click events with the content-script
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  alert("message received");
 });

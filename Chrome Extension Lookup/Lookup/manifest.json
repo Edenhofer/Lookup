@@ -12,9 +12,12 @@
     "256": "icons/logo.png"
   },
 
-  "background": {
-    "scripts": ["background.js"]
-  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["background.js"]
+    }
+  ],
 
   "browser_action": {
     "default_icon": "icons/logo.png",
@@ -23,8 +26,7 @@
 
   "permissions": [
   	"storage",
-  	"https://*/*",
-  	"http://*/*"
+  	"*://*/*"
   ],
 
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
