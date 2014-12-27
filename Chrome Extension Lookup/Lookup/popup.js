@@ -496,9 +496,3 @@ window.addEventListener('load', function(evt) {
     }
 	};
 });
-
-// Handling doucle-click events with the content-script
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  alert("message received");
-  sendResponse({back: "message received"});
-});

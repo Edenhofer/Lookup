@@ -4,7 +4,7 @@
   "name": "Lookup",
   "description": "This extension helps you to lookup anything in Wikipedia , Dict.cc or Arch Linux Wiki without interrupting your browsing experience.",
   "options_page": "options.html",
-  "version": "0.50.0",
+  "version": "0.54.8",
 
   "icons": {
     "16": "icons/logo.png",
@@ -12,10 +12,15 @@
     "256": "icons/logo.png"
   },
 
+  "background": {
+    "scripts": ["event-page.js"],
+    "persistent": false
+  },
+
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["background.js"]
+      "js": ["content-script.js"]
     }
   ],
 
