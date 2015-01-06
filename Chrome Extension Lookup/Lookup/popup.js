@@ -3,6 +3,8 @@
   than slice will still work, because the not found arguements equales -1!
 
   SNIPPETS FOR LATER:
+  var bkg = chrome.extension.getBackgroundPage();
+  bkg.callFunction();
 */
 
 // Setting up some global variables
@@ -23,7 +25,7 @@ function init() {
   var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
   var tmp = "";
 
-  // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
+  // The chrome.storage call runs in the background and other function do not wait for it to finisch. It is an asynchronous method!
 	chrome.storage.sync.get(saves, function (result) {
 	  if (chrome.runtime.lasError || !result) {
 	    console.log("Runtime Error, code:FF9932");
@@ -317,13 +319,6 @@ function query_search(step) {
   	// Break if there is no input - THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
   	if (query == "" || query == " ") return -1;
 
-  	// Set  what to display
-  	document.getElementById("loading").style.display="inline";
-  	document.getElementById("output").style.display="none";
-  	document.getElementById("noresult").style.display="none";
-  	document.getElementById("source").style.display="none";
-  	document.getElementById("tip").style.display="none";
-
     // Replacing special characters in query, this is only neccessary for "dict.cc"
   	// Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
   	var diacriticsMap = [
@@ -363,6 +358,13 @@ function query_search(step) {
     // Sync everything locally
     chrome.storage.local.set({'last_queries': last_queries});
     history = last_queries.length;
+
+    // Set  what to display
+  	document.getElementById("loading").style.display="inline";
+  	document.getElementById("output").style.display="none";
+  	document.getElementById("noresult").style.display="none";
+  	document.getElementById("source").style.display="none";
+  	document.getElementById("tip").style.display="none";
   }
 
   // Filling the loading div with text
@@ -470,13 +472,15 @@ window.addEventListener('load', function(evt) {
 		query_search(0);
 	});
 
+  // Navigating through history with the arrow keys
 	document.onkeydown = function(event) {
 	  var code = event.keyCode;
 	  if (!event) event = window.event;
     if (event.charCode && code == 0) code = event.charCode;
 
-    if (code == 37 || code == 40) {
-    // 37: Key left; 40: Key down
+    // NOTE: 37: Key left; 39: Key right
+    if (code == 40) {
+    // 40: Key down
       event.preventDefault();
 	    if (history == last_queries.length) last_queries.push(document.getElementById('query').value);
 
@@ -484,8 +488,8 @@ window.addEventListener('load', function(evt) {
       document.getElementById('query').value = last_queries[history];
       document.getElementById('query').select();
       console.log("[DOWN](" + history + "): " + last_queries[history] + " out of " + last_queries);
-    } else if (code == 38 || code == 39) {
-    // 38: Key up; 39: Key right
+    } else if (code == 38) {
+    // 38: Key up
       event.preventDefault();
 	    if (history == last_queries.length) last_queries.push(document.getElementById('query').value);
 
