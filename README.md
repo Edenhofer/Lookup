@@ -1,7 +1,7 @@
-Custom Substitution Plan
-========================
+Lookup Chrome Extension
+=======================
 
-Processing of a substitution plan for the purpose of individualization.
+This extension helps you to lookup anything in Wikipedia , Dict.cc or Arch Linux Wiki without interrupting your browsing experience.
 
 ----------
 **Author**
