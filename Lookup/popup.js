@@ -199,9 +199,9 @@ function wikipedia(data, query) {
     data = data.replace(/gorditmp02/ig, "</li>");
     data = data.replace(/gorditmp03/ig, "<li>...</li>");
 
-    return 0;
+    return data;
   }
-  else return -1;
+  else return "none";
 }
 
 // Function for Duden (german_dictionary) specific queries
@@ -221,9 +221,9 @@ function duden(data, query) {
     data = data.replace(/(<([^>]+)>)/ig, "");
     data = data.replace(/gorditmp/ig, "<p></p> -");
 
-    return 0;
+    return data;
   }
-  else return -1;
+  else return "none";
 }
 
 // Function for Arch Linux queries
@@ -266,9 +266,9 @@ function archlinux(data, query) {
     data = data.replace(/gorditmp01/ig, "<i>");
     data = data.replace(/gorditmp02/ig, "</i>");
 
-    return 0;
+    return data;
   }
-  else return -1;
+  else return "none";
 }
 
 // Function for Google Translate
@@ -287,9 +287,9 @@ function google_translate(data, query) {
     // Replacing anything html with nothing
     data = data.replace(/(<([^>]+)>)/ig, "");
 
-    return 0;
+    return data;
   }
-  else return -1;
+  else return "none";
 }
 
 // Function for dict.cc
@@ -327,9 +327,9 @@ function dict(data, query) {
     data = data.replace(/{[a-zA-Z.-]+}/ig, "");
     data = data.replace(/&lt;([^&]*)&gt;/ig, "");
 
-    return 0;
+    return data;
   }
-  else return -1;
+  else return "none";
 }
 
 // This function is used to fetch the html-code of any page
@@ -359,6 +359,7 @@ function query_search() {
 
   // Replacing special characters in query, this is only neccessary for "dict.cc"
   // Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
+  // TODO: cleanup!!!!!!!!!!!!!!!
   var diacriticsMap = [
     {'base':'A', 'letters':/[\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F]/g},
     {'base':'AE','letters':/[\u00C4\u00C6\u01FC\u01E2]/g},
@@ -408,7 +409,7 @@ function query_search() {
     site.push(fetch_site(search_engines[i][1] + query));
 
   for (i = 0; i < search_engines.length - 1; i++) {
-    while ( site[i] === "") {
+    while (!site[i]) {
       // Do nothing (special) until every single html-request has finished
 
       // Filling the loading div with text
@@ -417,8 +418,14 @@ function query_search() {
     }
   }
 
+  alert(site[0]);
+
   for (i = 0; i < search_engines.length - 1; i++) {
-    if (eval(search_engines[i][0] + "(" + site[i] + ", " + query + ")") === 0) {
+    tmp = site[i];
+    //site[i] = eval(search_engines[i][0] + "(" + eval(tmp) + ", " +  eval(query) + ")");
+    site[i] = eval(search_engines[i][0] + "(tmp, query)");
+    if (site[i] == "none") continue;
+    else if (site[i]) {
       // Trimming the output to not exceed the maximum length
       if (site[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
         site[i] = site[i].slice(0, max_output_length);
@@ -434,8 +441,10 @@ function query_search() {
       document.getElementById("source").style.display="inline";
 
       // A result was found and was succesfully display, hence breaking out of the loop
-      break;
-    } else if (i == search_engines.length -1) {
+      if (site[i] != "none") break;
+    }
+
+    if (i >= search_engines.length - 1) {
       // There if no search_engine anymore available and nothing was found
       // Presenting a Google-Link to look for results
       if (query.length > 20) tmp = query.slice(0, 20) + "...";
@@ -472,7 +481,7 @@ window.addEventListener('load', function(evt) {
   chrome.tabs.executeScript({
     code: "window.getSelection().toString();"
   }, function(result) {
-    if (!chrome.runtime.lastError || !result) {
+    if (!chrome.runtime.lastError && result) {
       document.getElementById("query").value = result[0];
 
       // Search directly after the button click
