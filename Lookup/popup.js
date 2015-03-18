@@ -36,6 +36,7 @@ fetch_feed(request.url, callback);
 }
 -->
 */
+//"use strict";
 
 // Setting up some global variables
 var language = "";
@@ -49,10 +50,9 @@ var data = "";
 
 // On page load function
 function init() {
-  "use strict";
-  var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"],
-  language, grounding, input_language, switcher_grounding, switcher_ranked_search,
-  tmp = "";
+  var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
+  var language, grounding, input_language, switcher_grounding, switcher_ranked_search;
+  var tmp = "";
 
   // The chrome.storage call runs in the background and other function do not wait for it to finisch. It is an asynchronous method!
   chrome.storage.sync.get(saves, function (result) {
