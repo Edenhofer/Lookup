@@ -334,12 +334,14 @@ function dict(data, query) {
 
 // This function is used to fetch the html-code of any page
 function fetch_site(current_url) {
+  var data = "";
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4){
-      var data = xmlhttp.responseText;
+    if (xmlhttp.readyState == 4) {
+      data = xmlhttp.responseText;
       // Deleting unneccessary spaces
       data = data.trim();
+      if (xmlhttp.status == 404) data = "none";
       return data;
     }
   };
@@ -408,13 +410,18 @@ function query_search() {
   for (i = 0; i < search_engines.length - 1; i++)
     site.push(fetch_site(search_engines[i][1] + query));
 
-  for (i = 0; i < search_engines.length - 1; i++) {
-    while (!site[i]) {
-      // Do nothing (special) until every single html-request has finished
+  // TODO
+  alert("Hallo");
+  alert(site[0] + "||" + site[1]);
 
-      // Filling the loading div with text
-      if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
-      else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
+  // Do nothing (special) until every single html-request has finished
+  for (i = 0; i < search_engines.length - 1; i++) {
+    // Filling the loading div with text
+    if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
+    else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
+
+    // I GET STUCK IN THE WHILE LOOP NOT INTENTIONALLY!!!!!!! TODO
+    while (!site[i]) {
     }
   }
 
