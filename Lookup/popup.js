@@ -39,14 +39,10 @@ fetch_feed(request.url, callback);
 //"use strict";
 
 // Setting up some global variables
-var language = "";
-var input_language = "";
-var query = "";
 var last_queries = [];
 var search_engines;
 var max_output_length = 540;
 var max_last_queries = 10;
-var data = "";
 
 // On page load function
 function init() {
@@ -142,32 +138,30 @@ function init() {
 }
 
 // Function for Wikipedia specific queries
-function wikipedia() {
+function wikipedia(data, query) {
   var begin = -1;
   var end = -1;
   var custom_search;
   var tmp = "";
-  // The real query shell not be altered
-  var wiki_query = query;
 
   // Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
-  wiki_query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
-  // Removing note from the "<title>"-wiki_query e.g. "(Begriffserklärung)"
-  if (wiki_query.indexOf("(") != -1) wiki_query = wiki_query.replace(/ ([^)]*)/i, "").slice(0, -1);
+  query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
+  // Removing note from the "<title>"-query e.g. "(Begriffserklärung)"
+  if (query.indexOf("(") != -1) query = query.replace(/ ([^)]*)/i, "").slice(0, -1);
 
   // Searching for the beginning "<p>"
   for (var i = 0; i < 3; i++) {
-    custom_search = data.search(new RegExp("[^|][^<]<b>[^<]*" + wiki_query.replace(/ /ig, "[^<]*"), "i"));
+    custom_search = data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"));
     if (custom_search != -1) {
       /*
-      Search for '"<b>" + wiki_query' and ignore if spaces are filled with e.g. second names, thereby detect whether it is a timeline
+      Search for '"<b>" + query' and ignore if spaces are filled with e.g. second names, thereby detect whether it is a timeline
       - this is done by exluding '[^|][^<]' to be the first two characters in front of the search pattern. Then slice the data
       and search for the last occurance of '<p>', because '[^|][^<]' were excluded one has to add 2 to make the search for '<p>'
-      beginn at the real begin: the occurance of '"<b>" + wiki_query'.
+      beginn at the real begin: the occurance of '"<b>" + query'.
       */
       begin = data.slice(0, custom_search + 2).lastIndexOf("<p>");
       if (begin != -1) break;
-      else data = data.slice(custom_search + wiki_query.length + 3);
+      else data = data.slice(custom_search + query.length + 3);
     } else {
       begin = -1;
       break;
@@ -176,7 +170,7 @@ function wikipedia() {
 
   if (begin != -1) {
     end = data.indexOf("</p>", begin);
-    // Checks whether the <p> ends before the wiki_query was even mentioned (needed for e.g. "1782")
+    // Checks whether the <p> ends before the query was even mentioned (needed for e.g. "1782")
     if (end < custom_search) return -1;
 
     // Checking for a list of options
@@ -209,7 +203,7 @@ function wikipedia() {
 }
 
 // Function for Duden (german_dictionary) specific queries
-function duden() {
+function duden(data, query) {
   var begin = -1;
   var end = -1;
 
@@ -231,7 +225,7 @@ function duden() {
 }
 
 // Function for Arch Linux queries
-function archlinux() {
+function archlinux(data, query) {
   var begin = -1;
   var end = -1;
   var tmp = "";
@@ -276,7 +270,7 @@ function archlinux() {
 }
 
 // Function for Google Translate
-function google_translate() {
+function google_translate(data, query) {
   /*
   Works only in theory. The source code which is send to an
   ordinary user by Google differs from that which this
@@ -297,7 +291,7 @@ function google_translate() {
 }
 
 // Function for dict.cc
-function dict() {
+function dict(data, query) {
   var begin = -1;
   var end = -1;
   var tmp = "";
@@ -336,6 +330,7 @@ function dict() {
   else return -1;
 }
 
+// This function is used to fetch the html-code of any page
 function fetch_site(current_url) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
@@ -358,6 +353,7 @@ function query_search() {
   if (query === "" || query == " ") return -1;
 
   var tmp = "";
+  var sites = [];
 
   // Replacing special characters in query, this is only neccessary for "dict.cc"
   // Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
@@ -405,40 +401,49 @@ function query_search() {
   document.getElementById("source").style.display="none";
   document.getElementById("tip").style.display="none";
 
-  for (var n = 0; i < search_engines.length - 1; i++) {
-    // "search_engines" is set in the init() function
-    data = fetch_site(search_engines[i][1] + query);
-    $.when(data).done(function() {
+  // "search_engines" is set in the init() function
+  for (i = 0; i < search_engines.length - 1; i++)
+    sites.push(fetch_site(search_engines[i][1] + query));
+
+  for (i = 0; i < search_engines.length - 1; i++) {
+    while ( site[i] === "") {
+      // Do nothing (special) until every single html-request has finished
+
       // Filling the loading div with text
       if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
       else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
+    }
+  }
 
-      if (eval(search_engines[i][0] + "()") === 0) {
-        // Trimming the output to not exceed the maximum length
-        if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-          data = data.slice(0, max_output_length);
-          data = data.slice(0, data.lastIndexOf(" "))+ "...";
-        }
-
-        document.getElementById("output").innerHTML = "<p></p>" + data;
-        document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
-
-        // Set what to display
-        document.getElementById("loading").style.display="none";
-        document.getElementById("output").style.display="inline";
-        document.getElementById("source").style.display="inline";
-      } else if (i == search_engines.length -1) {
-        // There if no search_engine anymore available and nothing was found
-        // Presenting a Google-Link to look for results
-        if (query.length > 20) tmp = query.slice(0, 20) + "...";
-        else tmp = query;
-        document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
-
-        // Set what to display
-        document.getElementById("loading").style.display="none";
-        document.getElementById("noresult").style.display="inline";
+  for (i = 0; i < search_engines.length - 1; i++) {
+    if (eval(search_engines[i][0] + "(" + site[i] + ", " + query + ")") === 0) {
+      // Trimming the output to not exceed the maximum length
+      if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+        data = data.slice(0, max_output_length);
+        data = data.slice(0, data.lastIndexOf(" "))+ "...";
       }
-    });
+
+      document.getElementById("output").innerHTML = "<p></p>" + data;
+      document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
+
+      // Set what to display
+      document.getElementById("loading").style.display="none";
+      document.getElementById("output").style.display="inline";
+      document.getElementById("source").style.display="inline";
+
+      // A result was found and was succesfully display, hence breaking out of the loop
+      break;
+    } else if (i == search_engines.length -1) {
+      // There if no search_engine anymore available and nothing was found
+      // Presenting a Google-Link to look for results
+      if (query.length > 20) tmp = query.slice(0, 20) + "...";
+      else tmp = query;
+      document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+
+      // Set what to display
+      document.getElementById("loading").style.display="none";
+      document.getElementById("noresult").style.display="inline";
+    }
   }
 }
 
@@ -476,7 +481,7 @@ window.addEventListener('load', function(evt) {
 
   // Function for quickly switching the grounding
   document.getElementById('grounding').addEventListener('change', function () {
-    grounding = document.getElementById("grounding").value;
+    var grounding = document.getElementById("grounding").value;
     chrome.storage.sync.set({'grounding': grounding});
 
     init();
@@ -484,7 +489,7 @@ window.addEventListener('load', function(evt) {
 
   // Function for quickly switching the input_language
   document.getElementById('input_language').addEventListener('change', function () {
-    input_language = document.getElementById("input_language").value;
+    var input_language = document.getElementById("input_language").value;
     chrome.storage.sync.set({'input_language': input_language});
 
     init();
