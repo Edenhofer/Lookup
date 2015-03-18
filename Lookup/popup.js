@@ -418,8 +418,6 @@ function query_search() {
     }
   }
 
-  alert(site[0]);
-
   for (i = 0; i < search_engines.length - 1; i++) {
     tmp = site[i];
     //site[i] = eval(search_engines[i][0] + "(" + eval(tmp) + ", " +  eval(query) + ")");
