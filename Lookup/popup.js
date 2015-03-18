@@ -36,7 +36,9 @@ fetch_feed(request.url, callback);
 }
 -->
 */
-//"use strict";
+// Making JSLint display a lot more warning
+// "use strict";
+// var document, chrome, event, console, window;
 
 // Setting up some global variables
 var last_queries = [];
@@ -335,7 +337,7 @@ function fetch_site(current_url) {
   var xmlhttp = new XMLHttpRequest();
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4){
-      data = xmlhttp.responseText;
+      var data = xmlhttp.responseText;
       // Deleting unneccessary spaces
       data = data.trim();
       return data;
@@ -348,12 +350,12 @@ function fetch_site(current_url) {
 // The main search function
 function query_search() {
   // Getting the input
-  query = document.getElementById("query").value;
+  var query = document.getElementById("query").value;
   // Break if there is no input - THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
   if (query === "" || query == " ") return -1;
 
   var tmp = "";
-  var sites = [];
+  var site = [];
 
   // Replacing special characters in query, this is only neccessary for "dict.cc"
   // Incomplete character map, for the full version see "https://gist.github.com/yeah/1283961"
@@ -403,7 +405,7 @@ function query_search() {
 
   // "search_engines" is set in the init() function
   for (i = 0; i < search_engines.length - 1; i++)
-    sites.push(fetch_site(search_engines[i][1] + query));
+    site.push(fetch_site(search_engines[i][1] + query));
 
   for (i = 0; i < search_engines.length - 1; i++) {
     while ( site[i] === "") {
@@ -418,12 +420,12 @@ function query_search() {
   for (i = 0; i < search_engines.length - 1; i++) {
     if (eval(search_engines[i][0] + "(" + site[i] + ", " + query + ")") === 0) {
       // Trimming the output to not exceed the maximum length
-      if (data.replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-        data = data.slice(0, max_output_length);
-        data = data.slice(0, data.lastIndexOf(" "))+ "...";
+      if (site[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+        site[i] = site[i].slice(0, max_output_length);
+        site[i] = site[i].slice(0, site[i].lastIndexOf(" "))+ "...";
       }
 
-      document.getElementById("output").innerHTML = "<p></p>" + data;
+      document.getElementById("output").innerHTML = "<p></p>" + site[i];
       document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
 
       // Set what to display
@@ -472,7 +474,6 @@ window.addEventListener('load', function(evt) {
   }, function(result) {
     if (!chrome.runtime.lastError || !result) {
       document.getElementById("query").value = result[0];
-      query = result[0];
 
       // Search directly after the button click
       query_search();
