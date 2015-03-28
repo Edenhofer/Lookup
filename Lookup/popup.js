@@ -7,38 +7,10 @@ SNIPPETS FOR LATER:
 var bkg = chrome.extension.getBackgroundPage();
 bkg.callFunction();
 -->
-
-<!--
-function fetch_feed(url, callback) {
-var xhr = new XMLHttpRequest();
-xhr.onreadystatechange = function(data) {
-if (xhr.readyState == 4) {
-if (xhr.status == 200) {
-var data = xhr.responseText;
-callback(data);
-} else {
-callback(null);
-}
-}
-}
-// Note that any URL fetched here must be matched by a permission in
-// the manifest.json file!
-xhr.open('GET', url, true);
-xhr.send();
-}
-
-
-
-function onRequest(request, sender, callback) {
-if (request.action == 'fetch_feed') {
-fetch_feed(request.url, callback);
-}
-}
--->
 */
+
 // Making JSLint display a lot more warning
-// "use strict";
-// var document, chrome, event, console, window;
+//"use strict"; var document, chrome, event, console, window;
 
 // Setting up some global variables
 var last_queries = [];
@@ -380,7 +352,7 @@ function query_search() {
   // fetching possible entries from each site
   // "search_engines" is set in the init() function
   // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
-  for (i = 0; i < search_engines.length - 1; i++)
+  for (var i = 0; i < search_engines.length - 1; i++)
     site.push(fetch_site(search_engines[i][1] + encodeURIComponent(query)));
 
   // TODO
@@ -396,8 +368,9 @@ function query_search() {
     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
     // I GET STUCK IN THE WHILE LOOP NOT INTENTIONALLY!!!!!!! TODO
-    while (!site[i]) {
-    }
+    //while (!site[i]) {
+    //}
+    //alert("I got out of the loop");
   }
 
   for (i = 0; i < search_engines.length - 1; i++) {
