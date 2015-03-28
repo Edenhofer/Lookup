@@ -333,19 +333,23 @@ function dict(data, query) {
 }
 
 // This function is used to fetch the html-code of any page
-function fetch_site(current_url) {
+function fetch_site(url) {
   var data = "";
   var xmlhttp = new XMLHttpRequest();
+
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4) {
-      data = xmlhttp.responseText;
-      // Deleting unneccessary spaces
-      data = data.trim();
-      if (xmlhttp.status == 404) data = "none";
-      return data;
+      if (xmlhttp.status == 200) {
+        data = xmlhttp.responseText;
+        // Deleting unneccessary spaces
+        data = data.trim();
+      } else data = "none";
+
+      alert("data: " + data); // TODO
     }
   };
-  xmlhttp.open("GET", current_url, true);
+
+  xmlhttp.open("GET", url, true);
   xmlhttp.send();
 }
 
@@ -411,8 +415,10 @@ function query_search() {
     site.push(fetch_site(search_engines[i][1] + query));
 
   // TODO
-  alert("Hallo");
-  alert(site[0] + "||" + site[1]);
+  var gordi = fetch_site("http:edh.ddns.net");
+  alert("Hallo || " + search_engines[i][1] + query + " || ");
+  alert(gordi);
+  //alert(site[0] + "||" + site[1]);
 
   // Do nothing (special) until every single html-request has finished
   for (i = 0; i < search_engines.length - 1; i++) {
