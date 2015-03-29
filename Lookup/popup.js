@@ -55,7 +55,7 @@ function init() {
       }
     }
     // Preselecting the saved input_language
-    for (var n = 0; i < document.getElementById("input_language").options.length; i++) {
+    for (i = 0; i < document.getElementById("input_language").options.length; i++) {
       if (document.getElementById("input_language").options[i].value == input_language) {
         document.getElementById("input_language").options[i].selected = true;
         break;
@@ -109,6 +109,12 @@ function init() {
     }
     // In case switcher_ranked_search if NOT true then make the selected search engine the only one in the search_engines array
     if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url")]];
+
+    // Defining the length of the content array according to the length of search_engines
+    // This is needed due to the nature how fetch_site is invoced
+    for(i = 0; i < search_engines.length; i++) {
+      content.push("");
+    }
   });
 }
 
@@ -305,21 +311,34 @@ function dict(data, query) {
   else return "none";
 }
 
+// This Function stops javascript for a period of time in milliseconds
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
 // This function is used to fetch the html-code of any page
 // TODO THE WHOLE FUNCTION IS NOT WORKING
-function fetch_site(url) {
-  var data = "";
+function fetch_site(url, i) {
   var xmlhttp = new XMLHttpRequest();
 
   // milliseconds a request can take before automatically being terminated
   xmlhttp.timeout = 500;
+  xmlhttp.ontimeout = function () {
+    content[i] = "none";
+    alert("ontimeout");
+  };
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4) {
       if (xmlhttp.status == 200) {
-        data = xmlhttp.responseText;
+        content[i] = xmlhttp.responseText;
         // Deleting unneccessary spaces
-        data = data.trim();
-      } else data = "none";
+        content[i] = content[i].trim();
+      } else content[i] = "none";
     }
   };
   xmlhttp.open("GET", url, true);
@@ -355,13 +374,11 @@ function query_search() {
   // "search_engines" is defined in the init() function
   // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
   for (var i = 0; i < search_engines.length - 1; i++) {
-    fetch_site(search_engines[i][1] + encodeURIComponent(query));
+    fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
   }
 
   // TODO
-  //var gordi = fetch_site("http:edh.ddns.net");
-  //alert("pause"); alert(gordi);
-  alert("pause"); alert(content[0]);
+  fetch_site("http:edh.ddns.net", 0); alert("pause"); alert("content[0]: \"" + content[0] + "\"");
 
   // Do nothing (special) until every single html-request has finished
   for (i = 0; i < search_engines.length - 1; i++) {
@@ -371,9 +388,11 @@ function query_search() {
     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
     // I GET STUCK IN THE WHILE LOOP NOT INTENTIONALLY!!!!!!! TODO
-    //while (!content[i]) {
-    //}
-    //alert("I got out of the loop");
+    // Bussy waiting loop
+    while (content[i] === "") {
+      sleep(20);
+    }
+    alert("I got out of the loop");
   }
 
   for (i = 0; i < search_engines.length - 1; i++) {
