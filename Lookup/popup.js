@@ -15,6 +15,7 @@ bkg.callFunction();
 // Setting up some global variables
 var last_queries = [];
 var search_engines;
+var content = [];
 var max_output_length = 540;
 var max_last_queries = 10;
 
@@ -204,7 +205,7 @@ function archlinux(data, query) {
   var end = -1;
   var tmp = "";
 
-  // No-Article site
+  // Checking for the existance of an article
   if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
   else {
     data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
@@ -311,7 +312,7 @@ function fetch_site(url) {
   var xmlhttp = new XMLHttpRequest();
 
   // milliseconds a request can take before automatically being terminated
-  xmlhttp.timeout = 400;
+  xmlhttp.timeout = 500;
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4) {
       if (xmlhttp.status == 200) {
@@ -335,7 +336,6 @@ function query_search() {
   if (query === "" || query == " ") return -1;
 
   var tmp = "";
-  var site = [];
 
   // Remember the current query
   last_queries.push(query);
@@ -352,17 +352,16 @@ function query_search() {
   document.getElementById("tip").style.display="none";
 
   // fetching possible entries from each site
-  // "search_engines" is set in the init() function
+  // "search_engines" is defined in the init() function
   // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
   for (var i = 0; i < search_engines.length - 1; i++) {
-    site.push(fetch_site(search_engines[i][1] + encodeURIComponent(query)));
+    fetch_site(search_engines[i][1] + encodeURIComponent(query));
   }
 
   // TODO
-  var gordi = fetch_site("http:edh.ddns.net");
-  alert("Hallo || " + search_engines[i][1] + query + " || ");
-  alert(gordi);
-  //alert(site[0] + "||" + site[1]);
+  //var gordi = fetch_site("http:edh.ddns.net");
+  //alert("pause"); alert(gordi);
+  alert("pause"); alert(content[0]);
 
   // Do nothing (special) until every single html-request has finished
   for (i = 0; i < search_engines.length - 1; i++) {
@@ -372,24 +371,24 @@ function query_search() {
     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
     // I GET STUCK IN THE WHILE LOOP NOT INTENTIONALLY!!!!!!! TODO
-    //while (!site[i]) {
+    //while (!content[i]) {
     //}
     //alert("I got out of the loop");
   }
 
   for (i = 0; i < search_engines.length - 1; i++) {
-    tmp = site[i];
-    //site[i] = eval(search_engines[i][0] + "(" + eval(tmp) + ", " +  eval(query) + ")");
-    site[i] = eval(search_engines[i][0] + "(tmp, query)");
-    if (site[i] == "none") continue;
-    else if (site[i]) {
+    tmp = content[i];
+    //content[i] = eval(search_engines[i][0] + "(" + eval(tmp) + ", " +  eval(query) + ")");
+    content[i] = eval(search_engines[i][0] + "(tmp, query)");
+    if (content[i] == "none") continue;
+    else if (content[i]) {
       // Trimming the output to not exceed the maximum length
-      if (site[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-        site[i] = site[i].slice(0, max_output_length);
-        site[i] = site[i].slice(0, site[i].lastIndexOf(" "))+ "...";
+      if (content[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+        content[i] = content[i].slice(0, max_output_length);
+        content[i] = content[i].slice(0, content[i].lastIndexOf(" "))+ "...";
       }
 
-      document.getElementById("output").innerHTML = "<p></p>" + site[i];
+      document.getElementById("output").innerHTML = "<p></p>" + content[i];
       document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\""
       + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
 
@@ -399,7 +398,7 @@ function query_search() {
       document.getElementById("source").style.display="inline";
 
       // A result was found and was succesfully display, hence breaking out of the loop
-      if (site[i] != "none") break;
+      break;
     }
 
     if (i >= search_engines.length - 1) {
