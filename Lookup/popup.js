@@ -305,10 +305,13 @@ function dict(data, query) {
 }
 
 // This function is used to fetch the html-code of any page
+// TODO THE WHOLE FUNCTION IS NOT WORKING
 function fetch_site(url) {
   var data = "";
   var xmlhttp = new XMLHttpRequest();
 
+  // milliseconds a request can take before automatically being terminated
+  xmlhttp.timeout = 400;
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4) {
       if (xmlhttp.status == 200) {
@@ -316,12 +319,10 @@ function fetch_site(url) {
         // Deleting unneccessary spaces
         data = data.trim();
       } else data = "none";
-
-      alert("data: " + data); // TODO
     }
   };
-
   xmlhttp.open("GET", url, true);
+  xmlhttp.setRequestHeader("Content-type","Lookup/simple");
   xmlhttp.send();
 }
 
@@ -329,7 +330,8 @@ function fetch_site(url) {
 function query_search() {
   // Getting the input
   var query = document.getElementById("query").value;
-  // Break if there is no input - THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
+  // Break if there is no input
+  // THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
   if (query === "" || query == " ") return -1;
 
   var tmp = "";
@@ -352,8 +354,9 @@ function query_search() {
   // fetching possible entries from each site
   // "search_engines" is set in the init() function
   // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
-  for (var i = 0; i < search_engines.length - 1; i++)
+  for (var i = 0; i < search_engines.length - 1; i++) {
     site.push(fetch_site(search_engines[i][1] + encodeURIComponent(query)));
+  }
 
   // TODO
   var gordi = fetch_site("http:edh.ddns.net");
@@ -364,7 +367,8 @@ function query_search() {
   // Do nothing (special) until every single html-request has finished
   for (i = 0; i < search_engines.length - 1; i++) {
     // Filling the loading div with text
-    if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
+    if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
+    + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
     // I GET STUCK IN THE WHILE LOOP NOT INTENTIONALLY!!!!!!! TODO
@@ -386,7 +390,8 @@ function query_search() {
       }
 
       document.getElementById("output").innerHTML = "<p></p>" + site[i];
-      document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
+      document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\""
+      + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
 
       // Set what to display
       document.getElementById("loading").style.display="none";
@@ -402,7 +407,8 @@ function query_search() {
       // Presenting a Google-Link to look for results
       if (query.length > 20) tmp = query.slice(0, 20) + "...";
       else tmp = query;
-      document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+      document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
+      + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
 
       // Set what to display
       document.getElementById("loading").style.display="none";
@@ -413,7 +419,8 @@ function query_search() {
 
 // Adding some EventListeners
 window.addEventListener('load', function(evt) {
-  document.getElementById('options_page').innerHTML = "<a href=\"" + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
+  document.getElementById('options_page').innerHTML = "<a href=\""
+  + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
   // The variable "history" is needed for skipping through old queries
   var history = 0;
