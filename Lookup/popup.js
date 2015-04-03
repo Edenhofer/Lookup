@@ -100,14 +100,17 @@ function init() {
     if (language == "de") search_engines = [["duden",duden_url],["wikipedia",wikipedia_url],["dict",dict_url]];
     // If no valid language is detected, than the english style will be used
     else search_engines = [["wikipedia",wikipedia_url],["dict",dict_url]];
+
     // If switcher_grounding is true then set the selected search engine to the top of the search_engines array
     if (switcher_grounding === true) {
       // Removing the next occurance of grounding in search_engines to avoid fetching the site twice
-      for (var k = 0; i < search_engines.length; i++)
-      if (search_engines[i][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
+      for (i = 0; i < search_engines.length; i++) {
+        if (search_engines[i][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
+      }
       search_engines.unshift([grounding, eval(grounding + "_url")]);
     }
-    // In case switcher_ranked_search if NOT true then make the selected search engine the only one in the search_engines array
+
+    // In case switcher_ranked_search is NOT true then make the selected search engine the only one in the search_engines array
     if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url")]];
 
     // Defining the length of the content array according to the length of search_engines
@@ -322,12 +325,11 @@ function sleep(milliseconds) {
 }
 
 // This function is used to fetch the html-code of any page
-// TODO THE WHOLE FUNCTION IS NOT WORKING
 function fetch_site(url, i) {
   var xmlhttp = new XMLHttpRequest();
 
   // milliseconds a request can take before automatically being terminated
-  xmlhttp.timeout = 500;
+  xmlhttp.timeout = 200;
   xmlhttp.ontimeout = function () {
     content[i] = "none";
     alert("ontimeout");
@@ -344,6 +346,9 @@ function fetch_site(url, i) {
   xmlhttp.open("GET", url, true);
   xmlhttp.setRequestHeader("Content-type","Lookup/simple");
   xmlhttp.send();
+
+  //TODO
+  content[i] = "none";
 }
 
 // The main search function
@@ -373,33 +378,47 @@ function query_search() {
   // fetching possible entries from each site
   // "search_engines" is defined in the init() function
   // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
-  for (var i = 0; i < search_engines.length - 1; i++) {
+  for (var i = 0; i < search_engines.length; i++) {
     fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
   }
 
   // TODO
-  fetch_site("http:edh.ddns.net", 0); alert("pause"); alert("content[0]: \"" + content[0] + "\"");
+  //fetch_site("http:edh.ddns.net", 0); alert("pause"); alert("content[0]: \"" + content[0] + "\"");
 
   // Do nothing (special) until every single html-request has finished
-  for (i = 0; i < search_engines.length - 1; i++) {
+  for (i = 0; i < search_engines.length; i++) {
     // Filling the loading div with text
     if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
     + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
-    // I GET STUCK IN THE WHILE LOOP NOT INTENTIONALLY!!!!!!! TODO
-    // Bussy waiting loop
+    // Busy waiting loop
     while (content[i] === "") {
       sleep(20);
     }
-    alert("I got out of the loop");
   }
 
-  for (i = 0; i < search_engines.length - 1; i++) {
+  for (i = 0; i < search_engines.length; i++) {
     tmp = content[i];
-    //content[i] = eval(search_engines[i][0] + "(" + eval(tmp) + ", " +  eval(query) + ")");
-    content[i] = eval(search_engines[i][0] + "(tmp, query)");
-    if (content[i] == "none") continue;
+
+    // Do not search if content is emppty respectivly "none"
+    if (content[i] == "none" && i < search_engines.length - 1) continue;
+    // Start searching in for usefull content
+    else content[i] = eval(search_engines[i][0] + "(tmp, query)");
+
+    if (i == search_engines.length - 1 && content[i] == "none") {
+      // There if no search_engine anymore available and nothing was found
+      // Presenting a Google-Link to look for results
+      if (query.length > 20) tmp = query.slice(0, 20) + "...";
+      else tmp = query;
+      document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
+      + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+
+      // Set what to display
+      document.getElementById("loading").style.display="none";
+      document.getElementById("noresult").style.display="inline";
+    }
+    else if (content[i] == "none") continue;
     else if (content[i]) {
       // Trimming the output to not exceed the maximum length
       if (content[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
@@ -418,19 +437,6 @@ function query_search() {
 
       // A result was found and was succesfully display, hence breaking out of the loop
       break;
-    }
-
-    if (i >= search_engines.length - 1) {
-      // There if no search_engine anymore available and nothing was found
-      // Presenting a Google-Link to look for results
-      if (query.length > 20) tmp = query.slice(0, 20) + "...";
-      else tmp = query;
-      document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
-      + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
-
-      // Set what to display
-      document.getElementById("loading").style.display="none";
-      document.getElementById("noresult").style.display="inline";
     }
   }
 }
