@@ -328,12 +328,22 @@ function sleep(milliseconds) {
 function fetch_site(url, i) {
   var xmlhttp = new XMLHttpRequest();
 
-  // milliseconds a request can take before automatically being terminated
+  xmlhttp.open("GET", url, true);
+
+  // Milliseconds a request can take before automatically being terminated
   xmlhttp.timeout = 500;
   xmlhttp.ontimeout = function () {
     content[i] = "none";
-    alert("ontimeout: content[" + i + "] is now set to " + content[i] );
+    console.log("ontimeout: content[" + i + "] is now set to " + content[i] );
   };
+
+  // On error
+  xmlhttp.onerror = function () {
+    content[i] = "none";
+    console.log("onerror: content[" + i + "] is now set to " + content[i] );
+  };
+
+  // On success
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4) {
       if (xmlhttp.status == 200) {
@@ -343,12 +353,9 @@ function fetch_site(url, i) {
       } else content[i] = "none";
     }
   };
-  xmlhttp.open("GET", url, true);
-  xmlhttp.setRequestHeader("Content-type","Lookup/simple");
-  xmlhttp.send();
 
-  //TODO
-  //content[i] = "none"; alert("TODO: content[" + i + "] set to \"none\"");
+  //xmlhttp.setRequestHeader("Content-type","Lookup/simple");
+  xmlhttp.send();
 }
 
 // The main search function
@@ -376,7 +383,7 @@ function query_search() {
   document.getElementById("tip").style.display="none";
 
   // fetching possible entries from each site
-  // "search_engines" is defined in the init() function
+  // search_engines is defined in the init() function
   // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
   for (var i = 0; i < search_engines.length; i++) {
     fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
@@ -389,6 +396,7 @@ function query_search() {
     + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
+    alert("pause"); //TODO
     // Busy waiting loop
     while (content[i] === "") {
       sleep(20);
