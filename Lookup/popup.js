@@ -329,10 +329,10 @@ function fetch_site(url, i) {
   var xmlhttp = new XMLHttpRequest();
 
   // milliseconds a request can take before automatically being terminated
-  xmlhttp.timeout = 200;
+  xmlhttp.timeout = 500;
   xmlhttp.ontimeout = function () {
     content[i] = "none";
-    alert("ontimeout");
+    alert("ontimeout: content[" + i + "] is now set to " + content[i] );
   };
   xmlhttp.onreadystatechange = function() {
     if (xmlhttp.readyState == 4) {
@@ -348,7 +348,7 @@ function fetch_site(url, i) {
   xmlhttp.send();
 
   //TODO
-  content[i] = "none";
+  //content[i] = "none"; alert("TODO: content[" + i + "] set to \"none\"");
 }
 
 // The main search function
@@ -382,9 +382,6 @@ function query_search() {
     fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
   }
 
-  // TODO
-  //fetch_site("http:edh.ddns.net", 0); alert("pause"); alert("content[0]: \"" + content[0] + "\"");
-
   // Do nothing (special) until every single html-request has finished
   for (i = 0; i < search_engines.length; i++) {
     // Filling the loading div with text
@@ -395,6 +392,7 @@ function query_search() {
     // Busy waiting loop
     while (content[i] === "") {
       sleep(20);
+      console.log("in the loop...");
     }
   }
 
