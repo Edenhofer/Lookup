@@ -328,8 +328,6 @@ function sleep(milliseconds) {
 function fetch_site(url, i) {
   var xmlhttp = new XMLHttpRequest();
 
-  xmlhttp.open("GET", url, true);
-
   // Milliseconds a request can take before automatically being terminated
   xmlhttp.timeout = 500;
   xmlhttp.ontimeout = function () {
@@ -354,6 +352,7 @@ function fetch_site(url, i) {
     }
   };
 
+  xmlhttp.open("GET", url, true);
   //xmlhttp.setRequestHeader("Content-type","Lookup/simple");
   xmlhttp.send();
 }
@@ -390,7 +389,7 @@ function query_search() {
   }
 
   // Do nothing (special) until every single html-request has finished
-  for (i = 0; i < search_engines.length; i++) {
+  for (i = 0; i < search_engines.length - 1; i++) {
     // Filling the loading div with text
     if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
     + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
@@ -398,19 +397,22 @@ function query_search() {
 
     alert("pause"); //TODO
     // Busy waiting loop
-    while (content[i] === "") {
+    tmp = 0;    //TODO
+    while (content[i] === "" && tmp <= 200) {
       sleep(20);
-      console.log("in the loop...");
+      tmp++;
     }
+    console.log("escaped busy waiting loop")
+    content[i] = "none";    //TODO
   }
 
-  for (i = 0; i < search_engines.length; i++) {
+  for (i = 0; i < search_engines.length - 1; i++) {
     tmp = content[i];
 
     // Do not search if content is emppty respectivly "none"
     if (content[i] == "none" && i < search_engines.length - 1) continue;
     // Start searching in for usefull content
-    else content[i] = eval(search_engines[i][0] + "(tmp, query)");
+    else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(tmp, query)");
 
     if (i == search_engines.length - 1 && content[i] == "none") {
       // There if no search_engine anymore available and nothing was found
