@@ -328,35 +328,33 @@ function sleep(milliseconds) {
 function fetch_site(url, i) {
     var xmlhttp = new XMLHttpRequest();
 
-    /*
-    // Milliseconds a request can take before automatically being terminated - async only
-    xmlhttp.timeout = 500;
-    xmlhttp.ontimeout = function () {
-    content[i] = "none";
-    console.log("ontimeout: content[" + i + "] is now set to " + content[i] );
-};
-*/
+    //// Milliseconds a request can take before automatically being terminated - async only
+    //     xmlhttp.timeout = 500;
+    //     xmlhttp.ontimeout = function () {
+    //     content[i] = "none";
+    //     console.log("ontimeout: content[" + i + "] is now set to " + content[i] );
+    // };
 
-// On error
-xmlhttp.onerror = function () {
-    content[i] = "none";
-    console.log("onerror: content[" + i + "] is now set to " + content[i] );
-};
+    // On error
+    xmlhttp.onerror = function () {
+        content[i] = "none";
+        console.log("onerror: content[" + i + "] is now set to " + content[i] );
+    };
 
-// On success
-xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4) {
-        if (xmlhttp.status == 200) {
-            content[i] = xmlhttp.responseText;
-            // Deleting unneccessary spaces
-            content[i] = content[i].trim();
-        } else content[i] = "none";
-    }
-};
+    // On success
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4) {
+            if (xmlhttp.status == 200) {
+                content[i] = xmlhttp.responseText;
+                // Deleting unneccessary spaces
+                content[i] = content[i].trim();
+            } else content[i] = "none";
+        }
+    };
 
-xmlhttp.open("GET", url, false);
-//xmlhttp.setRequestHeader("Content-type","Lookup/simple");
-xmlhttp.send();
+    xmlhttp.open("GET", url, false);
+    //xmlhttp.setRequestHeader("Content-type","Lookup/simple");
+    xmlhttp.send();
 }
 
 // The main search function
@@ -397,12 +395,10 @@ function query_search() {
         + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
         else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
-        /*
-        // Busy waiting loop
-        while (content[i] === "") {
-            sleep(20);
-        }
-        */
+        //     // Busy waiting loop
+        //     while (content[i] === "") {
+        //     sleep(20);
+        // }
     }
 
     for (i = 0; i < search_engines.length; i++) {
