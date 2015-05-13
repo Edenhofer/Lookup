@@ -387,7 +387,7 @@ function query_search() {
     for (var i = 0; i < search_engines.length; i++) {
         // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
         //fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
-        content[i] = "none";
+        content[i] = "none"; // TODO - wildcard
     }
 
     // Do nothing (special) until every single html-request has finished
@@ -400,52 +400,52 @@ function query_search() {
         /*
         // Busy waiting loop
         while (content[i] === "") {
-        sleep(20);
-    }
-    */
-}
-
-for (i = 0; i < search_engines.length; i++) {
-    tmp = content[i];
-
-    // Do not search if content is emppty respectivly "none"
-    if (content[i] == "none" && i < search_engines.length - 1) continue;
-    // Start searching in for usefull content
-    else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(tmp, query)");
-
-    if (i == search_engines.length - 1 && content[i] == "none") {
-        // There if no search_engine anymore available and nothing was found
-        // Presenting a Google-Link to look for results
-        if (query.length > 20) tmp = query.slice(0, 20) + "...";
-        else tmp = query;
-        document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
-        + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
-
-        // Set what to display
-        document.getElementById("loading").style.display="none";
-        document.getElementById("noresult").style.display="inline";
-    }
-    else if (content[i] == "none") continue;
-    else if (content[i]) {
-        // Trimming the output to not exceed the maximum length
-        if (content[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-            content[i] = content[i].slice(0, max_output_length);
-            content[i] = content[i].slice(0, content[i].lastIndexOf(" "))+ "...";
+            sleep(20);
         }
-
-        document.getElementById("output").innerHTML = "<p></p>" + content[i];
-        document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\""
-        + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
-
-        // Set what to display
-        document.getElementById("loading").style.display="none";
-        document.getElementById("output").style.display="inline";
-        document.getElementById("source").style.display="inline";
-
-        // A result was found and was succesfully display, hence breaking out of the loop
-        break;
+        */
     }
-}
+
+    for (i = 0; i < search_engines.length; i++) {
+        tmp = content[i];
+
+        // Do not search if content is emppty respectivly "none"
+        if (content[i] == "none" && i < search_engines.length - 1) continue;
+        // Start searching in for usefull content
+        else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(tmp, query)");
+
+        if (i == search_engines.length - 1 && content[i] == "none") {
+            // There if no search_engine anymore available and nothing was found
+            // Presenting a Google-Link to look for results
+            if (query.length > 20) tmp = query.slice(0, 20) + "...";
+            else tmp = query;
+            document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
+            + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+
+            // Set what to display
+            document.getElementById("loading").style.display="none";
+            document.getElementById("noresult").style.display="inline";
+        }
+        else if (content[i] == "none") continue;
+        else if (content[i]) {
+            // Trimming the output to not exceed the maximum length
+            if (content[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+                content[i] = content[i].slice(0, max_output_length);
+                content[i] = content[i].slice(0, content[i].lastIndexOf(" "))+ "...";
+            }
+
+            document.getElementById("output").innerHTML = "<p></p>" + content[i];
+            document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\""
+            + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
+
+            // Set what to display
+            document.getElementById("loading").style.display="none";
+            document.getElementById("output").style.display="inline";
+            document.getElementById("source").style.display="inline";
+
+            // A result was found and was succesfully display, hence breaking out of the loop
+            break;
+        }
+    }
 }
 
 // Adding some EventListeners
