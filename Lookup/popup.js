@@ -150,7 +150,9 @@ function wikipedia(data, query) {
     if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
     else {
         data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
-        begin = data.search(new RegExp("<p>"));
+        begin = data.indexOf("<p>");
+        // Check for interactive boxes where no usefull text is available, e.g. year number - german only
+        if (data.slice(begin + 3, begin + 18).localeCompare('<a href="/wiki/') === 0) begin = -1;
     }
 
     if (begin != -1) {
@@ -169,8 +171,6 @@ function wikipedia(data, query) {
             data = data.replace(/<li>/ig, "gorditmp01");
             data = data.replace(/<\/li>/ig, "gorditmp02");
             data += "gorditmp03";
-
-            tmp = "";
         } else data = data.slice(begin, end);
 
         // Replacing anything html with nothing
