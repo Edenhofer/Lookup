@@ -80,7 +80,7 @@ function init() {
 
         var wikipedia_url, duden_url, archlinux_url, google_translate_url, dict_url;
         // Assembling the corresponding URLs
-        wikipedia_url = "http://" + language + ".wikipedia.org/wiki/";
+        wikipedia_url = "https://" + language + ".wikipedia.org/wiki/";
         duden_url = "http://www.duden.de/rechtschreibung/";
         if (language == "de") tmp = "de/title";
         // The last option must be "en"
@@ -128,39 +128,21 @@ function wikipedia(data, query) {
     var custom_search;
     var tmp = "";
 
-    // Beginnen Wikipedia Artikel vielleicht immer mit einem "<p>"? -TODO!!!!!!!!!!!!!!!!!!!!!!!
+    // Stripping tables from data
+    data = data.slice(0, data.indexOf("<table")) +  data.slice(data.indexOf("</table>"));
 
-    // Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
-    query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
-    // Removing note from the "<title>"-query e.g. "(Begriffserklärung)"
-    if (query.indexOf("(") != -1) query = query.replace(/ ([^)]*)/i, "").slice(0, -1);
-
-    // Searching for the beginning "<p>"
-    for (var i = 0; i < 3; i++) {
-        custom_search = data.search(new RegExp("[^|][^<]<b>[^<]*" + query.replace(/ /ig, "[^<]*"), "i"));
-        if (custom_search != -1) {
-            /*
-            Search for '"<b>" + query' and ignore if spaces are filled with e.g. second names, thereby detect whether it is a timeline
-            - this is done by exluding '[^|][^<]' to be the first two characters in front of the search pattern. Then slice the data
-            and search for the last occurance of '<p>', because '[^|][^<]' were excluded one has to add 2 to make the search for '<p>'
-            beginn at the real begin: the occurance of '"<b>" + query'.
-            */
-            begin = data.slice(0, custom_search + 2).lastIndexOf("<p>");
-            if (begin != -1) break;
-            else data = data.slice(custom_search + query.length + 3);
-        } else {
-            begin = -1;
-            break;
-        }
+    // Checking for the existance of an article
+    if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
+    else {
+        data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
+        begin = data.search(new RegExp("<(|/)div[^>]*>(|\n)<p>"));
     }
 
     if (begin != -1) {
         end = data.indexOf("</p>", begin);
-        // Checks whether the <p> ends before the query was even mentioned (needed for e.g. "1782")
-        if (end < custom_search) return -1;
 
         // Checking for a list of options
-        if (data.slice(end + 5, end + 9).localeCompare("<ul>") === 0) {
+        if (data.slice(end - 1, end).localeCompare(":") === 0) {
             tmp = data.slice(begin);
             data = data.slice(begin, end);
 
@@ -214,7 +196,6 @@ function duden(data, query) {
 function archlinux(data, query) {
     var begin = -1;
     var end = -1;
-    var tmp = "";
 
     // Checking for the existance of an article
     if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
@@ -225,9 +206,8 @@ function archlinux(data, query) {
 
     if (begin != -1) {
         end = data.indexOf("</p>", begin);
-        tmp = data.slice(begin, end);
-        // If the article is to short it is probabaly a quotation, then things have to handled differently
-        if (tmp.replace(/(<([^>]+)>)/ig, "").length < 50) {
+        // If the article is to short it is probabaly a quotation, then things have to be handled differently
+        if (data.slice(begin, end).replace(/(<([^>]+)>)/ig, "").length < 50) {
             data = data.slice(end + 4);
             begin = data.indexOf("<p>");
             // Searching for the second closing "</p>"
@@ -240,7 +220,7 @@ function archlinux(data, query) {
             data = data.replace(/<i>/ig, "gorditmp01");
             data = data.replace(/<\/i>/ig, "gorditmp02");
         }
-        else data = tmp;
+        else data = data.slice(begin, end);
 
         // Replacing anything html with nothing
         data = data.replace(/(<([^>]+)>)/ig, "");
@@ -330,12 +310,12 @@ function sleep(milliseconds) {
 function fetch_site(url, i) {
     var xmlhttp = new XMLHttpRequest();
 
-    //// Milliseconds a request can take before automatically being terminated - async only
-    //     xmlhttp.timeout = 500;
-    //     xmlhttp.ontimeout = function () {
-    //     content[i] = "none";
-    //     console.log("ontimeout: content[" + i + "] is now set to " + content[i] );
-    // };
+    // Milliseconds a request can take before automatically being terminated - async only -TODO
+    //xmlhttp.timeout = 1000;
+    //xmlhttp.ontimeout = function () {
+    //  content[i] = "none";
+    //  console.log("ontimeout: content[" + i + "] is now set to " + content[i] );
+    //};
 
     // On error
     xmlhttp.onerror = function () {
@@ -397,10 +377,10 @@ function query_search() {
         + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
         else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
-        //     // Busy waiting loop
-        //     while (content[i] === "") {
-        //     sleep(20);
-        // }
+        // Busy waiting loop - TODO
+        //while (content[i] === "") {
+        //  sleep(20);
+        //}
     }
 
     for (i = 0; i < search_engines.length; i++) {
