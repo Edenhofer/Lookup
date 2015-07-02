@@ -12,14 +12,21 @@ bkg.callFunction();
 // Making JSLint display a lot more warning
 //"use strict"; var document, chrome, event, console, window;
 
+// Setting up some constants
+const max_output_length = 540;
+const max_last_queries = 10;
+
 // Setting up some global variables
 var last_queries = [];
 var search_engines;
 var content = [];
-var max_output_length = 540;
-var max_last_queries = 10;
 
 // On page load function
+//
+// @global array search_engines
+// @global array content
+//
+// @return
 function init() {
     var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
     var language, grounding, input_language, switcher_grounding, switcher_ranked_search;
@@ -89,7 +96,7 @@ function init() {
         google_translate_url = "https://translate.google.de/#auto/" + language + "/";
         if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) dict_url = "http://www.dict.cc/?s=";
         else if (input_language == language) {
-            // Making the german-english translation the default one if input_lnaguage and language are the same
+            // Making the german-english translation the default one if input_language and language are the same
             dict_url = "http://www.dict.cc/?s=";
             document.getElementById("tip").innerHTML = "<i><p>Tip: Change the input language for the dictionary.</p></i>";
         }
@@ -121,7 +128,12 @@ function init() {
     });
 }
 
-// Function for Wikipedia specific queries
+// Search function for Wikipedia
+//
+// @param string data: html-code
+// @param string query: Keyword
+//
+// @return string: User readable content
 function wikipedia(data, query) {
     var begin = -1;
     var end = -1;
@@ -170,7 +182,12 @@ function wikipedia(data, query) {
     else return "none";
 }
 
-// Function for Duden (german_dictionary) specific queries
+// Search function for Duden a german dictionary
+//
+// @param string data: html-code
+// @param string query: Keyword
+//
+// @return string: User readable content
 function duden(data, query) {
     var begin = -1;
     var end = -1;
@@ -192,7 +209,12 @@ function duden(data, query) {
     else return "none";
 }
 
-// Function for Arch Linux queries
+// Search function for Arch Linux
+//
+// @param string data: html-code
+// @param string query: Keyword
+//
+// @return string: User readable content
 function archlinux(data, query) {
     var begin = -1;
     var end = -1;
@@ -235,7 +257,12 @@ function archlinux(data, query) {
     else return "none";
 }
 
-// Function for Google Translate
+// Search function for Google Translate
+//
+// @param string data: html-code
+// @param string query: Keyword
+//
+// @return string: User readable content
 function google_translate(data, query) {
     /*
     Works only in theory. The source code which is send to an
@@ -256,7 +283,12 @@ function google_translate(data, query) {
     else return "none";
 }
 
-// Function for dict.cc
+// Search function for dict.cc
+//
+// @param string data: html-code
+// @param string query: Keyword
+//
+// @return string: User readable content
 function dict(data, query) {
     var begin = -1;
     var end = -1;
@@ -296,7 +328,11 @@ function dict(data, query) {
     else return "none";
 }
 
-// This Function stops javascript for a period of time in milliseconds
+// Stop javascript for a period of time in milliseconds
+//
+// @param integer milliseconds
+//
+// @return
 function sleep(milliseconds) {
     var start = new Date().getTime();
     for (var i = 0; i < 1e7; i++) {
@@ -306,7 +342,13 @@ function sleep(milliseconds) {
     }
 }
 
-// This function is used to fetch the html-code of any page
+// Fetch the html-code of any page
+//
+// @global array content
+// @param integer i: Location of content
+// @param string url
+//
+// @return
 function fetch_site(url, i) {
     var xmlhttp = new XMLHttpRequest();
 
@@ -339,7 +381,12 @@ function fetch_site(url, i) {
     xmlhttp.send();
 }
 
-// The main search function
+// Initiate the xml requests and display the final result
+//
+// @global html-element query
+// @global array search_engines
+//
+// @return
 function query_search() {
     // Getting the input
     var query = document.getElementById("query").value;
@@ -363,7 +410,7 @@ function query_search() {
     document.getElementById("source").style.display="none";
     document.getElementById("tip").style.display="none";
 
-    // fetching possible entries from each site
+    // Fetching possible entries from each site
     for (var i = 0; i < search_engines.length; i++) {
         // Filling the loading div with text
         if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
@@ -435,9 +482,11 @@ window.addEventListener('load', function(evt) {
     document.getElementById('options_page').innerHTML = "<a href=\""
     + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
-    // The variable "history" is needed for skipping through old queries
-    var history = 0;
+    // Initialize the popup
+    init();
+
     // Fetching and defining the last_queries
+    var history = 0;
     chrome.storage.local.get("last_queries", function (result) {
         if (!result.last_queries) {
             last_queries = [];
@@ -448,9 +497,7 @@ window.addEventListener('load', function(evt) {
         }
     });
 
-    init();
-
-    // Filling the value of #query (the search bar) with the currently selected text
+    // Filling the value of query with the currently selected text and initiate the search
     chrome.tabs.executeScript({
         code: "window.getSelection().toString();"
     }, function(result) {
@@ -462,7 +509,7 @@ window.addEventListener('load', function(evt) {
         }
     });
 
-    // Function for quickly switching the grounding
+    // Quickly switch the grounding
     document.getElementById('grounding').addEventListener('change', function () {
         var grounding = document.getElementById("grounding").value;
         chrome.storage.sync.set({'grounding': grounding});
@@ -470,7 +517,7 @@ window.addEventListener('load', function(evt) {
         init();
     });
 
-    // Function for quickly switching the input_language
+    // Quickly switch the input_language
     document.getElementById('input_language').addEventListener('change', function () {
         var input_language = document.getElementById("input_language").value;
         chrome.storage.sync.set({'input_language': input_language});
