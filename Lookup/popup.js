@@ -417,27 +417,18 @@ function query_search() {
     document.getElementById("source").style.display="none";
     document.getElementById("tip").style.display="none";
 
+    // Filling the loading div with text
+    document.getElementById("loading").innerHTML = "<p>Searching in " +
+    search_engines.map(function(value,index) { return value[0]; }).toString().replace(/,/g, ", ") + "...<\p>";
+
     // Fetching possible entries from each site
     for (i = 0; i < search_engines.length; i++) {
-        // Filling the loading div with text
-        if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " +
-        search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
-        else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
-        console.log("STATE: '"  + document.getElementById("loading").style.display + "' VALUE: '" + document.getElementById("loading").innerHTML + "'");
-
         // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
         fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
-        //content[i] = "none"; // TODO - wildcard
     }
 
-    // // Do nothing (special) until every single html-request has finished - TODO - for async requests only
+    // // Busy waiting loop - TODO - for async requests only
     // for (i = 0; i < search_engines.length; i++) {
-    //     // Filling the loading div with text
-    //     if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
-    //     + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
-    //     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
-    //
-    //     // Busy waiting loop
     //     while (content[i] === "") {
     //         sleep(20);
     //     }
@@ -479,7 +470,7 @@ function query_search() {
             document.getElementById("output").style.display="inline";
             document.getElementById("source").style.display="inline";
 
-            // A result was found and was succesfully display, hence breaking out of the loop
+            // A result was found and was succesfully displayed, hence breaking out of the loop
             break;
         }
     }
