@@ -380,13 +380,13 @@ function fetch_site(url, i) {
     };
 
     xmlhttp.open("GET", url, false);
-    //xmlhttp.setRequestHeader("Content-type","Lookup/simple");
     xmlhttp.send();
 }
 
 // Initiate the xml requests and display the final result
 //
 // @global html-element query
+// @global array last_queries
 // @global array search_engines
 //
 // @return
@@ -399,11 +399,15 @@ function query_search() {
 
     var tmp = "";
 
-    // Remember the current query
+
+    // Removing redundant queries in the array (case sensitive) and appending new query
+    for (var i = 0; i < last_queries.length; i++) {
+        if (last_queries[i].indexOf(query) != -1) last_queries.splice(i, 1);
+    }
     last_queries.push(query);
-    // Keeping the maximum length of query below max_last_queries
+    // Keeping the maximum length of last_queries below max_last_queries
     if (last_queries.length > max_last_queries) last_queries = last_queries.slice(last_queries.length - max_last_queries, last_queries.length);
-    // Sync everything locally
+    // Store last_queries locally
     chrome.storage.local.set({'last_queries': last_queries});
 
     // Set	what to display
@@ -414,11 +418,12 @@ function query_search() {
     document.getElementById("tip").style.display="none";
 
     // Fetching possible entries from each site
-    for (var i = 0; i < search_engines.length; i++) {
+    for (i = 0; i < search_engines.length; i++) {
         // Filling the loading div with text
         if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " +
         search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
         else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
+        console.log("STATE: '"  + document.getElementById("loading").style.display + "' VALUE: '" + document.getElementById("loading").innerHTML + "'");
 
         // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
         fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
