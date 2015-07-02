@@ -135,7 +135,7 @@ function wikipedia(data, query) {
     if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
     else {
         data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
-        begin = data.search(new RegExp("<(|/)div[^>]*>(|\n)<p>"));
+        begin = data.search(new RegExp("<p>"));
     }
 
     if (begin != -1) {
@@ -310,7 +310,7 @@ function sleep(milliseconds) {
 function fetch_site(url, i) {
     var xmlhttp = new XMLHttpRequest();
 
-    // Milliseconds a request can take before automatically being terminated - async only -TODO
+    // Milliseconds a request can take before automatically being terminated - TODO - async only
     //xmlhttp.timeout = 1000;
     //xmlhttp.ontimeout = function () {
     //  content[i] = "none";
@@ -365,23 +365,28 @@ function query_search() {
 
     // fetching possible entries from each site
     for (var i = 0; i < search_engines.length; i++) {
-        // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
-        //fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
-        content[i] = "none"; // TODO - wildcard
-    }
-
-    // Do nothing (special) until every single html-request has finished
-    for (i = 0; i < search_engines.length; i++) {
         // Filling the loading div with text
         if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
         + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
         else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
-        // Busy waiting loop - TODO
-        //while (content[i] === "") {
-        //  sleep(20);
-        //}
+        // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
+        fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
+        //content[i] = "none"; // TODO - wildcard
     }
+
+    // // Do nothing (special) until every single html-request has finished - TODO - for async requests only
+    // for (i = 0; i < search_engines.length; i++) {
+    //     // Filling the loading div with text
+    //     if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
+    //     + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
+    //     else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
+    //
+    //     // Busy waiting loop
+    //     while (content[i] === "") {
+    //         sleep(20);
+    //     }
+    // }
 
     for (i = 0; i < search_engines.length; i++) {
         // Do not search if content is emppty respectivly "none"
@@ -411,7 +416,8 @@ function query_search() {
 
             document.getElementById("output").innerHTML = "<p></p>" + content[i];
             document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\""
-            + search_engines[i][1] + "\" target=\"_blank\">" + search_engines[i][1] + "</a><\i></p>";
+            + search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">"
+            + search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
 
             // Set what to display
             document.getElementById("loading").style.display="none";
