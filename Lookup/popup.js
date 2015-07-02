@@ -128,6 +128,8 @@ function wikipedia(data, query) {
     var custom_search;
     var tmp = "";
 
+    // Beginnen Wikipedia Artikel vielleicht immer mit einem "<p>"? -TODO!!!!!!!!!!!!!!!!!!!!!!!
+
     // Fetching the real name of the query, this is usefull if there is a redirect (e.g. "Eid Mubarak")
     query = data.slice(data.indexOf("<title>") + 7, data.indexOf("</title>") + 8).replace(new RegExp(" Wiki[^<]*</title>", "i"), "").slice(0, -2);
     // Removing note from the "<title>"-query e.g. "(Begriffserklärung)"
@@ -402,12 +404,10 @@ function query_search() {
     }
 
     for (i = 0; i < search_engines.length; i++) {
-        tmp = content[i];
-
         // Do not search if content is emppty respectivly "none"
         if (content[i] == "none" && i < search_engines.length - 1) continue;
-        // Start searching in for usefull content
-        else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(tmp, query)");
+        // Start searching for usefull content
+        else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(content[" + i + "], query)");
 
         if (i == search_engines.length - 1 && content[i] == "none") {
             // There if no search_engine anymore available and nothing was found
