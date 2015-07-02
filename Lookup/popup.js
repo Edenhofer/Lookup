@@ -9,7 +9,10 @@ bkg.callFunction();
 -->
 */
 
-// Making JSLint display a lot more warning
+// Custom JSLint configurtations
+// Allow the use ECMAScript 6 specific syntax, e.g. const
+// jshint esnext: true
+// Increased sensitivity for warnings if UNCOMMENTED
 //"use strict"; var document, chrome, event, console, window;
 
 // Setting up some constants
@@ -413,8 +416,8 @@ function query_search() {
     // Fetching possible entries from each site
     for (var i = 0; i < search_engines.length; i++) {
         // Filling the loading div with text
-        if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in "
-        + search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
+        if (search_engines.length > 1) document.getElementById("loading").innerHTML = "<p>Searching in " +
+        search_engines[i][0] + " (" + (i + 1) + "/" + search_engines.length + ")" + "...<\p>";
         else document.getElementById("loading").innerHTML = "<p>Searching in " + search_engines[i][0] + "...<\p>";
 
         // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
@@ -446,8 +449,8 @@ function query_search() {
             // Presenting a Google-Link to look for results
             if (query.length > 20) tmp = query.slice(0, 20) + "...";
             else tmp = query;
-            document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q="
-            + query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+            document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
+            query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
 
             // Set what to display
             document.getElementById("loading").style.display="none";
@@ -462,9 +465,9 @@ function query_search() {
             }
 
             document.getElementById("output").innerHTML = "<p></p>" + content[i];
-            document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\""
-            + search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">"
-            + search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
+            document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
+            search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
+            search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
 
             // Set what to display
             document.getElementById("loading").style.display="none";
@@ -479,8 +482,8 @@ function query_search() {
 
 // Adding some EventListeners
 window.addEventListener('load', function(evt) {
-    document.getElementById('options_page').innerHTML = "<a href=\""
-    + chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
+    document.getElementById('options_page').innerHTML = "<a href=\"" +
+    chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
     // Initialize the popup
     init();
