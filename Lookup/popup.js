@@ -22,12 +22,10 @@ const max_last_queries = 10;
 // Setting up some global variables
 var last_queries = [];
 var search_engines;
-var content = [];
 
 // On page load function
 //
 // @global array search_engines
-// @global array content
 //
 // @return
 function init() {
@@ -38,7 +36,7 @@ function init() {
     // The chrome.storage call runs in the background and other function do not wait for it to finisch. It is an asynchronous method!
     chrome.storage.sync.get(saves, function (result) {
         if (chrome.runtime.lasError || !result) {
-            console.log("Runtime Error, code:FF9932");
+            console.log("[RUNTIME ERROR]: Please consult the support!");
         }
         // The default values are set here!
         // Getting the language
@@ -106,28 +104,22 @@ function init() {
         else dict_url = "http://" + language + input_language + ".dict.cc/?s=";
 
         // Defining the search_engines
-        if (language == "en") search_engines = [["wikipedia",wikipedia_url],["dict",dict_url]];
-        if (language == "de") search_engines = [["duden",duden_url],["wikipedia",wikipedia_url],["dict",dict_url]];
+        if (language == "en") search_engines = [["wikipedia",wikipedia_url,""],["dict",dict_url,""]];
+        if (language == "de") search_engines = [["duden",duden_url,""],["wikipedia",wikipedia_url,""],["dict",dict_url,""]];
         // If no valid language is detected, than the english style will be used
-        else search_engines = [["wikipedia",wikipedia_url],["dict",dict_url]];
+        else search_engines = [["wikipedia",wikipedia_url,""],["dict",dict_url,""]];
 
         // If switcher_grounding is true then set the selected search engine to the top of the search_engines array
         if (switcher_grounding === true) {
             // Removing the next occurance of grounding in search_engines to avoid fetching the site twice
             for (i = 0; i < search_engines.length; i++) {
-                if (search_engines[i][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
+                if (search_engines[i][0][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
             }
-            search_engines.unshift([grounding, eval(grounding + "_url")]);
+            search_engines.unshift([grounding, eval(grounding + "_url"), ""]);
         }
 
         // In case switcher_ranked_search is NOT true then make the selected search engine the only one in the search_engines array
-        if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url")]];
-
-        // Defining the length of the content array according to the length of search_engines
-        // This is needed due to the nature how fetch_site is invoced
-        for(i = 0; i < search_engines.length; i++) {
-            content.push("");
-        }
+        if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url"), ""]];
     });
 }
 
@@ -139,7 +131,6 @@ function init() {
 function wikipedia(data) {
     var begin = -1;
     var end = -1;
-    var custom_search;
     var tmp = "";
 
     // Stripping tables from data
@@ -328,8 +319,8 @@ function dict(data) {
 
 // Fetch the html-code of any page
 //
-// @global array content
-// @param integer i: Location of content
+// @global array search_engines
+// @param integer i: Row of the search_engines array at which the html-code should be place
 // @param string url
 //
 // @return
@@ -340,19 +331,17 @@ function fetch_site(url, i) {
     // Milliseconds a request can take before automatically being terminated - async only
     xmlhttp.timeout = 5000;
     xmlhttp.ontimeout = function () {
-        content[i] = "none";
-        console.log("ONTIMEOUT: content[" + i + "] is now set to " + content[i] );
+        search_engines[i][2] = "none";
+        console.log("ONTIMEOUT: search_engines[" + i + "][2] is now set to " + search_engines[i][2] );
         // Dispatch the magic event
-        console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
         document.dispatchEvent(event);
     };
 
     // On error
     xmlhttp.onerror = function () {
-        content[i] = "none";
-        console.log("ONERRROR: content[" + i + "] is now set to " + content[i] );
+        search_engines[i][2] = "none";
+        console.log("ONERRROR: search_engines[" + i + "][2] is now set to " + search_engines[i][2] );
         // Dispatch the magic event
-        console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
         document.dispatchEvent(event);
     };
 
@@ -360,16 +349,14 @@ function fetch_site(url, i) {
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4) {
             if (xmlhttp.status == 200) {
-                content[i] = xmlhttp.responseText;
+                search_engines[i][2] = xmlhttp.responseText;
                 // Deleting unneccessary spaces
-                content[i] = content[i].trim();
+                search_engines[i][2] = search_engines[i][2].trim();
                 // Dispatch the event
-                console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
                 document.dispatchEvent(event);
             } else if (xmlhttp.status == 404) {
-                content[i] = "none";
+                search_engines[i][2] = "none";
                 // Dispatch the magic event
-                console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
                 document.dispatchEvent(event);
             }
         }
@@ -390,48 +377,48 @@ function query_search_process() {
     // Getting the input
     var query = document.getElementById("query").value;
 
-    if (content.every(function (currentValue) {
-        return currentValue.length > 3;
-    })) {
-        for (var i = 0; i < search_engines.length; i++) {
-            // Do not search if content is emppty respectivly "none"
-            if (content[i] == "none" && i < search_engines.length - 1) continue;
-            // Start searching for usefull content
-            else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(content[" + i + "])");
+    // Only proceed if each and every content field of the search_engines array is set
+    for (var i = 0; i < search_engines.length; i++) {
+        if (search_engines[i][2] < 4) return;
+    }
+    for (i = 0; i < search_engines.length; i++) {
+        // Do not search if search_engines[i][2] is "none"
+        if (search_engines[i][2] == "none" && i < search_engines.length - 1) continue;
+        // Start searching for usefull content
+        else if (search_engines[i][2] != "none") search_engines[i][2] = eval(search_engines[i][0] + "(search_engines[" + i + "][2])");
 
-            if (i == search_engines.length - 1 && content[i] == "none") {
-                // There if no search_engine anymore available and nothing was found
-                // Presenting a Google-Link to look for results
-                if (query.length > 20) tmp = query.slice(0, 20) + "...";
-                else tmp = query;
-                document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
-                query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+        if (i == search_engines.length - 1 && search_engines[i][2] == "none") {
+            // There if no search_engine anymore available and nothing was found
+            // Presenting a Google-Link to look for results
+            if (query.length > 20) tmp = query.slice(0, 20) + "...";
+            else tmp = query;
+            document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
+            query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
 
-                // Set what to display
-                document.getElementById("loading").style.display="none";
-                document.getElementById("noresult").style.display="inline";
+            // Set what to display
+            document.getElementById("loading").style.display="none";
+            document.getElementById("noresult").style.display="inline";
+        }
+        else if (search_engines[i][2] == "none") continue;
+        else if (search_engines[i][2]) {
+            // Trimming the output to not exceed the maximum length
+            if (search_engines[i][2].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+                search_engines[i][2] = search_engines[i][2].slice(0, max_output_length);
+                search_engines[i][2] = search_engines[i][2].slice(0, search_engines[i][2].lastIndexOf(" "))+ "...";
             }
-            else if (content[i] == "none") continue;
-            else if (content[i]) {
-                // Trimming the output to not exceed the maximum length
-                if (content[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-                    content[i] = content[i].slice(0, max_output_length);
-                    content[i] = content[i].slice(0, content[i].lastIndexOf(" "))+ "...";
-                }
 
-                document.getElementById("output").innerHTML = "<p></p>" + content[i];
-                document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
-                search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
-                search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
+            document.getElementById("output").innerHTML = "<p></p>" + search_engines[i][2];
+            document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
+            search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
+            search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
 
-                // Set what to display
-                document.getElementById("loading").style.display="none";
-                document.getElementById("output").style.display="inline";
-                document.getElementById("source").style.display="inline";
+            // Set what to display
+            document.getElementById("loading").style.display="none";
+            document.getElementById("output").style.display="inline";
+            document.getElementById("source").style.display="inline";
 
-                // A result was found and was succesfully displayed, hence breaking out of the loop
-                break;
-            }
+            // A result was found and was succesfully displayed, hence breaking out of the loop
+            break;
         }
     }
 }
@@ -476,8 +463,8 @@ function query_search_init() {
 
     // Fetching possible entries from each site
     for (i = 0; i < search_engines.length; i++) {
-        // Emptying content array
-        content[i] = "";
+        // Emptying search_engines[i][2] array
+        search_engines[i][2] = "";
         // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
         fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
     }
