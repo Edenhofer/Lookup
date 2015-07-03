@@ -159,7 +159,7 @@ function wikipedia(data, query) {
         end = data.indexOf("</p>", begin);
 
         // Checking for a list of options
-        if (data.slice(end - 1, end).localeCompare(":") === 0) {
+        if (data.indexOf("<li>", end) != -1 && data.indexOf("<li>", end) <= (end + 50)) {
             tmp = data.slice(begin);
             data = data.slice(begin, end);
 
@@ -331,20 +331,6 @@ function dict(data, query) {
     else return "none";
 }
 
-// Stop javascript for a period of time in milliseconds
-//
-// @param integer milliseconds
-//
-// @return
-function sleep(milliseconds) {
-    var start = new Date().getTime();
-    for (var i = 0; i < 1e7; i++) {
-        if ((new Date().getTime() - start) > milliseconds){
-            break;
-        }
-    }
-}
-
 // Fetch the html-code of any page
 //
 // @global array content
@@ -354,18 +340,25 @@ function sleep(milliseconds) {
 // @return
 function fetch_site(url, i) {
     var xmlhttp = new XMLHttpRequest();
+    var event = new Event('display_result');
 
-    // Milliseconds a request can take before automatically being terminated - TODO - async only
-    //xmlhttp.timeout = 1000;
-    //xmlhttp.ontimeout = function () {
-    //  content[i] = "none";
-    //  console.log("ontimeout: content[" + i + "] is now set to " + content[i] );
-    //};
+    // Milliseconds a request can take before automatically being terminated - async only
+    xmlhttp.timeout = 5000;
+    xmlhttp.ontimeout = function () {
+        content[i] = "none";
+        console.log("ONTIMEOUT: content[" + i + "] is now set to " + content[i] );
+        // Dispatch the magic event
+        console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
+        document.dispatchEvent(event);
+    };
 
     // On error
     xmlhttp.onerror = function () {
         content[i] = "none";
-        console.log("onerror: content[" + i + "] is now set to " + content[i] );
+        console.log("ONERRROR: content[" + i + "] is now set to " + content[i] );
+        // Dispatch the magic event
+        console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
+        document.dispatchEvent(event);
     };
 
     // On success
@@ -375,12 +368,77 @@ function fetch_site(url, i) {
                 content[i] = xmlhttp.responseText;
                 // Deleting unneccessary spaces
                 content[i] = content[i].trim();
-            } else content[i] = "none";
+                // Dispatch the event
+                console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
+                document.dispatchEvent(event);
+            } else if (xmlhttp.status == 404) {
+                content[i] = "none";
+                // Dispatch the magic event
+                console.log("<!----- Dispatch Event -----!>"); // -CLEANUP: TODO
+                document.dispatchEvent(event);
+            }
         }
     };
 
-    xmlhttp.open("GET", url, false);
+    xmlhttp.open("GET", url, true);
     xmlhttp.send();
+}
+
+// Process the recieved html-code
+//
+// @global html-element query
+// @global array search_engines
+//
+// @return
+function query_search_process() {
+    var tmp = "";
+    // Getting the input
+    var query = document.getElementById("query").value;
+
+    if (content.every(function (currentValue) {
+        return currentValue.length > 3;
+    })) {
+        for (var i = 0; i < search_engines.length; i++) {
+            // Do not search if content is emppty respectivly "none"
+            if (content[i] == "none" && i < search_engines.length - 1) continue;
+            // Start searching for usefull content
+            else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(content[" + i + "], query)");
+
+            if (i == search_engines.length - 1 && content[i] == "none") {
+                // There if no search_engine anymore available and nothing was found
+                // Presenting a Google-Link to look for results
+                if (query.length > 20) tmp = query.slice(0, 20) + "...";
+                else tmp = query;
+                document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
+                query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+
+                // Set what to display
+                document.getElementById("loading").style.display="none";
+                document.getElementById("noresult").style.display="inline";
+            }
+            else if (content[i] == "none") continue;
+            else if (content[i]) {
+                // Trimming the output to not exceed the maximum length
+                if (content[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+                    content[i] = content[i].slice(0, max_output_length);
+                    content[i] = content[i].slice(0, content[i].lastIndexOf(" "))+ "...";
+                }
+
+                document.getElementById("output").innerHTML = "<p></p>" + content[i];
+                document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
+                search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
+                search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
+
+                // Set what to display
+                document.getElementById("loading").style.display="none";
+                document.getElementById("output").style.display="inline";
+                document.getElementById("source").style.display="inline";
+
+                // A result was found and was succesfully displayed, hence breaking out of the loop
+                break;
+            }
+        }
+    }
 }
 
 // Initiate the xml requests and display the final result
@@ -390,15 +448,12 @@ function fetch_site(url, i) {
 // @global array search_engines
 //
 // @return
-function query_search() {
+function query_search_init() {
     // Getting the input
     var query = document.getElementById("query").value;
     // Break if there is no input
     // THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
     if (query === "" || query == " ") return -1;
-
-    var tmp = "";
-
 
     // Removing redundant queries in the array (case sensitive) and appending new query
     for (var i = 0; i < last_queries.length; i++) {
@@ -421,63 +476,24 @@ function query_search() {
     document.getElementById("loading").innerHTML = "<p>Searching in " +
     search_engines.map(function(value,index) { return value[0]; }).toString().replace(/,/g, ", ") + "...<\p>";
 
+    // Listen for the magic signal from fetch_site to process the recieved html-code
+    document.addEventListener('display_result', query_search_process);
+
     // Fetching possible entries from each site
     for (i = 0; i < search_engines.length; i++) {
+        // Emptying content array
+        content[i] = "";
         // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
         fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
     }
 
-    // // Busy waiting loop - TODO - for async requests only
-    // for (i = 0; i < search_engines.length; i++) {
-    //     while (content[i] === "") {
-    //         sleep(20);
-    //     }
-    // }
-
-    for (i = 0; i < search_engines.length; i++) {
-        // Do not search if content is emppty respectivly "none"
-        if (content[i] == "none" && i < search_engines.length - 1) continue;
-        // Start searching for usefull content
-        else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(content[" + i + "], query)");
-
-        if (i == search_engines.length - 1 && content[i] == "none") {
-            // There if no search_engine anymore available and nothing was found
-            // Presenting a Google-Link to look for results
-            if (query.length > 20) tmp = query.slice(0, 20) + "...";
-            else tmp = query;
-            document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
-            query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
-
-            // Set what to display
-            document.getElementById("loading").style.display="none";
-            document.getElementById("noresult").style.display="inline";
-        }
-        else if (content[i] == "none") continue;
-        else if (content[i]) {
-            // Trimming the output to not exceed the maximum length
-            if (content[i].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-                content[i] = content[i].slice(0, max_output_length);
-                content[i] = content[i].slice(0, content[i].lastIndexOf(" "))+ "...";
-            }
-
-            document.getElementById("output").innerHTML = "<p></p>" + content[i];
-            document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
-            search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
-            search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
-
-            // Set what to display
-            document.getElementById("loading").style.display="none";
-            document.getElementById("output").style.display="inline";
-            document.getElementById("source").style.display="inline";
-
-            // A result was found and was succesfully displayed, hence breaking out of the loop
-            break;
-        }
-    }
+    // Listen for the magic signal from fetch_site to process the recieved html-code
+    document.removeEventListener('display_result');
 }
 
 // Adding some EventListeners
 window.addEventListener('load', function(evt) {
+    // Creating a proper link to the option page
     document.getElementById('options_page').innerHTML = "<a href=\"" +
     chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
@@ -504,7 +520,7 @@ window.addEventListener('load', function(evt) {
             document.getElementById("query").value = result[0];
 
             // Search directly after the button click
-            query_search();
+            query_search_init();
         }
     });
 
@@ -528,7 +544,7 @@ window.addEventListener('load', function(evt) {
     document.getElementById('search').addEventListener('submit', function () {
         // Prevent the page from reloading after the submit button is triggered
         event.preventDefault();
-        query_search();
+        query_search_init();
     });
 
     // Navigating through history with the arrow keys
