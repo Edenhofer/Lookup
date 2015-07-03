@@ -134,10 +134,9 @@ function init() {
 // Search function for Wikipedia
 //
 // @param string data: html-code
-// @param string query: Keyword
 //
 // @return string: User readable content
-function wikipedia(data, query) {
+function wikipedia(data) {
     var begin = -1;
     var end = -1;
     var custom_search;
@@ -188,10 +187,9 @@ function wikipedia(data, query) {
 // Search function for Duden a german dictionary
 //
 // @param string data: html-code
-// @param string query: Keyword
 //
 // @return string: User readable content
-function duden(data, query) {
+function duden(data) {
     var begin = -1;
     var end = -1;
 
@@ -215,10 +213,9 @@ function duden(data, query) {
 // Search function for Arch Linux
 //
 // @param string data: html-code
-// @param string query: Keyword
 //
 // @return string: User readable content
-function archlinux(data, query) {
+function archlinux(data) {
     var begin = -1;
     var end = -1;
 
@@ -263,10 +260,9 @@ function archlinux(data, query) {
 // Search function for Google Translate
 //
 // @param string data: html-code
-// @param string query: Keyword
 //
 // @return string: User readable content
-function google_translate(data, query) {
+function google_translate(data) {
     /*
     Works only in theory. The source code which is send to an
     ordinary user by Google differs from that which this
@@ -289,10 +285,9 @@ function google_translate(data, query) {
 // Search function for dict.cc
 //
 // @param string data: html-code
-// @param string query: Keyword
 //
 // @return string: User readable content
-function dict(data, query) {
+function dict(data) {
     var begin = -1;
     var end = -1;
     var tmp = "";
@@ -402,7 +397,7 @@ function query_search_process() {
             // Do not search if content is emppty respectivly "none"
             if (content[i] == "none" && i < search_engines.length - 1) continue;
             // Start searching for usefull content
-            else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(content[" + i + "], query)");
+            else if (content[i] != "none") content[i] = eval(search_engines[i][0] + "(content[" + i + "])");
 
             if (i == search_engines.length - 1 && content[i] == "none") {
                 // There if no search_engine anymore available and nothing was found
