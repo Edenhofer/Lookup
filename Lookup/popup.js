@@ -19,8 +19,10 @@ bkg.callFunction();
 const max_output_length = 540;
 const max_last_queries = 10;
 
-// Setting up some global variables
+// Store the last queries from previous searches, [0] being the oldest one
 var last_queries = [];
+// Each row represents one search function in which [0] is the name of the search function itself,
+// [1] being the url, [2] being the fetched html-code and [3] being the user readable content
 var search_engines;
 
 // On page load function
@@ -104,22 +106,22 @@ function init() {
         else dict_url = "http://" + language + input_language + ".dict.cc/?s=";
 
         // Defining the search_engines
-        if (language == "en") search_engines = [["wikipedia",wikipedia_url,""],["dict",dict_url,""]];
-        if (language == "de") search_engines = [["duden",duden_url,""],["wikipedia",wikipedia_url,""],["dict",dict_url,""]];
+        if (language == "en") search_engines = [["wikipedia",wikipedia_url,"",""],["dict",dict_url,"",""]];
+        if (language == "de") search_engines = [["duden",duden_url,"",""],["wikipedia",wikipedia_url,"",""],["dict",dict_url,"",""]];
         // If no valid language is detected, than the english style will be used
-        else search_engines = [["wikipedia",wikipedia_url,""],["dict",dict_url,""]];
+        else search_engines = [["wikipedia",wikipedia_url,"",""],["dict",dict_url,"",""]];
 
         // If switcher_grounding is true then set the selected search engine to the top of the search_engines array
         if (switcher_grounding === true) {
             // Removing the next occurance of grounding in search_engines to avoid fetching the site twice
             for (i = 0; i < search_engines.length; i++) {
-                if (search_engines[i][0][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
+                if (search_engines[i][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
             }
-            search_engines.unshift([grounding, eval(grounding + "_url"), ""]);
+            search_engines.unshift([grounding, eval(grounding + "_url"), "", ""]);
         }
 
         // In case switcher_ranked_search is NOT true then make the selected search engine the only one in the search_engines array
-        if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url"), ""]];
+        if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url"), "", ""]];
     });
 }
 
@@ -181,23 +183,22 @@ function wikipedia(data) {
 //
 // @return string: User readable content
 function duden(data) {
-    var begin = -1;
-    var end = -1;
+    var tmp = "";
 
-    begin = data.search(new RegExp("span>Bedeutungen<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")) + 16;
-    if (begin != -1) data = data.slice(begin);
-
-    if (begin != 15) {
-        end = data.search(new RegExp("<(/div>|div|img)", "i"));
-        data = data.slice(0, end);
-
-        // Replacing anything html with nothing
-        data = data.replace(/<span class="content">/ig, "gorditmp");
-        data = data.replace(/(<([^>]+)>)/ig, "");
-        data = data.replace(/gorditmp/ig, "<p></p> -");
-
-        return data;
+    // Immediately assemble the bullet list with the definitions
+    while (data.indexOf("<li id=\"b2-Bedeutung") != -1) {
+        tmp += data.slice(data.indexOf("<li id=\"b2-Bedeutung"), data.indexOf("</li>", data.indexOf("<li id=\"b2-Bedeutung")) + 5);
+        data = data.slice(data.indexOf("</li>", data.indexOf("<li id=\"b2-Bedeutung")) + 5);
     }
+
+    // Preserve the bullet list but remove remaining html-code
+    tmp = tmp.replace(/<li[^>]*>/ig, "gorditmp01");
+    tmp = tmp.replace(/<\/li>/ig, "gorditmp02");
+    tmp = tmp.replace(/<[^>]+>/ig, "");
+    tmp = tmp.replace(/gorditmp01/ig, "<li>");
+    tmp = tmp.replace(/gorditmp02/ig, "</li>");
+
+    if (tmp.length > 0) return tmp;
     else return "none";
 }
 
@@ -377,18 +378,24 @@ function query_search_process() {
     // Getting the input
     var query = document.getElementById("query").value;
 
-    // Only proceed if each and every content field of the search_engines array is set
     for (var i = 0; i < search_engines.length; i++) {
+        // Only proceed if the current html-code field is properly set
         if (search_engines[i][2] < 4) return;
-    }
-    for (i = 0; i < search_engines.length; i++) {
-        // Do not search if search_engines[i][2] is "none"
-        if (search_engines[i][2] == "none" && i < search_engines.length - 1) continue;
-        // Start searching for usefull content
-        else if (search_engines[i][2] != "none") search_engines[i][2] = eval(search_engines[i][0] + "(search_engines[" + i + "][2])");
+        else if (search_engines[i][2] == "none" && search_engines[i][3].length < 4) search_engines[i][3] = "none";
+        else if (search_engines[i][2] != "none" && search_engines[i][3].length < 4) {
+            // Invoke the various functions for further processing of the html-code
+            search_engines[i][3] = eval(search_engines[i][0] + "(search_engines[" + i + "][2])");
+        }
 
-        if (i == search_engines.length - 1 && search_engines[i][2] == "none") {
-            // There if no search_engine anymore available and nothing was found
+        // Check whether the output was already set - This is necessary because this function
+        // may be invoked simultaneously and therefore the EventListener may not be removed in time
+        if (document.getElementById("output").style.display == "inline") return;
+
+        if (search_engines[i][3] == "none" && i == (search_engines.length - 1)) {
+        // Nothing was found
+            // Stop listening for the magic signal from fetch_site
+            document.removeEventListener('display_result');
+
             // Presenting a Google-Link to look for results
             if (query.length > 20) tmp = query.slice(0, 20) + "...";
             else tmp = query;
@@ -398,16 +405,24 @@ function query_search_process() {
             // Set what to display
             document.getElementById("loading").style.display="none";
             document.getElementById("noresult").style.display="inline";
-        }
-        else if (search_engines[i][2] == "none") continue;
-        else if (search_engines[i][2]) {
-            // Trimming the output to not exceed the maximum length
-            if (search_engines[i][2].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
-                search_engines[i][2] = search_engines[i][2].slice(0, max_output_length);
-                search_engines[i][2] = search_engines[i][2].slice(0, search_engines[i][2].lastIndexOf(" "))+ "...";
+        } else if (search_engines[i][3] != "none") {
+        // A result was found
+            // Stop listening for the magic signal from fetch_site
+            document.removeEventListener('display_result');
+
+            // Write "none" as result to all remaining requests
+            for (var n = (i + 1); n < search_engines.length; n++) {
+                search_engines[n][3] = "none";
             }
 
-            document.getElementById("output").innerHTML = "<p></p>" + search_engines[i][2];
+            // Trimming the output if it exceeds the maximum length
+            if (search_engines[i][3].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+                search_engines[i][3] = search_engines[i][3].slice(0, max_output_length);
+                search_engines[i][3] = search_engines[i][3].slice(0, search_engines[i][3].lastIndexOf(" "))+ "...";
+            }
+
+            // Filling the various html divisions
+            document.getElementById("output").innerHTML = "<p></p>" + search_engines[i][3];
             document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
             search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
             search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
@@ -416,9 +431,6 @@ function query_search_process() {
             document.getElementById("loading").style.display="none";
             document.getElementById("output").style.display="inline";
             document.getElementById("source").style.display="inline";
-
-            // A result was found and was succesfully displayed, hence breaking out of the loop
-            break;
         }
     }
 }
@@ -463,14 +475,12 @@ function query_search_init() {
 
     // Fetching possible entries from each site
     for (i = 0; i < search_engines.length; i++) {
-        // Emptying search_engines[i][2] array
+        // Emptying the html-code and content field of the search_engines array
         search_engines[i][2] = "";
+        search_engines[i][3] = "";
         // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
         fetch_site(search_engines[i][1] + encodeURIComponent(query), i);
     }
-
-    // Listen for the magic signal from fetch_site to process the recieved html-code
-    document.removeEventListener('display_result');
 }
 
 // Adding some EventListeners
