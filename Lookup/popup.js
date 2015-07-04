@@ -181,22 +181,25 @@ function wikipedia(data) {
 //
 // @return string: User readable content
 function duden(data) {
-    var tmp = "";
+    var begin = -1;
+    var end = -1;
 
-    // Immediately assemble the bullet list with the definitions
-    while (data.indexOf("<li id=\"b2-Bedeutung") != -1) {
-        tmp += data.slice(data.indexOf("<li id=\"b2-Bedeutung"), data.indexOf("</li>", data.indexOf("<li id=\"b2-Bedeutung")) + 5);
-        data = data.slice(data.indexOf("</li>", data.indexOf("<li id=\"b2-Bedeutung")) + 5);
+    begin = data.indexOf("<span", data.search(new RegExp("span>Bedeutung(en|)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")));
+
+    if (begin != -1) {
+        data = data.slice(begin);
+        end = data.search(new RegExp("<(/div>|div|img)", "i"));
+        data = data.slice(0, end);
+
+        // Preserve the bullet list but remove remaining html-code
+        data = data.replace(/<li id="b2-Bedeutung[^>]*>/ig, "gorditmp01");
+        data = data.replace(/<\/li>/ig, "gorditmp02");
+        data = data.replace(/<[^>]+>/ig, "");
+        data = data.replace(/gorditmp01/ig, "<li>");
+        data = data.replace(/gorditmp02/ig, "</li>");
+
+        return data;
     }
-
-    // Preserve the bullet list but remove remaining html-code
-    tmp = tmp.replace(/<li[^>]*>/ig, "gorditmp01");
-    tmp = tmp.replace(/<\/li>/ig, "gorditmp02");
-    tmp = tmp.replace(/<[^>]+>/ig, "");
-    tmp = tmp.replace(/gorditmp01/ig, "<li>");
-    tmp = tmp.replace(/gorditmp02/ig, "</li>");
-
-    if (tmp.length > 0) return tmp;
     else return "none";
 }
 
