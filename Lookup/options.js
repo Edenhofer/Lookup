@@ -35,11 +35,11 @@ function save_options() {
 	// Saving the selected options
 	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'input_language': input_language, 'switcher_grounding': switcher_grounding, 'switcher_ranked_search': switcher_ranked_search}, function() {
 		if (chrome.runtime.error) console.log("Runtime Error, code:BB7742");
-  });
+	});
 
 	// Displaying a message for a fixed time
 	document.getElementById("status").innerHTML = "Settings saved.";
-	setTimeout(function() {document.getElementById("status").innerHTML = ""}, 1250);
+	setTimeout(function() {document.getElementById("status").innerHTML = "";}, 1250);
 }
 
 // Setting default options
@@ -57,7 +57,7 @@ function init() {
 	var input_language = "";
 	var switcher_grounding;
 	var switcher_ranked_search;
-  var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
+	var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
 
   // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
 	chrome.storage.sync.get(saves, function (result) {
@@ -94,7 +94,7 @@ function init() {
 		else document.getElementById("duden").style.display = 'none';
 
 		// Preselecting the saved grounding
-		for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
+		for (i = 0; i < document.getElementById("grounding").options.length; i++) {
 			if (document.getElementById("grounding").options[i].value == grounding) {
 				document.getElementById("grounding").options[i].selected = true;
 				break;
@@ -102,7 +102,7 @@ function init() {
 		}
 
 		// Preselecting the saved input_language
-		for (var i = 0; i < document.getElementById("input_language").options.length; i++) {
+		for (i = 0; i < document.getElementById("input_language").options.length; i++) {
 			if (document.getElementById("input_language").options[i].value == input_language) {
 				document.getElementById("input_language").options[i].selected = true;
 				break;
@@ -150,7 +150,7 @@ window.addEventListener("load", function(evt) {
 
 // Printing the changes in the chrome.storage.sync into the console log
 chrome.storage.onChanged.addListener(function(changes, namespace) {
-  for (key in changes) {
+  for (var key in changes) {
     var storageChange = changes[key];
     console.log('Storage key "%s" in namespace "%s" changed: The old value was "%s" and now the new value is "%s".',
                 key, namespace, storageChange.oldValue, storageChange.newValue);

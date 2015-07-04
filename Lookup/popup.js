@@ -92,10 +92,8 @@ function init() {
         // Assembling the corresponding URLs
         wikipedia_url = "https://" + language + ".wikipedia.org/wiki/";
         duden_url = "http://www.duden.de/rechtschreibung/";
-        if (language == "de") tmp = "de/title";
-        // The last option must be "en"
-        else tmp = "org/index.php";
-        archlinux_url = "https://wiki.archlinux." + tmp + "/";
+        if (language == "de") archlinux_url = "https://wiki.archlinux.de/title/";
+        else archlinux_url = "https://wiki.archlinux.org/index.php/";
         google_translate_url = "https://translate.google.de/#auto/" + language + "/";
         if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) dict_url = "http://www.dict.cc/?s=";
         else if (input_language == language) {
@@ -425,7 +423,7 @@ function query_search_process() {
             document.getElementById("output").innerHTML = "<p></p>" + search_engines[i][3];
             document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
             search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
-            search_engines[i][1] + encodeURIComponent(query) + "</a><\i></p>";
+            search_engines[i][1] + query + "</a><\i></p>";
 
             // Set what to display
             document.getElementById("loading").style.display="none";
