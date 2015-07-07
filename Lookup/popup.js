@@ -156,7 +156,9 @@ function wikipedia(data) {
             // The end is where the second </li> closes
             data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
             tmp = tmp.slice(tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
-            data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+            if (tmp.indexOf("<li>") != -1 && tmp.indexOf("<li>") <= 50) {
+                data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+            }
 
             data = data.replace(/<li>/ig, "gorditmp01");
             data = data.replace(/<\/li>/ig, "gorditmp02");
