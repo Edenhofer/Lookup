@@ -358,7 +358,7 @@ function fetch_site(url, i) {
                 search_engines[i][2] = search_engines[i][2].trim();
                 // Dispatch the event
                 document.dispatchEvent(event);
-            } else if (xmlhttp.status == 404) {
+            } else if (xmlhttp.status >= 400) {
                 search_engines[i][2] = "none";
                 // Dispatch the magic event
                 document.dispatchEvent(event);
@@ -403,7 +403,8 @@ function query_search_process() {
             if (query.length > 20) tmp = query.slice(0, 20) + "...";
             else tmp = query;
             document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
-            query.replace("\"", "%22").replace(/<[^>]+>/ig, "") + "\" target=\"_blank\">Google for \"" + tmp + "\"</a></p>";
+            encodeURIComponent(query) + "\" target=\"_blank\">Google for \"" +
+            tmp.replace(/"/g, "\"").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") + "\"</a></p>";
 
             // Set what to display
             document.getElementById("loading").style.display="none";
