@@ -123,6 +123,18 @@ function init() {
     });
 }
 
+// Strip html elements from the input
+//
+// @param string html
+//
+// @return text
+function strip_html(html)
+{
+   var text = document.createElement("DIV");
+   text.innerHTML = html;
+   return text.textContent || text.innerText || "";
+}
+
 // Search function for Wikipedia
 //
 // @param string data: html-code
@@ -166,7 +178,7 @@ function wikipedia(data) {
         } else data = data.slice(begin, end);
 
         // Replacing anything html with nothing
-        data = data.replace(/<[^>]+>/ig, "");
+        data = strip_html(data);
         data = data.replace(/\[\d+\]/ig, "");
         data = data.replace(/gorditmp01/ig, "<li>");
         data = data.replace(/gorditmp02/ig, "</li>");
@@ -194,11 +206,14 @@ function duden(data) {
         data = data.slice(0, end);
 
         // Preserve the bullet list but remove remaining html-code
-        data = data.replace(/<li id="b2-Bedeutung[^>]*>/ig, "gorditmp01");
-        data = data.replace(/<\/li>/ig, "gorditmp02");
-        data = data.replace(/<[^>]+>/ig, "");
-        data = data.replace(/gorditmp01/ig, "<li>");
-        data = data.replace(/gorditmp02/ig, "</li>");
+        data = data.replace(/<li id="b2-Bedeutung-[\d]"[^>]*>/ig, "gorditmp01");
+        data = data.replace(/<li id="b2-Bedeutung-[\d][\D]"[^>]*>/ig, "gorditmp02");
+        data = data.replace(/<\/li>/ig, "gorditmp03");
+        data = strip_html(data);
+        alert(data.trim());
+        data = data.replace(/gorditmp01/ig, "<ul><li>");
+        data = data.replace(/gorditmp02/ig, "<ul><li>");
+        data = data.replace(/gorditmp03/ig, "</li></ul>");
 
         return data;
     }
@@ -224,7 +239,7 @@ function archlinux(data) {
     if (begin != -1) {
         end = data.indexOf("</p>", begin);
         // If the article is to short it is probabaly a quotation, then things have to be handled differently
-        if (data.slice(begin, end).replace(/(<([^>]+)>)/ig, "").length < 50) {
+        if (strip_html(data.slice(begin, end)).length < 50) {
             data = data.slice(end + 4);
             begin = data.indexOf("<p>");
             // Searching for the second closing "</p>"
@@ -240,7 +255,7 @@ function archlinux(data) {
         else data = data.slice(begin, end);
 
         // Replacing anything html with nothing
-        data = data.replace(/(<([^>]+)>)/ig, "");
+        data = strip_html(data);
         data = data.replace(/\[\d+\]/ig, "");
 
         // Saving the cursive writing
@@ -269,8 +284,8 @@ function google_translate(data) {
         var end = data.indexOf("</span>", data.indexOf("</span>", begin)+7);
         data = data.slice(begin, end);
 
-        // Replacing anything html with nothing
-        data = data.replace(/(<([^>]+)>)/ig, "");
+        // Strip html elements
+        data = strip_html(data);
 
         return data;
     }
@@ -296,24 +311,33 @@ function dict(data) {
         if (tmp < end) end = tmp;
 
         data = data.slice(begin, end);
-        data = "<table>" + data + "</table>";
-
         // Removing some headings, e.g. "</div><b>Substantive</b>"
         data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
         // Removing the little gray numbers
         data = data.replace(/<div[^>]*>([\d]+)<\/div>/ig, "");
-
         // Removing some uneccessary html code
         data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
         data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
 
-        // Removing html but not <td> or </td>
-        data = data.replace(/<[^t]([^>]+)>/ig, "");
-        data = data.replace(/<\/[^t]([^>]*)>/ig, "");
+        // Preserving the table elements
+        data = data.replace(/<td[^>]*>/ig, "gorditmp01");
+        data = data.replace(/<\/td[^>]*>/ig, "gorditmp02");
+        data = data.replace(/<tr[^>]*>/ig, "gorditmp03");
+        data = data.replace(/<\/tr[^>]*>/ig, "gorditmp04");
+        data = data.replace(/<b[^>]*>/ig, "gorditmp05");
+        data = data.replace(/<\/b[^>]*>/ig, "gorditmp06");
+        data = strip_html(data);
+        data = data.replace(/gorditmp01/ig, "<td>");
+        data = data.replace(/gorditmp02/ig, "</td>");
+        data = data.replace(/gorditmp03/ig, "<tr>");
+        data = data.replace(/gorditmp04/ig, "</tr>");
+        data = data.replace(/gorditmp05/ig, "<b>");
+        data = data.replace(/gorditmp06/ig, "</b>");
+        data = "<table>" + data + "</table>";
 
         // Removing some notes
         data = data.replace(/\[[^(\])]*\]/ig, "");
-        data = data.replace(/{[a-zA-Z.-]+}/ig, "");
+        //data = data.replace(/{[a-zA-Z.-]+}/ig, ""); <-- TODO Is this really necessary
         data = data.replace(/&lt;([^&]*)&gt;/ig, "");
 
         return data;
@@ -420,7 +444,7 @@ function query_search_process() {
             }
 
             // Trimming the output if it exceeds the maximum length
-            if (search_engines[i][3].replace(/(<([^>]+)>)/ig, "").length >= max_output_length) {
+            if (strip_html(search_engines[i][3]).length >= max_output_length) {
                 search_engines[i][3] = search_engines[i][3].slice(0, max_output_length);
                 search_engines[i][3] = search_engines[i][3].slice(0, search_engines[i][3].lastIndexOf(" "))+ "...";
             }
@@ -459,7 +483,7 @@ function query_search_init() {
     }
     last_queries.push(query);
     // Keeping the maximum length of last_queries below max_last_queries
-    if (last_queries.length > max_last_queries) last_queries = last_queries.slice(last_queries.length - max_last_queries, last_queries.length);
+    if (last_queries.length > max_last_queries) last_queries = last_queries.slice(last_queries.length - max_last_queries);
     // Store last_queries locally
     chrome.storage.local.set({'last_queries': last_queries});
 
