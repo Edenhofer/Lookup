@@ -1,0 +1,2 @@
+# Ignore private signing keys
+*.pem
