@@ -44,9 +44,9 @@ function save_options() {
 
 // Setting default options
 function default_options() {
-/*
-This button is for later, if there are more settings available!!!!!!!!!!!!!!!!
-*/
+	/*
+	This button is for later, if there are more settings available -TODO
+	*/
 }
 
 // Setting the init configuration
@@ -59,13 +59,13 @@ function init() {
 	var switcher_ranked_search;
 	var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
 
-  // My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
+	// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
 	chrome.storage.sync.get(saves, function (result) {
-	  if (chrome.runtime.lasError || !result) {
-	    alert("Runtime Error, code:FF9931");
-	  }
+		if (chrome.runtime.lasError || !result) {
+			alert("Runtime Error, code:FF9931");
+		}
 
-	  // The default values are set here!
+		// The default values are set here!
 		// Getting the language
 		if (!result.language) language = "en";
 		else language = result.language;
@@ -76,11 +76,11 @@ function init() {
 		if (!result.grounding) grounding = "wikipedia";
 		else grounding = result.grounding;
 		// Getting the switcher_grounding (!variable also checks whether variable is false, so it is necessary to exlude this case)
-  	if (!result.switcher_grounding && result.switcher_grounding !== false) switcher_grounding = true;
-  	else switcher_grounding = result.switcher_grounding;
-  	// Getting the switcher_ranked_search (!variable also checks whether variable is false, so it is necessary to exlude this case)
-  	if (!result.switcher_ranked_search && result.switcher_ranked_search !== false) switcher_ranked_search = true;
-  	else switcher_ranked_search = result.switcher_ranked_search;
+		if (!result.switcher_grounding && result.switcher_grounding !== false) switcher_grounding = true;
+		else switcher_grounding = result.switcher_grounding;
+		// Getting the switcher_ranked_search (!variable also checks whether variable is false, so it is necessary to exlude this case)
+		if (!result.switcher_ranked_search && result.switcher_ranked_search !== false) switcher_ranked_search = true;
+		else switcher_ranked_search = result.switcher_ranked_search;
 
 		// Preselecting the saved language
 		for (var i = 0; i < document.getElementById("language").options.length; i++) {
@@ -127,13 +127,13 @@ function init() {
 // Donate Popup
 function donate() {
 	window.open("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9ZAYWC36LQVZQ&submit.x=35&submit.y=2", "_blank");
-	/* !!!!!!!!!!!!!!!!!!!!!! Popup erstellen!
+	/* TODO Popup erstellen!
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-		<input type="hidden" name="cmd" value="_s-xclick">
-		<input type="hidden" name="hosted_button_id" value="9ZAYWC36LQVZQ">
-		<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" width=60px
-		  height=15px border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-		<img alt="" border="0" src="https://www.paypalobjects.com/de_DE/i/scr/pixel.gif" width="1" height="1">
+	<input type="hidden" name="cmd" value="_s-xclick">
+	<input type="hidden" name="hosted_button_id" value="9ZAYWC36LQVZQ">
+	<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" width=60px
+	height=15px border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+	<img alt="" border="0" src="https://www.paypalobjects.com/de_DE/i/scr/pixel.gif" width="1" height="1">
 	</form>
 	*/
 }
@@ -150,9 +150,9 @@ window.addEventListener("load", function(evt) {
 
 // Printing the changes in the chrome.storage.sync into the console log
 chrome.storage.onChanged.addListener(function(changes, namespace) {
-  for (var key in changes) {
-    var storageChange = changes[key];
-    console.log('Storage key "%s" in namespace "%s" changed: The old value was "%s" and now the new value is "%s".',
-                key, namespace, storageChange.oldValue, storageChange.newValue);
-  }
+	for (var key in changes) {
+		var storageChange = changes[key];
+		console.log('Storage key "%s" in namespace "%s" changed: The old value was "%s" and now the new value is "%s".',
+		key, namespace, storageChange.oldValue, storageChange.newValue);
+	}
 });

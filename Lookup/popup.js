@@ -128,11 +128,10 @@ function init() {
 // @param string html
 //
 // @return text
-function strip_html(html)
-{
-   var text = document.createElement("DIV");
-   text.innerHTML = html;
-   return text.textContent || text.innerText || "";
+function strip_html(html) {
+    var text = document.createElement("DIV");
+    text.innerHTML = html;
+    return text.textContent || text.innerText || "";
 }
 
 // Search function for Wikipedia
@@ -418,7 +417,7 @@ function query_search_process() {
         if (document.getElementById("output").style.display == "inline") return;
 
         if (search_engines[i][3] == "none" && i == (search_engines.length - 1)) {
-        // Nothing was found
+            // Nothing was found
             // Stop listening for the magic signal from fetch_site
             document.removeEventListener('display_result');
 
@@ -433,7 +432,7 @@ function query_search_process() {
             document.getElementById("loading").style.display="none";
             document.getElementById("noresult").style.display="inline";
         } else if (search_engines[i][3] != "none") {
-        // A result was found
+            // A result was found
             // Stop listening for the magic signal from fetch_site
             document.removeEventListener('display_result');
 
