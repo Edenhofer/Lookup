@@ -88,12 +88,12 @@ function init() {
             document.getElementById("icon").style.display = 'inline';
         }
 
-        var wikipedia_url, duden_url, archlinux_url, google_translate_url, dict_url;
+        var wikipedia_url, duden_url, archwiki_url, google_translate_url, dict_url;
         // Assembling the corresponding URLs
         wikipedia_url = "https://" + language + ".wikipedia.org/wiki/";
         duden_url = "http://www.duden.de/rechtschreibung/";
-        if (language == "de") archlinux_url = "https://wiki.archlinux.de/title/";
-        else archlinux_url = "https://wiki.archlinux.org/index.php/";
+        if (language == "de") archwiki_url = "https://wiki.archlinux.de/title/";
+        else archwiki_url = "https://wiki.archlinux.org/index.php/";
         google_translate_url = "https://translate.google.de/#auto/" + language + "/";
         if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) dict_url = "http://www.dict.cc/?s=";
         else if (input_language == language) {
@@ -220,12 +220,12 @@ function duden(data) {
     else return "none";
 }
 
-// Search function for Arch Linux
+// Search function for Arch Linux Wiki
 //
 // @param string data: html-code
 //
 // @return string: User readable content
-function archlinux(data) {
+function archwiki(data) {
     var begin = -1;
     var end = -1;
 
