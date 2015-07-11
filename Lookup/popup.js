@@ -206,11 +206,10 @@ function duden(data) {
         data = data.slice(0, end);
 
         // Preserve the bullet list but remove remaining html-code
-        data = data.replace(/<li id="b2-Bedeutung-[\d]"[^>]*>/ig, "gorditmp01");
+        data = data.replace(/<li id="b2-Bedeutung-[\d\D]"[^>]*>/ig, "gorditmp01");
         data = data.replace(/<li id="b2-Bedeutung-[\d][\D]"[^>]*>/ig, "gorditmp02");
         data = data.replace(/<\/li>/ig, "gorditmp03");
         data = strip_html(data);
-        alert(data.trim());
         data = data.replace(/gorditmp01/ig, "<ul><li>");
         data = data.replace(/gorditmp02/ig, "<ul><li>");
         data = data.replace(/gorditmp03/ig, "</li></ul>");
