@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>Look Up</title>
+	<script	src="search_engines.js"></script>
 	<script src="options.js"></script>
 	<link rel="stylesheet" href="styles.css">
 	<style>
@@ -102,14 +103,9 @@
 			</tr>
 			<tr>
 				<td class="FirstOfRow">Grounding:<span class="tab"></span></td>
-				<td><select id="grounding">
-					<option value="wikipedia">Wikipedia</option>
-					<option value="duden" id="duden">W&ouml;rterbuch (Duden)</option>
-					<option value="archwiki">Arch Linux Wiki</option>
-					<!-- In case I can fix the google translate function -->
-					<option value="google_translate" style="display:none">Google Translate</option>
-					<option value="dict">Dictionary (dict.cc)</option>
-				</select></td>
+				<td>
+					<select id="grounding"></select>
+				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>

@@ -1,3 +1,9 @@
+// The data structure of the engine array is actually quite simply!
+// Every element in the engine represents one search engine. The element is named accordingly.
+// Each one of them shell have three (3) properties:
+// innerText (a FUNCTION which processes the html data of the web page and returns human readable information),
+// url (a FUNCTION which returns just the language and input_language dependent URL of side for which the engine is designed),
+// info (a ARRAY with [0] being the long name of the search engine and [1] being the short abbreviation: [0] is displayed at the options page, [1] at the popup
 var engine = {
     wikipedia: {
         // Search function for Wikipedia
@@ -55,7 +61,8 @@ var engine = {
         },
         url: function (language, input_language) {
             return "https://" + language + ".wikipedia.org/wiki/";
-        }
+        },
+        info: ["Wikipedia", "Wiki"]
     },
 
     duden: {
@@ -90,7 +97,8 @@ var engine = {
         },
         url: function (language, input_language) {
             return "http://www.duden.de/rechtschreibung/";
-        }
+        },
+        info: ["W&ouml;rterbuch (Duden)", "Duden"]
     },
 
     // Search function for Arch Linux Wiki
@@ -143,7 +151,8 @@ var engine = {
         url: function (language, input_language) {
             if (language == "de") return "https://wiki.archlinux.de/title/";
             else return "https://wiki.archlinux.org/index.php/";
-        }
+        },
+        info: ["Arch Linux Wiki", "Arch"]
     },
 
     // Search function for dict.cc
@@ -207,21 +216,22 @@ var engine = {
                 return "http://www.dict.cc/?s=";
             }
             else return "http://" + language + input_language + ".dict.cc/?s=";
-        }
+        },
+        info: ["Dictionary (dict.cc)", "dict.cc"]
     },
 
     // Search function for Google Translate
     //
+    // Works only in theory. The source code which is send to an
+    // ordinary user by Google differs from that which this
+    // extension receives by getting the code from Google.
+    //
     // @param string data: html-code
     //
     // @return string: User readable content
+    /*
     google_translate: {
         innerText: function (data) {
-            /*
-            Works only in theory. The source code which is send to an
-            ordinary user by Google differs from that which this
-            extension receives by getting the code from Google.
-            */
             var begin = data.search(/<span id=result_box/i);
 
             if (begin != -1) {
@@ -237,6 +247,8 @@ var engine = {
         },
         url: function (language, input_language) {
             return "https://translate.google.de/#auto/" + language + "/";
-        }
+        },
+        info: ["Google Translate", "G. Dict"]
     }
+    */
 };

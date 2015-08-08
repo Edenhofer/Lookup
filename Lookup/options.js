@@ -51,19 +51,14 @@ function default_options() {
 
 // Setting the init configuration
 function init() {
-	// Setting up the variables
-	var language = "";
-	var grounding = "";
-	var input_language = "";
-	var switcher_grounding;
-	var switcher_ranked_search;
 	var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
+	var language, grounding, input_language, switcher_grounding, switcher_ranked_search;
 
-	// My guess is that the chrome.storage call runs in the background and that other function do not wait for it to finisch
+	// The chrome.storage call runs in the background and other function do not wait for it to finisch. It is an asynchronous method!
 	chrome.storage.sync.get(saves, function (result) {
 		if (chrome.runtime.lasError || !result) {
-			alert("Runtime Error, code:FF9931");
-		}
+            console.log("[RUNTIME ERROR]: Please consult the support!");
+        }
 
 		// The default values are set here!
 		// Getting the language
@@ -140,7 +135,13 @@ function donate() {
 
 // Event Listeners which are added on load of the page and getting the init() function ready, which will start when the page is opened
 window.addEventListener("load", function(evt) {
+	// Loading the groundings
+	for (var current in engine) {
+		document.getElementById("grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[0] + "</option>";
+	}
+
 	init();
+
 	document.getElementById("save").addEventListener("click", save_options);
 	document.getElementById("default").addEventListener("click", default_options);
 	document.getElementById("language").addEventListener("change", style_display_language);

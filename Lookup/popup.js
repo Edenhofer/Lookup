@@ -33,7 +33,6 @@ var search_engines;
 function init() {
     var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
     var language, grounding, input_language, switcher_grounding, switcher_ranked_search;
-    var tmp = "";
 
     // The chrome.storage call runs in the background and other function do not wait for it to finisch. It is an asynchronous method!
     chrome.storage.sync.get(saves, function (result) {
@@ -296,6 +295,11 @@ window.addEventListener('load', function(evt) {
     // Creating a proper link to the option page
     document.getElementById('options_page').innerHTML = "<a href=\"" +
     chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
+
+    // Loading the groundings
+	for (var current in engine) {
+		document.getElementById("grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[1] + "</option>";
+	}
 
     // Initialize the popup
     init();
