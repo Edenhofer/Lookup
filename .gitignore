@@ -1,2 +1,8 @@
 # Ignore private signing keys
 *.pem
+
+# Ignore the bundled zip file
+*.zip
+
+# Ignore created package files
+*.crx
