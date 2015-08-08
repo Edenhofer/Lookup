@@ -12,8 +12,6 @@ bkg.callFunction();
 // Custom JSLint configurtations
 // Allow the use ECMAScript 6 specific syntax, e.g. const
 // jshint esnext: true
-// Allow eval
-// jshint evil: false
 // Increased sensitivity for warnings if UNCOMMENTED
 //"use strict"; var document, chrome, event, console, window;
 
@@ -90,26 +88,37 @@ function init() {
             document.getElementById("icon").style.display = 'inline';
         }
 
-        var wikipedia_url, duden_url, archwiki_url, google_translate_url, dict_url;
         // Assembling the corresponding URLs
-        wikipedia_url = "https://" + language + ".wikipedia.org/wiki/";
-        duden_url = "http://www.duden.de/rechtschreibung/";
-        if (language == "de") archwiki_url = "https://wiki.archlinux.de/title/";
-        else archwiki_url = "https://wiki.archlinux.org/index.php/";
-        google_translate_url = "https://translate.google.de/#auto/" + language + "/";
-        if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) dict_url = "http://www.dict.cc/?s=";
-        else if (input_language == language) {
-            // Making the german-english translation the default one if input_language and language are the same
-            dict_url = "http://www.dict.cc/?s=";
-            document.getElementById("tip").innerHTML = "<i><p>Tip: Change the input language for the dictionary.</p></i>";
-        }
-        else dict_url = "http://" + language + input_language + ".dict.cc/?s=";
+        var grounding_to_url = {
+            wikipedia: function () {
+                return "https://" + language + ".wikipedia.org/wiki/";
+            },
+            duden: function () {
+                return "http://www.duden.de/rechtschreibung/";
+            },
+            archwiki: function () {
+                if (language == "de") return "https://wiki.archlinux.de/title/";
+                else return "https://wiki.archlinux.org/index.php/";
+            },
+            google_translate: function () {
+                return "https://translate.google.de/#auto/" + language + "/";
+            },
+            dict: function () {
+                if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) return "http://www.dict.cc/?s=";
+                else if (input_language == language) {
+                    // Making the german-english translation the default one if input_language and language are the same
+                    document.getElementById("tip").innerHTML = "<i><p>Tip: Change the input language for the dictionary.</p></i>";
+                    return "http://www.dict.cc/?s=";
+                }
+                else return "http://" + language + input_language + ".dict.cc/?s=";
+            }
+        };
 
         // Defining the search_engines
-        if (language == "en") search_engines = [["wikipedia",wikipedia_url,"",""],["dict",dict_url,"",""]];
-        if (language == "de") search_engines = [["duden",duden_url,"",""],["wikipedia",wikipedia_url,"",""],["dict",dict_url,"",""]];
+        if (language == "en") search_engines = [["wikipedia", grounding_to_url.wikipedia(), "", ""], ["dict", grounding_to_url.dict(), "", ""]];
+        if (language == "de") search_engines = [["duden", grounding_to_url.duden(), "", ""], ["wikipedia", grounding_to_url.wikipedia(), "", ""], ["dict", grounding_to_url.dict(), "", ""]];
         // If no valid language is detected, than the english style will be used
-        else search_engines = [["wikipedia",wikipedia_url,"",""],["dict",dict_url,"",""]];
+        else search_engines = [["wikipedia", grounding_to_url.wikipedia(), "", ""], ["dict", grounding_to_url.dict(), "", ""]];
 
         // If switcher_grounding is true then set the selected search engine to the top of the search_engines array
         if (switcher_grounding === true) {
@@ -117,11 +126,11 @@ function init() {
             for (i = 0; i < search_engines.length; i++) {
                 if (search_engines[i][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
             }
-            search_engines.unshift([grounding, eval(grounding + "_url"), "", ""]);
+            search_engines.unshift([grounding, grounding_to_url[grounding](), "", ""]);
         }
 
         // In case switcher_ranked_search is NOT true then make the selected search engine the only one in the search_engines array
-        if (switcher_ranked_search === false) search_engines = [[grounding, eval(grounding + "_url"), "", ""]];
+        if (switcher_ranked_search === false) search_engines = [[grounding, grounding_to_url[grounding](), "", ""]];
     });
 }
 
