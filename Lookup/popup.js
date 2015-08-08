@@ -12,6 +12,7 @@ than slice will still work, because the not found arguements equales -1!
 // Setting up some constants
 const max_output_length = 540;
 const max_last_queries = 10;
+const xmlhttp_timeout = 5000; // in milliseconds
 
 // Store the last queries from previous searches, [0] being the oldest one
 var last_queries = [];
@@ -130,7 +131,7 @@ function fetch_site(url, i) {
     var event = new Event('display_result');
 
     // Milliseconds a request can take before automatically being terminated - async only
-    xmlhttp.timeout = 5000;
+    xmlhttp.timeout = xmlhttp_timeout;
     xmlhttp.ontimeout = function () {
         search_engines[i][2] = "none";
         console.log("ONTIMEOUT: search_engines[" + i + "][2] is now set to " + search_engines[i][2] );
