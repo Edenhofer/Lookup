@@ -297,9 +297,9 @@ window.addEventListener('load', function(evt) {
     chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
     // Loading the groundings
-	for (var current in engine) {
-		document.getElementById("grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[1] + "</option>";
-	}
+    for (var current in engine) {
+        document.getElementById("grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[1] + "</option>";
+    }
 
     // Initialize the popup
     init();

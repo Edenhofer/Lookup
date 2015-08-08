@@ -57,8 +57,8 @@ function init() {
 	// The chrome.storage call runs in the background and other function do not wait for it to finisch. It is an asynchronous method!
 	chrome.storage.sync.get(saves, function (result) {
 		if (chrome.runtime.lasError || !result) {
-            console.log("[RUNTIME ERROR]: Please consult the support!");
-        }
+			console.log("[RUNTIME ERROR]: Please consult the support!");
+		}
 
 		// The default values are set here!
 		// Getting the language
