@@ -12,6 +12,8 @@ bkg.callFunction();
 // Custom JSLint configurtations
 // Allow the use ECMAScript 6 specific syntax, e.g. const
 // jshint esnext: true
+// Allow eval
+// jshint evil: true
 // Increased sensitivity for warnings if UNCOMMENTED
 //"use strict"; var document, chrome, event, console, window;
 
