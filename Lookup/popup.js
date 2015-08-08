@@ -13,7 +13,7 @@ bkg.callFunction();
 // Allow the use ECMAScript 6 specific syntax, e.g. const
 // jshint esnext: true
 // Allow eval
-// jshint evil: true
+// jshint evil: false
 // Increased sensitivity for warnings if UNCOMMENTED
 //"use strict"; var document, chrome, event, console, window;
 
@@ -136,214 +136,216 @@ function strip_html(html) {
     return text.textContent || text.innerText || "";
 }
 
-// Search function for Wikipedia
-//
-// @param string data: html-code
-//
-// @return string: User readable content
-function wikipedia(data) {
-    var begin = -1;
-    var end = -1;
-    var tmp = "";
+var engines = {
+    // Search function for Wikipedia
+    //
+    // @param string data: html-code
+    //
+    // @return string: User readable content
+    wikipedia: function (data) {
+        var begin = -1;
+        var end = -1;
+        var tmp = "";
 
-    // Stripping tables from data
-    data = data.slice(0, data.indexOf("<table")) +  data.slice(data.indexOf("</table>"));
+        // Stripping tables from data
+        data = data.slice(0, data.indexOf("<table")) +  data.slice(data.indexOf("</table>"));
 
-    // Checking for the existance of an article
-    if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
-    else {
-        data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
-        begin = data.indexOf("<p>");
-        // Check for interactive boxes where no usefull text is available, e.g. year number - german only
-        if (data.slice(begin + 3, begin + 18).localeCompare('<a href="/wiki/') === 0) begin = -1;
-    }
-
-    if (begin != -1) {
-        end = data.indexOf("</p>", begin);
-
-        // Checking for a list of options
-        if (data.indexOf("<li>", end) != -1 && data.indexOf("<li>", end) <= (end + 50)) {
-            tmp = data.slice(begin);
-            data = data.slice(begin, end);
-
-            // The end is where the second </li> closes
-            data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
-            tmp = tmp.slice(tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
-            if (tmp.indexOf("<li>") != -1 && tmp.indexOf("<li>") <= 50) {
-                data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
-            }
-
-            data = data.replace(/<li>/ig, "gorditmp01");
-            data = data.replace(/<\/li>/ig, "gorditmp02");
-            data += "gorditmp03";
-        } else data = data.slice(begin, end);
-
-        // Replacing anything html with nothing
-        data = strip_html(data);
-        data = data.replace(/\[\d+\]/ig, "");
-        data = data.replace(/gorditmp01/ig, "<li>");
-        data = data.replace(/gorditmp02/ig, "</li>");
-        data = data.replace(/gorditmp03/ig, "<li>...</li>");
-
-        return data;
-    }
-    else return "none";
-}
-
-// Search function for Duden a german dictionary
-//
-// @param string data: html-code
-//
-// @return string: User readable content
-function duden(data) {
-    var begin = -1;
-    var end = -1;
-
-    begin = data.indexOf("<span", data.search(new RegExp("span>Bedeutung(en|)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")));
-
-    if (begin != -1) {
-        data = data.slice(begin);
-        end = data.search(new RegExp("<(/div>|div|img)", "i"));
-        data = data.slice(0, end);
-
-        // Preserve the bullet list but remove remaining html-code
-        data = data.replace(/<li id="b2-Bedeutung-[\d\D]"[^>]*>/ig, "gorditmp01");
-        data = data.replace(/<li id="b2-Bedeutung-[\d][\D]"[^>]*>/ig, "gorditmp02");
-        data = data.replace(/<\/li>/ig, "gorditmp03");
-        data = strip_html(data);
-        data = data.replace(/gorditmp01/ig, "<ul><li>");
-        data = data.replace(/gorditmp02/ig, "<ul><li>");
-        data = data.replace(/gorditmp03/ig, "</li></ul>");
-
-        return data;
-    }
-    else return "none";
-}
-
-// Search function for Arch Linux Wiki
-//
-// @param string data: html-code
-//
-// @return string: User readable content
-function archwiki(data) {
-    var begin = -1;
-    var end = -1;
-
-    // Checking for the existance of an article
-    if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
-    else {
-        data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
-        begin = data.search(new RegExp("<(|/)div[^>]*>(|\n)<p>"));
-    }
-
-    if (begin != -1) {
-        end = data.indexOf("</p>", begin);
-        // If the article is to short it is probabaly a quotation, then things have to be handled differently
-        if (strip_html(data.slice(begin, end)).length < 50) {
-            data = data.slice(end + 4);
+        // Checking for the existance of an article
+        if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
+        else {
+            data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
             begin = data.indexOf("<p>");
-            // Searching for the second closing "</p>"
-            end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
-            if (data.indexOf("<div", data.indexOf("</p>", begin) + 4) < end) end = data.indexOf("<div", data.indexOf("</p>", begin));
+            // Check for interactive boxes where no usefull text is available, e.g. year number - german only
+            if (data.slice(begin + 3, begin + 18).localeCompare('<a href="/wiki/') === 0) begin = -1;
+        }
 
-            data = data.slice(begin, end);
+        if (begin != -1) {
+            end = data.indexOf("</p>", begin);
+
+            // Checking for a list of options
+            if (data.indexOf("<li>", end) != -1 && data.indexOf("<li>", end) <= (end + 50)) {
+                tmp = data.slice(begin);
+                data = data.slice(begin, end);
+
+                // The end is where the second </li> closes
+                data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+                tmp = tmp.slice(tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+                if (tmp.indexOf("<li>") != -1 && tmp.indexOf("<li>") <= 50) {
+                    data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+                }
+
+                data = data.replace(/<li>/ig, "gorditmp01");
+                data = data.replace(/<\/li>/ig, "gorditmp02");
+                data += "gorditmp03";
+            } else data = data.slice(begin, end);
+
+            // Replacing anything html with nothing
+            data = strip_html(data);
+            data = data.replace(/\[\d+\]/ig, "");
+            data = data.replace(/gorditmp01/ig, "<li>");
+            data = data.replace(/gorditmp02/ig, "</li>");
+            data = data.replace(/gorditmp03/ig, "<li>...</li>");
+
+            return data;
+        }
+        else return "none";
+    },
+
+    // Search function for Duden a german dictionary
+    //
+    // @param string data: html-code
+    //
+    // @return string: User readable content
+    duden: function (data) {
+        var begin = -1;
+        var end = -1;
+
+        begin = data.indexOf("<span", data.search(new RegExp("span>Bedeutung(en|)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")));
+
+        if (begin != -1) {
+            data = data.slice(begin);
+            end = data.search(new RegExp("<(/div>|div|img)", "i"));
+            data = data.slice(0, end);
+
+            // Preserve the bullet list but remove remaining html-code
+            data = data.replace(/<li id="b2-Bedeutung-[\d\D]"[^>]*>/ig, "gorditmp01");
+            data = data.replace(/<li id="b2-Bedeutung-[\d][\D]"[^>]*>/ig, "gorditmp02");
+            data = data.replace(/<\/li>/ig, "gorditmp03");
+            data = strip_html(data);
+            data = data.replace(/gorditmp01/ig, "<ul><li>");
+            data = data.replace(/gorditmp02/ig, "<ul><li>");
+            data = data.replace(/gorditmp03/ig, "</li></ul>");
+
+            return data;
+        }
+        else return "none";
+    },
+
+    // Search function for Arch Linux Wiki
+    //
+    // @param string data: html-code
+    //
+    // @return string: User readable content
+    archwiki: function (data) {
+        var begin = -1;
+        var end = -1;
+
+        // Checking for the existance of an article
+        if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
+        else {
+            data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
+            begin = data.search(new RegExp("<(|/)div[^>]*>(|\n)<p>"));
+        }
+
+        if (begin != -1) {
+            end = data.indexOf("</p>", begin);
+            // If the article is to short it is probabaly a quotation, then things have to be handled differently
+            if (strip_html(data.slice(begin, end)).length < 50) {
+                data = data.slice(end + 4);
+                begin = data.indexOf("<p>");
+                // Searching for the second closing "</p>"
+                end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
+                if (data.indexOf("<div", data.indexOf("</p>", begin) + 4) < end) end = data.indexOf("<div", data.indexOf("</p>", begin));
+
+                data = data.slice(begin, end);
+
+                // Saving the cursive writing
+                data = data.replace(/<i>/ig, "gorditmp01");
+                data = data.replace(/<\/i>/ig, "gorditmp02");
+            }
+            else data = data.slice(begin, end);
+
+            // Replacing anything html with nothing
+            data = strip_html(data);
+            data = data.replace(/\[\d+\]/ig, "");
 
             // Saving the cursive writing
-            data = data.replace(/<i>/ig, "gorditmp01");
-            data = data.replace(/<\/i>/ig, "gorditmp02");
+            data = data.replace(/gorditmp01/ig, "<i>");
+            data = data.replace(/gorditmp02/ig, "</i>");
+
+            return data;
         }
-        else data = data.slice(begin, end);
+        else return "none";
+    },
 
-        // Replacing anything html with nothing
-        data = strip_html(data);
-        data = data.replace(/\[\d+\]/ig, "");
+    // Search function for dict.cc
+    //
+    // @param string data: html-code
+    //
+    // @return string: User readable content
+    dict: function (data) {
+        var begin = -1;
+        var end = -1;
+        var tmp = "";
 
-        // Saving the cursive writing
-        data = data.replace(/gorditmp01/ig, "<i>");
-        data = data.replace(/gorditmp02/ig, "</i>");
+        begin = data.search(/<tr id='tr1'>/i);
 
-        return data;
+        if (begin != -1) {
+            // Searching for the third ocurrance of "</tr>" or the first of "</table>
+            end = data.indexOf("</tr>", data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5) + 5;
+            tmp = data.indexOf("</table>", begin);
+            if (tmp < end) end = tmp;
+
+            data = data.slice(begin, end);
+            // Removing some headings, e.g. "</div><b>Substantive</b>"
+            data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
+            // Removing the little gray numbers
+            data = data.replace(/<div[^>]*>([\d]+)<\/div>/ig, "");
+            // Removing some uneccessary html code
+            data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
+            data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
+
+            // Preserving the table elements
+            data = data.replace(/<td[^>]*>/ig, "gorditmp01");
+            data = data.replace(/<\/td[^>]*>/ig, "gorditmp02");
+            data = data.replace(/<tr[^>]*>/ig, "gorditmp03");
+            data = data.replace(/<\/tr[^>]*>/ig, "gorditmp04");
+            data = data.replace(/<b[^>]*>/ig, "gorditmp05");
+            data = data.replace(/<\/b[^>]*>/ig, "gorditmp06");
+            data = strip_html(data);
+            data = data.replace(/gorditmp01/ig, "<td>");
+            data = data.replace(/gorditmp02/ig, "</td>");
+            data = data.replace(/gorditmp03/ig, "<tr>");
+            data = data.replace(/gorditmp04/ig, "</tr>");
+            data = data.replace(/gorditmp05/ig, "<b>");
+            data = data.replace(/gorditmp06/ig, "</b>");
+            data = "<table>" + data + "</table>";
+
+            // Removing some notes
+            data = data.replace(/\[[^(\])]*\]/ig, "");
+            //data = data.replace(/{[a-zA-Z.-]+}/ig, ""); <-- TODO Is this really necessary
+            data = data.replace(/&lt;([^&]*)&gt;/ig, "");
+
+            return data;
+        }
+        else return "none";
+    },
+
+    // Search function for Google Translate
+    //
+    // @param string data: html-code
+    //
+    // @return string: User readable content
+    google_translate: function (data) {
+        /*
+        Works only in theory. The source code which is send to an
+        ordinary user by Google differs from that which this
+        extension receives by getting the code from Google.
+        */
+        var begin = data.search(/<span id=result_box/i);
+
+        if (begin != -1) {
+            var end = data.indexOf("</span>", data.indexOf("</span>", begin)+7);
+            data = data.slice(begin, end);
+
+            // Strip html elements
+            data = strip_html(data);
+
+            return data;
+        }
+        else return "none";
     }
-    else return "none";
-}
-
-// Search function for Google Translate
-//
-// @param string data: html-code
-//
-// @return string: User readable content
-function google_translate(data) {
-    /*
-    Works only in theory. The source code which is send to an
-    ordinary user by Google differs from that which this
-    extension receives by getting the code from Google.
-    */
-    var begin = data.search(/<span id=result_box/i);
-
-    if (begin != -1) {
-        var end = data.indexOf("</span>", data.indexOf("</span>", begin)+7);
-        data = data.slice(begin, end);
-
-        // Strip html elements
-        data = strip_html(data);
-
-        return data;
-    }
-    else return "none";
-}
-
-// Search function for dict.cc
-//
-// @param string data: html-code
-//
-// @return string: User readable content
-function dict(data) {
-    var begin = -1;
-    var end = -1;
-    var tmp = "";
-
-    begin = data.search(/<tr id='tr1'>/i);
-
-    if (begin != -1) {
-        // Searching for the third ocurrance of "</tr>" or the first of "</table>
-        end = data.indexOf("</tr>", data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5) + 5;
-        tmp = data.indexOf("</table>", begin);
-        if (tmp < end) end = tmp;
-
-        data = data.slice(begin, end);
-        // Removing some headings, e.g. "</div><b>Substantive</b>"
-        data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
-        // Removing the little gray numbers
-        data = data.replace(/<div[^>]*>([\d]+)<\/div>/ig, "");
-        // Removing some uneccessary html code
-        data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
-        data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
-
-        // Preserving the table elements
-        data = data.replace(/<td[^>]*>/ig, "gorditmp01");
-        data = data.replace(/<\/td[^>]*>/ig, "gorditmp02");
-        data = data.replace(/<tr[^>]*>/ig, "gorditmp03");
-        data = data.replace(/<\/tr[^>]*>/ig, "gorditmp04");
-        data = data.replace(/<b[^>]*>/ig, "gorditmp05");
-        data = data.replace(/<\/b[^>]*>/ig, "gorditmp06");
-        data = strip_html(data);
-        data = data.replace(/gorditmp01/ig, "<td>");
-        data = data.replace(/gorditmp02/ig, "</td>");
-        data = data.replace(/gorditmp03/ig, "<tr>");
-        data = data.replace(/gorditmp04/ig, "</tr>");
-        data = data.replace(/gorditmp05/ig, "<b>");
-        data = data.replace(/gorditmp06/ig, "</b>");
-        data = "<table>" + data + "</table>";
-
-        // Removing some notes
-        data = data.replace(/\[[^(\])]*\]/ig, "");
-        //data = data.replace(/{[a-zA-Z.-]+}/ig, ""); <-- TODO Is this really necessary
-        data = data.replace(/&lt;([^&]*)&gt;/ig, "");
-
-        return data;
-    }
-    else return "none";
-}
+};
 
 // Fetch the html-code of any page
 //
@@ -410,8 +412,8 @@ function query_search_process() {
         if (search_engines[i][2] < 4) return;
         else if (search_engines[i][2] == "none" && search_engines[i][3].length < 4) search_engines[i][3] = "none";
         else if (search_engines[i][2] != "none" && search_engines[i][3].length < 4) {
-            // Invoke the various functions for further processing of the html-code
-            search_engines[i][3] = eval(search_engines[i][0] + "(search_engines[" + i + "][2])");
+            // Invoke the various search engines for further processing of the html-code
+            search_engines[i][3] = engines[search_engines[i][0]](search_engines[i][2]);
         }
 
         // Check whether the output was already set - This is necessary because this function
