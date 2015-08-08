@@ -56,8 +56,7 @@ var engine = {
                 data = data.replace(/gorditmp03/ig, "<li>...</li>");
 
                 return data;
-            }
-            else return "none";
+            } else return "none";
         },
         url: function (language, input_language) {
             return "https://" + language + ".wikipedia.org/wiki/";
@@ -92,8 +91,7 @@ var engine = {
                 data = data.replace(/gorditmp03/ig, "</li></ul>");
 
                 return data;
-            }
-            else return "none";
+            } else return "none";
         },
         url: function (language, input_language) {
             return "http://www.duden.de/rechtschreibung/";
@@ -133,8 +131,7 @@ var engine = {
                     // Saving the cursive writing
                     data = data.replace(/<i>/ig, "gorditmp01");
                     data = data.replace(/<\/i>/ig, "gorditmp02");
-                }
-                else data = data.slice(begin, end);
+                } else data = data.slice(begin, end);
 
                 // Replacing anything html with nothing
                 data = strip_html(data);
@@ -145,8 +142,7 @@ var engine = {
                 data = data.replace(/gorditmp02/ig, "</i>");
 
                 return data;
-            }
-            else return "none";
+            } else return "none";
         },
         url: function (language, input_language) {
             if (language == "de") return "https://wiki.archlinux.de/title/";
@@ -205,8 +201,7 @@ var engine = {
                 data = data.replace(/&lt;([^&]*)&gt;/ig, "");
 
                 return data;
-            }
-            else return "none";
+            } else return "none";
         },
         url: function (language, input_language) {
             if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) return "http://www.dict.cc/?s=";
@@ -214,8 +209,7 @@ var engine = {
                 // Making the german-english translation the default one if input_language and language are the same
                 document.getElementById("tip").innerHTML = "<i><p>Tip: Change the input language for the dictionary.</p></i>";
                 return "http://www.dict.cc/?s=";
-            }
-            else return "http://" + language + input_language + ".dict.cc/?s=";
+            } else return "http://" + language + input_language + ".dict.cc/?s=";
         },
         info: ["Dictionary (dict.cc)", "dict.cc"]
     },
@@ -242,8 +236,7 @@ var engine = {
                 data = strip_html(data);
 
                 return data;
-            }
-            else return "none";
+            } else return "none";
         },
         url: function (language, input_language) {
             return "https://translate.google.de/#auto/" + language + "/";
