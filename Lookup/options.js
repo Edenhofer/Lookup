@@ -140,6 +140,9 @@ window.addEventListener("load", function(evt) {
 		document.getElementById("grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[0] + "</option>";
 	}
 
+	// Display the version number
+	document.getElementById("version").innerHTML = "<p>You are currently using version " + chrome.app.getDetails().version + " of the extension.<p>";
+
 	init();
 
 	document.getElementById("save").addEventListener("click", save_options);
