@@ -88,37 +88,17 @@ function init() {
             document.getElementById("icon").style.display = 'inline';
         }
 
-        // Assembling the corresponding URLs
-        var grounding_to_url = {
-            wikipedia: function () {
-                return "https://" + language + ".wikipedia.org/wiki/";
-            },
-            duden: function () {
-                return "http://www.duden.de/rechtschreibung/";
-            },
-            archwiki: function () {
-                if (language == "de") return "https://wiki.archlinux.de/title/";
-                else return "https://wiki.archlinux.org/index.php/";
-            },
-            google_translate: function () {
-                return "https://translate.google.de/#auto/" + language + "/";
-            },
-            dict: function () {
-                if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) return "http://www.dict.cc/?s=";
-                else if (input_language == language) {
-                    // Making the german-english translation the default one if input_language and language are the same
-                    document.getElementById("tip").innerHTML = "<i><p>Tip: Change the input language for the dictionary.</p></i>";
-                    return "http://www.dict.cc/?s=";
-                }
-                else return "http://" + language + input_language + ".dict.cc/?s=";
-            }
-        };
+        // Defining the search_engines array
+        if (language == "en") search_engines = [["wikipedia", engine.wikipedia.url(language, input_language), "", ""],
+        ["dict", engine.dict.url(language, input_language), "", ""]];
 
-        // Defining the search_engines
-        if (language == "en") search_engines = [["wikipedia", grounding_to_url.wikipedia(), "", ""], ["dict", grounding_to_url.dict(), "", ""]];
-        if (language == "de") search_engines = [["duden", grounding_to_url.duden(), "", ""], ["wikipedia", grounding_to_url.wikipedia(), "", ""], ["dict", grounding_to_url.dict(), "", ""]];
+        else if (language == "de") search_engines = [["duden", engine.duden.url(language, input_language), "", ""],
+        ["wikipedia", engine.wikipedia.url(language, input_language), "", ""],
+        ["dict", engine.dict.url(language, input_language), "", ""]];
+
         // If no valid language is detected, than the english style will be used
-        else search_engines = [["wikipedia", grounding_to_url.wikipedia(), "", ""], ["dict", grounding_to_url.dict(), "", ""]];
+        else search_engines = [["wikipedia", engine.wikipedia.url(language, input_language), "", ""],
+        ["dict", engine.dict.url(language, input_language), "", ""]];
 
         // If switcher_grounding is true then set the selected search engine to the top of the search_engines array
         if (switcher_grounding === true) {
@@ -126,11 +106,11 @@ function init() {
             for (i = 0; i < search_engines.length; i++) {
                 if (search_engines[i][0].indexOf(grounding) != -1) search_engines.splice(i, 1);
             }
-            search_engines.unshift([grounding, grounding_to_url[grounding](), "", ""]);
+            search_engines.unshift([grounding, engine[grounding].url(language, input_language), "", ""]);
         }
 
         // In case switcher_ranked_search is NOT true then make the selected search engine the only one in the search_engines array
-        if (switcher_ranked_search === false) search_engines = [[grounding, grounding_to_url[grounding](), "", ""]];
+        if (switcher_ranked_search === false) search_engines = [[grounding, engine[grounding].url(language, input_language), "", ""]];
     });
 }
 
@@ -145,89 +125,99 @@ function strip_html(html) {
     return text.textContent || text.innerText || "";
 }
 
-var engines = {
-    // Search function for Wikipedia
-    //
-    // @param string data: html-code
-    //
-    // @return string: User readable content
-    wikipedia: function (data) {
-        var begin = -1;
-        var end = -1;
-        var tmp = "";
+var engine = {
+    wikipedia: {
+        // Search function for Wikipedia
+        //
+        // @param string data: html-code
+        //
+        // @return string: User readable content
+        innerText: function (data) {
+            var begin = -1;
+            var end = -1;
+            var tmp = "";
 
-        // Stripping tables from data
-        data = data.slice(0, data.indexOf("<table")) +  data.slice(data.indexOf("</table>"));
+            // Stripping tables from data
+            data = data.slice(0, data.indexOf("<table")) +  data.slice(data.indexOf("</table>"));
 
-        // Checking for the existance of an article
-        if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
-        else {
-            data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
-            begin = data.indexOf("<p>");
-            // Check for interactive boxes where no usefull text is available, e.g. year number - german only
-            if (data.slice(begin + 3, begin + 18).localeCompare('<a href="/wiki/') === 0) begin = -1;
-        }
+            // Checking for the existance of an article
+            if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
+            else {
+                data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
+                begin = data.indexOf("<p>");
+                // Check for interactive boxes where no usefull text is available, e.g. year number - german only
+                if (data.slice(begin + 3, begin + 18).localeCompare('<a href="/wiki/') === 0) begin = -1;
+            }
 
-        if (begin != -1) {
-            end = data.indexOf("</p>", begin);
+            if (begin != -1) {
+                end = data.indexOf("</p>", begin);
 
-            // Checking for a list of options
-            if (data.indexOf("<li>", end) != -1 && data.indexOf("<li>", end) <= (end + 50)) {
-                tmp = data.slice(begin);
-                data = data.slice(begin, end);
+                // Checking for a list of options
+                if (data.indexOf("<li>", end) != -1 && data.indexOf("<li>", end) <= (end + 50)) {
+                    tmp = data.slice(begin);
+                    data = data.slice(begin, end);
 
-                // The end is where the second </li> closes
-                data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
-                tmp = tmp.slice(tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
-                if (tmp.indexOf("<li>") != -1 && tmp.indexOf("<li>") <= 50) {
+                    // The end is where the second </li> closes
                     data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
-                }
+                    tmp = tmp.slice(tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+                    if (tmp.indexOf("<li>") != -1 && tmp.indexOf("<li>") <= 50) {
+                        data += tmp.slice(tmp.indexOf("<li>"), tmp.indexOf("</li>", tmp.indexOf("<li>")) + 5);
+                    }
 
-                data = data.replace(/<li>/ig, "gorditmp01");
-                data = data.replace(/<\/li>/ig, "gorditmp02");
-                data += "gorditmp03";
-            } else data = data.slice(begin, end);
+                    data = data.replace(/<li>/ig, "gorditmp01");
+                    data = data.replace(/<\/li>/ig, "gorditmp02");
+                    data += "gorditmp03";
+                } else data = data.slice(begin, end);
 
-            // Replacing anything html with nothing
-            data = strip_html(data);
-            data = data.replace(/\[\d+\]/ig, "");
-            data = data.replace(/gorditmp01/ig, "<li>");
-            data = data.replace(/gorditmp02/ig, "</li>");
-            data = data.replace(/gorditmp03/ig, "<li>...</li>");
+                // Replacing anything html with nothing
+                data = strip_html(data);
+                data = data.replace(/\[\d+\]/ig, "");
+                data = data.replace(/gorditmp01/ig, "<li>");
+                data = data.replace(/gorditmp02/ig, "</li>");
+                data = data.replace(/gorditmp03/ig, "<li>...</li>");
 
-            return data;
+                return data;
+            }
+            else return "none";
+        },
+        url: function (language, input_language) {
+            return "https://" + language + ".wikipedia.org/wiki/";
         }
-        else return "none";
     },
 
-    // Search function for Duden a german dictionary
-    //
-    // @param string data: html-code
-    //
-    // @return string: User readable content
-    duden: function (data) {
-        var begin = -1;
-        var end = -1;
+    duden: {
+        // Search function for Duden a german dictionary
+        //
+        // @param string data: html-code
+        //
+        // @return string: User readable content
+        innerText: function (data) {
+            var begin = -1;
+            var end = -1;
 
-        begin = data.indexOf("<span", data.search(new RegExp("span>Bedeutung(en|)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")));
+            begin = data.indexOf("<span", data.search(new RegExp("span>Bedeutung(en|)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")));
 
-        if (begin != -1) {
-            data = data.slice(begin);
-            end = data.search(new RegExp("<(/div>|div|img)", "i"));
-            data = data.slice(0, end);
+            if (begin != -1) {
+                data = data.slice(begin);
+                end = data.search(new RegExp("<(/div>|div|img)", "i"));
+                data = data.slice(0, end);
 
-            // Preserve the bullet list but remove remaining html-code
-            data = data.replace(/<li id="b2-Bedeutung-[\d\D]"[^>]*>/ig, "gorditmp01");
-            data = data.replace(/<li id="b2-Bedeutung-[\d][\D]"[^>]*>/ig, "gorditmp02");
-            data = data.replace(/<\/li>/ig, "gorditmp03");
-            data = strip_html(data);
-            data = data.replace(/gorditmp01/ig, "<ul><li>");
-            data = data.replace(/gorditmp02/ig, "<ul><li>");
-            data = data.replace(/gorditmp03/ig, "</li></ul>");
+                // Preserve the bullet list but remove remaining html-code
+                data = data.replace(/<li id="b2-Bedeutung-[\d\D]"[^>]*>/ig, "gorditmp01");
+                data = data.replace(/<li id="b2-Bedeutung-[\d][\D]"[^>]*>/ig, "gorditmp02");
+                data = data.replace(/<\/li>/ig, "gorditmp03");
+                data = strip_html(data);
+                data = data.replace(/gorditmp01/ig, "<ul><li>");
+                data = data.replace(/gorditmp02/ig, "<ul><li>");
+                data = data.replace(/gorditmp03/ig, "</li></ul>");
 
-            return data;
+                return data;
+            }
+            else return "none";
+        },
+        url: function (language, input_language) {
+            return "http://www.duden.de/rechtschreibung/";
         }
-        else return "none";
     },
 
     // Search function for Arch Linux Wiki
@@ -235,46 +225,52 @@ var engines = {
     // @param string data: html-code
     //
     // @return string: User readable content
-    archwiki: function (data) {
-        var begin = -1;
-        var end = -1;
+    archwiki: {
+        innerText: function (data) {
+            var begin = -1;
+            var end = -1;
 
-        // Checking for the existance of an article
-        if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
-        else {
-            data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
-            begin = data.search(new RegExp("<(|/)div[^>]*>(|\n)<p>"));
-        }
+            // Checking for the existance of an article
+            if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
+            else {
+                data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
+                begin = data.search(new RegExp("<(|/)div[^>]*>(|\n)<p>"));
+            }
 
-        if (begin != -1) {
-            end = data.indexOf("</p>", begin);
-            // If the article is to short it is probabaly a quotation, then things have to be handled differently
-            if (strip_html(data.slice(begin, end)).length < 50) {
-                data = data.slice(end + 4);
-                begin = data.indexOf("<p>");
-                // Searching for the second closing "</p>"
-                end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
-                if (data.indexOf("<div", data.indexOf("</p>", begin) + 4) < end) end = data.indexOf("<div", data.indexOf("</p>", begin));
+            if (begin != -1) {
+                end = data.indexOf("</p>", begin);
+                // If the article is to short it is probabaly a quotation, then things have to be handled differently
+                if (strip_html(data.slice(begin, end)).length < 50) {
+                    data = data.slice(end + 4);
+                    begin = data.indexOf("<p>");
+                    // Searching for the second closing "</p>"
+                    end = data.indexOf("</p>", data.indexOf("</p>", begin) + 4);
+                    if (data.indexOf("<div", data.indexOf("</p>", begin) + 4) < end) end = data.indexOf("<div", data.indexOf("</p>", begin));
 
-                data = data.slice(begin, end);
+                    data = data.slice(begin, end);
+
+                    // Saving the cursive writing
+                    data = data.replace(/<i>/ig, "gorditmp01");
+                    data = data.replace(/<\/i>/ig, "gorditmp02");
+                }
+                else data = data.slice(begin, end);
+
+                // Replacing anything html with nothing
+                data = strip_html(data);
+                data = data.replace(/\[\d+\]/ig, "");
 
                 // Saving the cursive writing
-                data = data.replace(/<i>/ig, "gorditmp01");
-                data = data.replace(/<\/i>/ig, "gorditmp02");
+                data = data.replace(/gorditmp01/ig, "<i>");
+                data = data.replace(/gorditmp02/ig, "</i>");
+
+                return data;
             }
-            else data = data.slice(begin, end);
-
-            // Replacing anything html with nothing
-            data = strip_html(data);
-            data = data.replace(/\[\d+\]/ig, "");
-
-            // Saving the cursive writing
-            data = data.replace(/gorditmp01/ig, "<i>");
-            data = data.replace(/gorditmp02/ig, "</i>");
-
-            return data;
+            else return "none";
+        },
+        url: function (language, input_language) {
+            if (language == "de") return "https://wiki.archlinux.de/title/";
+            else return "https://wiki.archlinux.org/index.php/";
         }
-        else return "none";
     },
 
     // Search function for dict.cc
@@ -282,52 +278,63 @@ var engines = {
     // @param string data: html-code
     //
     // @return string: User readable content
-    dict: function (data) {
-        var begin = -1;
-        var end = -1;
-        var tmp = "";
+    dict: {
+        innerText: function (data) {
+            var begin = -1;
+            var end = -1;
+            var tmp = "";
 
-        begin = data.search(/<tr id='tr1'>/i);
+            begin = data.search(/<tr id='tr1'>/i);
 
-        if (begin != -1) {
-            // Searching for the third ocurrance of "</tr>" or the first of "</table>
-            end = data.indexOf("</tr>", data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5) + 5;
-            tmp = data.indexOf("</table>", begin);
-            if (tmp < end) end = tmp;
+            if (begin != -1) {
+                // Searching for the third ocurrance of "</tr>" or the first of "</table>
+                end = data.indexOf("</tr>", data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5) + 5;
+                tmp = data.indexOf("</table>", begin);
+                if (tmp < end) end = tmp;
 
-            data = data.slice(begin, end);
-            // Removing some headings, e.g. "</div><b>Substantive</b>"
-            data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
-            // Removing the little gray numbers
-            data = data.replace(/<div[^>]*>([\d]+)<\/div>/ig, "");
-            // Removing some uneccessary html code
-            data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
-            data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
+                data = data.slice(begin, end);
+                // Removing some headings, e.g. "</div><b>Substantive</b>"
+                data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
+                // Removing the little gray numbers
+                data = data.replace(/<div[^>]*>([\d]+)<\/div>/ig, "");
+                // Removing some uneccessary html code
+                data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
+                data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
 
-            // Preserving the table elements
-            data = data.replace(/<td[^>]*>/ig, "gorditmp01");
-            data = data.replace(/<\/td[^>]*>/ig, "gorditmp02");
-            data = data.replace(/<tr[^>]*>/ig, "gorditmp03");
-            data = data.replace(/<\/tr[^>]*>/ig, "gorditmp04");
-            data = data.replace(/<b[^>]*>/ig, "gorditmp05");
-            data = data.replace(/<\/b[^>]*>/ig, "gorditmp06");
-            data = strip_html(data);
-            data = data.replace(/gorditmp01/ig, "<td>");
-            data = data.replace(/gorditmp02/ig, "</td>");
-            data = data.replace(/gorditmp03/ig, "<tr>");
-            data = data.replace(/gorditmp04/ig, "</tr>");
-            data = data.replace(/gorditmp05/ig, "<b>");
-            data = data.replace(/gorditmp06/ig, "</b>");
-            data = "<table>" + data + "</table>";
+                // Preserving the table elements
+                data = data.replace(/<td[^>]*>/ig, "gorditmp01");
+                data = data.replace(/<\/td[^>]*>/ig, "gorditmp02");
+                data = data.replace(/<tr[^>]*>/ig, "gorditmp03");
+                data = data.replace(/<\/tr[^>]*>/ig, "gorditmp04");
+                data = data.replace(/<b[^>]*>/ig, "gorditmp05");
+                data = data.replace(/<\/b[^>]*>/ig, "gorditmp06");
+                data = strip_html(data);
+                data = data.replace(/gorditmp01/ig, "<td>");
+                data = data.replace(/gorditmp02/ig, "</td>");
+                data = data.replace(/gorditmp03/ig, "<tr>");
+                data = data.replace(/gorditmp04/ig, "</tr>");
+                data = data.replace(/gorditmp05/ig, "<b>");
+                data = data.replace(/gorditmp06/ig, "</b>");
+                data = "<table>" + data + "</table>";
 
-            // Removing some notes
-            data = data.replace(/\[[^(\])]*\]/ig, "");
-            //data = data.replace(/{[a-zA-Z.-]+}/ig, ""); <-- TODO Is this really necessary
-            data = data.replace(/&lt;([^&]*)&gt;/ig, "");
+                // Removing some notes
+                data = data.replace(/\[[^(\])]*\]/ig, "");
+                //data = data.replace(/{[a-zA-Z.-]+}/ig, ""); <-- TODO Is this really necessary
+                data = data.replace(/&lt;([^&]*)&gt;/ig, "");
 
-            return data;
+                return data;
+            }
+            else return "none";
+        },
+        url: function (language, input_language) {
+            if ((input_language == "de" && language == "en") || (input_language == "en" && language == "de")) return "http://www.dict.cc/?s=";
+            else if (input_language == language) {
+                // Making the german-english translation the default one if input_language and language are the same
+                document.getElementById("tip").innerHTML = "<i><p>Tip: Change the input language for the dictionary.</p></i>";
+                return "http://www.dict.cc/?s=";
+            }
+            else return "http://" + language + input_language + ".dict.cc/?s=";
         }
-        else return "none";
     },
 
     // Search function for Google Translate
@@ -335,24 +342,29 @@ var engines = {
     // @param string data: html-code
     //
     // @return string: User readable content
-    google_translate: function (data) {
-        /*
-        Works only in theory. The source code which is send to an
-        ordinary user by Google differs from that which this
-        extension receives by getting the code from Google.
-        */
-        var begin = data.search(/<span id=result_box/i);
+    google_translate: {
+        innerText: function (data) {
+            /*
+            Works only in theory. The source code which is send to an
+            ordinary user by Google differs from that which this
+            extension receives by getting the code from Google.
+            */
+            var begin = data.search(/<span id=result_box/i);
 
-        if (begin != -1) {
-            var end = data.indexOf("</span>", data.indexOf("</span>", begin)+7);
-            data = data.slice(begin, end);
+            if (begin != -1) {
+                var end = data.indexOf("</span>", data.indexOf("</span>", begin)+7);
+                data = data.slice(begin, end);
 
-            // Strip html elements
-            data = strip_html(data);
+                // Strip html elements
+                data = strip_html(data);
 
-            return data;
+                return data;
+            }
+            else return "none";
+        },
+        url: function (language, input_language) {
+            return "https://translate.google.de/#auto/" + language + "/";
         }
-        else return "none";
     }
 };
 
@@ -422,7 +434,7 @@ function query_search_process() {
         else if (search_engines[i][2] == "none" && search_engines[i][3].length < 4) search_engines[i][3] = "none";
         else if (search_engines[i][2] != "none" && search_engines[i][3].length < 4) {
             // Invoke the various search engines for further processing of the html-code
-            search_engines[i][3] = engines[search_engines[i][0]](search_engines[i][2]);
+            search_engines[i][3] = engine[search_engines[i][0]].innerText(search_engines[i][2]);
         }
 
         // Check whether the output was already set - This is necessary because this function
