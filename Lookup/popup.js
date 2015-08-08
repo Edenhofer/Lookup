@@ -1,12 +1,6 @@
 /*
-Be aware of that slicing data (str.slice) with one arguemente actualĺy not being found
+Tipp: Keep in mind slicing data (str.slice) with one arguemente actualĺy not being found
 than slice will still work, because the not found arguements equales -1!
-
-SNIPPETS FOR LATER:
-<!--
-var bkg = chrome.extension.getBackgroundPage();
-bkg.callFunction();
--->
 */
 
 // Custom JSLint configurtations
