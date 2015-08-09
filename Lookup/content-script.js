@@ -11,6 +11,10 @@ const pre_html_id = "lookup-infobox-";
 // Each row represents one search function in which [0] is the name of the search function itself,
 // [1] being the url, [2] being the fetched html-code and [3] being the user readable content
 var search_engines;
+// Store the last queries from previous searches, [0] being the oldest one
+var last_queries = [];
+// The input
+var query;
 
 document.body.addEventListener('dblclick', function () {
     var query = window.getSelection().toString();

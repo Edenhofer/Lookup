@@ -20,6 +20,8 @@ var last_queries = [];
 // Each row represents one search function in which [0] is the name of the search function itself,
 // [1] being the url, [2] being the fetched html-code and [3] being the user readable content
 var search_engines;
+// The input
+var query;
 
 // On page load function
 //
@@ -118,8 +120,8 @@ window.addEventListener('load', function(evt) {
         code: "window.getSelection().toString();"
     }, function(result) {
         if (!chrome.runtime.lastError && result) {
-            document.getElementById(pre_html_id + "query").value = result[0];
-
+            query = result[0];
+            document.getElementById(pre_html_id + "query").value = query;
             // Search directly after the button click
             lookup.init();
         }
@@ -145,6 +147,7 @@ window.addEventListener('load', function(evt) {
     document.getElementById(pre_html_id + 'search').addEventListener('submit', function () {
         // Prevent the page from reloading after the submit button is triggered
         event.preventDefault();
+        query = document.getElementById(pre_html_id + "query").value;
         lookup.init();
     });
 

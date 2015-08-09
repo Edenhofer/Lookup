@@ -100,14 +100,12 @@ var lookup = {
 
     // Process the recieved html-code
     //
-    // @global html-element query
+    // @global string query
     // @global array search_engines
     //
     // @return
     process: function () {
         var tmp = "";
-        // Getting the input
-        var query = document.getElementById(pre_html_id + "query").value;
 
         for (var i = 0; i < search_engines.length; i++) {
             // Only proceed if the current html-code field is properly set
@@ -169,14 +167,12 @@ var lookup = {
 
     // Initiate the xml requests and display the final result
     //
-    // @global html-element query
+    // @global string query
     // @global array last_queries
     // @global array search_engines
     //
     // @return
     init: function () {
-        // Getting the input
-        var query = document.getElementById(pre_html_id + "query").value;
         // Break if there is no input
         // THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
         if (query === "" || query == " ") return -1;
