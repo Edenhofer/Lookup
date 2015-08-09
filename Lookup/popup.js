@@ -13,6 +13,7 @@ than slice will still work, because the not found arguements equales -1!
 const max_output_length = 540;
 const max_last_queries = 10;
 const xmlhttp_timeout = 5000; // in milliseconds
+const pre_html_id = "";
 
 // Store the last queries from previous searches, [0] being the oldest one
 var last_queries = [];
@@ -52,34 +53,34 @@ function init() {
         else switcher_ranked_search = result.switcher_ranked_search;
 
         // Preselecting the saved grounding
-        for (var i = 0; i < document.getElementById("grounding").options.length; i++) {
-            if (document.getElementById("grounding").options[i].value == grounding) {
-                document.getElementById("grounding").options[i].selected = true;
+        for (var i = 0; i < document.getElementById(pre_html_id + "grounding").options.length; i++) {
+            if (document.getElementById(pre_html_id + "grounding").options[i].value == grounding) {
+                document.getElementById(pre_html_id + "grounding").options[i].selected = true;
                 break;
             }
         }
         // Preselecting the saved input_language
-        for (i = 0; i < document.getElementById("input_language").options.length; i++) {
-            if (document.getElementById("input_language").options[i].value == input_language) {
-                document.getElementById("input_language").options[i].selected = true;
+        for (i = 0; i < document.getElementById(pre_html_id + "input_language").options.length; i++) {
+            if (document.getElementById(pre_html_id + "input_language").options[i].value == input_language) {
+                document.getElementById(pre_html_id + "input_language").options[i].selected = true;
                 break;
             }
         }
 
         // Setting what to display
-        if (switcher_grounding === true) document.getElementById("grounding").style.display = 'inline';
-        else document.getElementById("grounding").style.display = 'none';
+        if (switcher_grounding === true) document.getElementById(pre_html_id + "grounding").style.display = 'inline';
+        else document.getElementById(pre_html_id + "grounding").style.display = 'none';
         if (switcher_ranked_search === true || grounding == "dict") {
             // Setting up switcher_input_language
-            document.getElementById("input_language").style.display = 'inline';
+            document.getElementById(pre_html_id + "input_language").style.display = 'inline';
             // Suppressing the currently selected language as an displayed option of the switcher_input_language
-            document.getElementById("input_language_" + language).style.display = 'none';
-        } else document.getElementById("input_language").style.display = 'none';
+            document.getElementById(pre_html_id + "input_language_" + language).style.display = 'none';
+        } else document.getElementById(pre_html_id + "input_language").style.display = 'none';
         if (!switcher_grounding && !switcher_ranked_search) {
             // Setting the icon
-            document.getElementById("icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/" + grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
-            document.getElementById("grounding").style.display = 'none';
-            document.getElementById("icon").style.display = 'inline';
+            document.getElementById(pre_html_id + "icon").innerHTML = "&nbsp;&nbsp;&nbsp;<img src=\"/icons/" + grounding + ".png\" alt=\"grounding\" width=\"15\" height= \"15\">";
+            document.getElementById(pre_html_id + "grounding").style.display = 'none';
+            document.getElementById(pre_html_id + "icon").style.display = 'inline';
         }
 
         // Defining the search_engines array
@@ -177,7 +178,7 @@ function fetch_site(url, i) {
 function query_search_process() {
     var tmp = "";
     // Getting the input
-    var query = document.getElementById("query").value;
+    var query = document.getElementById(pre_html_id + "query").value;
 
     for (var i = 0; i < search_engines.length; i++) {
         // Only proceed if the current html-code field is properly set
@@ -190,7 +191,7 @@ function query_search_process() {
 
         // Check whether the output was already set - This is necessary because this function
         // may be invoked simultaneously and therefore the EventListener may not be removed in time
-        if (document.getElementById("output").style.display == "inline") return;
+        if (document.getElementById(pre_html_id + "output").style.display == "inline") return;
 
         if (search_engines[i][3] == "none" && i == (search_engines.length - 1)) {
             // Nothing was found
@@ -200,13 +201,13 @@ function query_search_process() {
             // Presenting a Google-Link to look for results
             if (query.length > 20) tmp = query.slice(0, 20) + "...";
             else tmp = query;
-            document.getElementById("noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
+            document.getElementById(pre_html_id + "noresult").innerHTML = "<p>No Match - <a href=\"https://www.google.de/search?q=" +
             encodeURIComponent(query) + "\" target=\"_blank\">Google for \"" +
             tmp.replace(/"/g, "\"").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") + "\"</a></p>";
 
             // Set what to display
-            document.getElementById("loading").style.display="none";
-            document.getElementById("noresult").style.display="inline";
+            document.getElementById(pre_html_id + "loading").style.display="none";
+            document.getElementById(pre_html_id + "noresult").style.display="inline";
         } else if (search_engines[i][3] != "none") {
             // A result was found
             // Stop listening for the magic signal from fetch_site
@@ -224,15 +225,15 @@ function query_search_process() {
             }
 
             // Filling the various html divisions
-            document.getElementById("output").innerHTML = "<p></p>" + search_engines[i][3];
-            document.getElementById("source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
+            document.getElementById(pre_html_id + "output").innerHTML = "<p></p>" + search_engines[i][3];
+            document.getElementById(pre_html_id + "source").innerHTML = "<p><span class=\"tab\"></span><i><a href=\"" +
             search_engines[i][1] + encodeURIComponent(query) + "\" target=\"_blank\">" +
             search_engines[i][1] + query + "</a><\i></p>";
 
             // Set what to display
-            document.getElementById("loading").style.display="none";
-            document.getElementById("output").style.display="inline";
-            document.getElementById("source").style.display="inline";
+            document.getElementById(pre_html_id + "loading").style.display="none";
+            document.getElementById(pre_html_id + "output").style.display="inline";
+            document.getElementById(pre_html_id + "source").style.display="inline";
         }
     }
 }
@@ -246,7 +247,7 @@ function query_search_process() {
 // @return
 function query_search_init() {
     // Getting the input
-    var query = document.getElementById("query").value;
+    var query = document.getElementById(pre_html_id + "query").value;
     // Break if there is no input
     // THIS MUST BE THE RUN PRIOR TO EXECUTING ANYTHING IN ORDER TO NOT MANIPULATE THE POPUP IF THE QUERY IS INVALID
     if (query === "" || query == " ") return -1;
@@ -262,14 +263,14 @@ function query_search_init() {
     chrome.storage.local.set({'last_queries': last_queries});
 
     // Set	what to display
-    document.getElementById("loading").style.display="inline";
-    document.getElementById("output").style.display="none";
-    document.getElementById("noresult").style.display="none";
-    document.getElementById("source").style.display="none";
-    document.getElementById("tip").style.display="none";
+    document.getElementById(pre_html_id + "loading").style.display="inline";
+    document.getElementById(pre_html_id + "output").style.display="none";
+    document.getElementById(pre_html_id + "noresult").style.display="none";
+    document.getElementById(pre_html_id + "source").style.display="none";
+    document.getElementById(pre_html_id + "tip").style.display="none";
 
     // Filling the loading div with text
-    document.getElementById("loading").innerHTML = "<p>Searching in " +
+    document.getElementById(pre_html_id + "loading").innerHTML = "<p>Searching in " +
     search_engines.map(function(value,index) { return value[0]; }).toString().replace(/,/g, ", ") + "...<\p>";
 
     // Listen for the magic signal from fetch_site to process the recieved html-code
@@ -288,12 +289,12 @@ function query_search_init() {
 // Adding some EventListeners
 window.addEventListener('load', function(evt) {
     // Creating a proper link to the option page
-    document.getElementById('options_page').innerHTML = "<a href=\"" +
+    document.getElementById(pre_html_id + 'options_page').innerHTML = "<a href=\"" +
     chrome.extension.getURL("options.html") +"\" target=\"_blank\">Extension Options</a>";
 
     // Loading the groundings
     for (var current in engine) {
-        document.getElementById("grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[1] + "</option>";
+        document.getElementById(pre_html_id + "grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[1] + "</option>";
     }
 
     // Initialize the popup
@@ -316,7 +317,7 @@ window.addEventListener('load', function(evt) {
         code: "window.getSelection().toString();"
     }, function(result) {
         if (!chrome.runtime.lastError && result) {
-            document.getElementById("query").value = result[0];
+            document.getElementById(pre_html_id + "query").value = result[0];
 
             // Search directly after the button click
             query_search_init();
@@ -324,23 +325,23 @@ window.addEventListener('load', function(evt) {
     });
 
     // Quickly switch the grounding
-    document.getElementById('grounding').addEventListener('change', function () {
-        var grounding = document.getElementById("grounding").value;
+    document.getElementById(pre_html_id + 'grounding').addEventListener('change', function () {
+        var grounding = document.getElementById(pre_html_id + "grounding").value;
         chrome.storage.sync.set({'grounding': grounding});
 
         init();
     });
 
     // Quickly switch the input_language
-    document.getElementById('input_language').addEventListener('change', function () {
-        var input_language = document.getElementById("input_language").value;
+    document.getElementById(pre_html_id + 'input_language').addEventListener('change', function () {
+        var input_language = document.getElementById(pre_html_id + "input_language").value;
         chrome.storage.sync.set({'input_language': input_language});
 
         init();
     });
 
     // Trigger the search if ENTER or the search-button is pressed
-    document.getElementById('search').addEventListener('submit', function () {
+    document.getElementById(pre_html_id + 'search').addEventListener('submit', function () {
         // Prevent the page from reloading after the submit button is triggered
         event.preventDefault();
         query_search_init();
@@ -356,20 +357,20 @@ window.addEventListener('load', function(evt) {
         if (code == 40) {
             // 40: Key down
             event.preventDefault();
-            if (history == last_queries.length) last_queries.push(document.getElementById('query').value);
+            if (history == last_queries.length) last_queries.push(document.getElementById(pre_html_id + 'query').value);
 
             if (history > 0) history -= 1;
-            document.getElementById('query').value = last_queries[history];
-            document.getElementById('query').select();
+            document.getElementById(pre_html_id + 'query').value = last_queries[history];
+            document.getElementById(pre_html_id + 'query').select();
             console.log("[DOWN](" + history + "): " + last_queries[history] + " out of " + last_queries);
         } else if (code == 38) {
             // 38: Key up
             event.preventDefault();
-            if (history == last_queries.length) last_queries.push(document.getElementById('query').value);
+            if (history == last_queries.length) last_queries.push(document.getElementById(pre_html_id + 'query').value);
 
             if (history < last_queries.length - 1) history += 1;
-            document.getElementById('query').value = last_queries[history];
-            document.getElementById('query').select();
+            document.getElementById(pre_html_id + 'query').value = last_queries[history];
+            document.getElementById(pre_html_id + 'query').select();
             console.log("[UP](" + history + "): " + last_queries[history] + " out of " + last_queries);
         }
     };
