@@ -7,8 +7,10 @@ const max_output_length = 540;
 const pre_html_id = "lookup-infobox-";
 
 document.body.addEventListener('dblclick', function () {
-    var query = window.getSelection().toString();
+    query = window.getSelection().toString();
     if ((query.length == 1 && query.match(/[\W\d]/)) || query === "") return -1;
+
+    console.log("Your query is '" + query + "'"); // DEBUG message TODO
 
     // Inject the infobox.html division into the site with an asynchronous function
     var infobox_url = chrome.extension.getURL("infobox.html");

@@ -45,7 +45,7 @@
     ],
 
     "background": {
-        "scripts": ["event-page.js", "query_functions.js", "search_engines.js"],
+        "scripts": ["event-page.js"],
         "persistent": false
     }
 }
