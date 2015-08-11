@@ -179,7 +179,7 @@ var lookup = {
 
         // Removing redundant queries in the array (case sensitive) and appending new query
         for (var i = 0; i < last_queries.length; i++) {
-            if (last_queries[i].indexOf(query) != -1) last_queries.splice(i, 1);
+            if (last_queries[i] !== null && last_queries[i].indexOf(query) != -1) last_queries.splice(i, 1);
         }
         last_queries.push(query);
         // Keeping the maximum length of last_queries below max_last_queries

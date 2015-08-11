@@ -161,7 +161,9 @@ window.addEventListener('load', function(evt) {
         if (code == 40) {
             // 40: Key down
             event.preventDefault();
-            if (history == last_queries.length) last_queries.push(document.getElementById(pre_html_id + 'query').value);
+            if (history == last_queries.length && document.getElementById(pre_html_id + 'query').value !== "") {
+                last_queries.push(document.getElementById(pre_html_id + 'query').value);
+            }
 
             if (history > 0) history -= 1;
             document.getElementById(pre_html_id + 'query').value = last_queries[history];
@@ -170,7 +172,9 @@ window.addEventListener('load', function(evt) {
         } else if (code == 38) {
             // 38: Key up
             event.preventDefault();
-            if (history == last_queries.length) last_queries.push(document.getElementById(pre_html_id + 'query').value);
+            if (history == last_queries.length && document.getElementById(pre_html_id + 'query').value !== "") {
+                last_queries.push(document.getElementById(pre_html_id + 'query').value);
+            }
 
             if (history < last_queries.length - 1) history += 1;
             document.getElementById(pre_html_id + 'query').value = last_queries[history];
