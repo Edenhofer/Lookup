@@ -81,9 +81,8 @@ var lookup = {
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4) {
                 if (xmlhttp.status == 200) {
-                    search_engines[i][2] = xmlhttp.responseText;
-                    // Deleting unneccessary spaces
-                    search_engines[i][2] = search_engines[i][2].trim();
+                    // Deleting unneccessary spaces in response text
+                    search_engines[i][2] = xmlhttp.responseText.trim();
                     // Dispatch the event
                     document.dispatchEvent(event);
                 } else if (xmlhttp.status >= 400) {
