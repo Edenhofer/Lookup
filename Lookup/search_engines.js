@@ -74,12 +74,18 @@ var engine = {
             var begin = -1;
             var end = -1;
 
-            begin = data.indexOf("<span", data.search(new RegExp("span>Bedeutung(en|)<span class=\"helpref woerterbuch_hilfe_bedeutungen\">", "i")));
+            begin = data.indexOf("</header>", data.search(new RegExp("<h2>Bedeutungsübersicht</h2>", "i")));
 
             if (begin != -1) {
                 data = data.slice(begin);
-                end = data.search(new RegExp("<(/div>|div|img)", "i"));
+                // The end is where either a subheading starts (e.g. "Wiese") or the section for the word explanation is closed
+                end = data.search(new RegExp("<(h3|/section)", "i"));
                 data = data.slice(0, end);
+
+                // Remove tags from <figure> elements (e.g. "Wiese")
+                if (data.search(new RegExp("<figcaption")) > 0 && data.search(new RegExp("</figcaption")) > 0) {
+                    data = data.slice(0, data.search(new RegExp("<figcaption"))) + data.slice(data.search(new RegExp("</figcaption")));
+                }
 
                 // Preserve the bullet list but remove remaining html-code
                 data = data.replace(/<li id="b2-Bedeutung-[\d\D]"[^>]*>/ig, "gorditmp01");
