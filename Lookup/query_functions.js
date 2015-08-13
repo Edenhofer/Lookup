@@ -205,6 +205,10 @@ var lookup = {
             // Emptying the html-code and content field of the search_engines array
             search_engines[i][2] = "";
             search_engines[i][3] = "";
+
+            // Only the duden search engine requieres underscores ("_") instead of the usual encoded URL
+            if (search_engines[i][0] == "duden") query = query.replace(" ", "_");
+
             // encodeURIComponent() encodes special characters into URL, therefore replacing the need for a diacritics map
             lookup.fetch(search_engines[i][1] + encodeURIComponent(query), i);
         }
