@@ -94,6 +94,8 @@ var lookup = {
         };
 
         xmlhttp.open("GET", url, true);
+        // Defining the request header (needed at least for duden)
+        //xmlhttp.setRequestHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
         xmlhttp.send();
     },
 
@@ -122,7 +124,7 @@ var lookup = {
             if (search_engines[i][3] == "none" && i == (search_engines.length - 1)) {
                 // Nothing was found
                 // Stop listening for the magic signal from lookup.fetch
-                document.removeEventListener('display_result');
+                document.removeEventListener('display_result', lookup.process);
 
                 // Presenting a Google-Link to look for results
                 if (query.length > 20) tmp = query.slice(0, 20) + "...";
@@ -137,7 +139,7 @@ var lookup = {
             } else if (search_engines[i][3] != "none") {
                 // A result was found
                 // Stop listening for the magic signal from lookup.fetch
-                document.removeEventListener('display_result');
+                document.removeEventListener('display_result', lookup.process);
 
                 // Write "none" as result to all remaining requests
                 for (var n = (i + 1); n < search_engines.length; n++) {
