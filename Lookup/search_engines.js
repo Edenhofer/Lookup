@@ -65,12 +65,9 @@ var engine = {
 			var begin = -1;
 			var end = -1;
 
-			if (data.indexOf("<h2>Bedeutungsübersicht</h2>") > 0) {
-				begin = data.indexOf("</header>", data.indexOf("<h2>Bedeutungsübersicht</h2>"));
+			if (data.search(new RegExp("<h2>Bedeutungs[^b]+bersicht</h2>", "i")) > 0) {
+				begin = data.indexOf("</header>", data.search(new RegExp("<h2>Bedeutungs[^b]+bersicht</h2>", "i")));
 			} else begin = -1;
-
-			// FIX THIS !!!!!!!!!!! TODO
-			//alert(data.indexOf("<h2>Bedeutungsübersicht</h2>") + ": " + strip_html(data));
 
 			if (begin != -1) {
 				data = data.slice(begin);
