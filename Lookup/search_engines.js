@@ -1,16 +1,11 @@
-// The data structure of the engine array is actually quite simply!
-// Every element in the engine represents one search engine. The element is named accordingly.
+// Every element in the engine represents one search-engine. The element is named accordingly.
 // Each one of them shell have three (3) properties:
-// innerText (a FUNCTION which processes the html data of the web page and returns human readable information),
-// url (a FUNCTION which returns just the language and input_language dependent URL of side for which the engine is designed),
-// info (a ARRAY with [0] being the long name of the search engine and [1] being the short abbreviation: [0] is displayed at the options page, [1] at the popup
+//     * innerText (a FUNCTION which processes the html data of the web page and returns human readable information),
+//     * url (a FUNCTION which returns just the language and input_language dependent URL of side for which the engine is designed),
+//     * info (a ARRAY with [0] being the long name of the search engine and [1] being the short abbreviation: [0] is displayed at the options page, [1] at the popup
 var engine = {
 	wikipedia: {
 		// Search function for Wikipedia
-		//
-		// @param string data: html-code
-		//
-		// @return string: User readable content
 		innerText: function (data) {
 			var begin = -1;
 			var end = -1;
@@ -66,10 +61,6 @@ var engine = {
 
 	duden: {
 		// Search function for Duden a german dictionary
-		//
-		// @param string data: html-code
-		//
-		// @return string: User readable content
 		innerText: function (data) {
 			var begin = -1;
 			var end = -1;
@@ -111,10 +102,6 @@ var engine = {
 	},
 
 	// Search function for Arch Linux Wiki
-	//
-	// @param string data: html-code
-	//
-	// @return string: User readable content
 	archwiki: {
 		innerText: function (data) {
 			var begin = -1;
@@ -163,10 +150,6 @@ var engine = {
 	},
 
 	// Search function for dict.cc
-	//
-	// @param string data: html-code
-	//
-	// @return string: User readable content
 	dict: {
 		innerText: function (data) {
 			var begin = -1;
@@ -230,10 +213,6 @@ var engine = {
 	// Works only in theory. The source code which is send to an
 	// ordinary user by Google differs from that which this
 	// extension receives by getting the code from Google.
-	//
-	// @param string data: html-code
-	//
-	// @return string: User readable content
 	/*
 	google_translate: {
 		innerText: function (data) {

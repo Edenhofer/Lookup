@@ -9,7 +9,7 @@ function strip_html(html) {
 	return text.textContent || text.innerText || "";
 }
 
-// Fetch the html-code of any page
+// Assemble the search engine array
 //
 // @param string language
 // @param string grounding
@@ -83,11 +83,11 @@ var lookup = {
 				if (xmlhttp.status == 200) {
 					// Deleting unneccessary spaces in response text
 					search_engines[i][2] = xmlhttp.responseText.trim();
-					// Dispatch the event
+					// Dispatch event
 					document.dispatchEvent(event);
 				} else if (xmlhttp.status >= 400) {
 					search_engines[i][2] = "none";
-					// Dispatch the magic event
+					// Dispatch event
 					document.dispatchEvent(event);
 				}
 			}
