@@ -14,7 +14,7 @@ fi
 git diff-index --check --cached $against -- 1>&2
 [[ $? != "0" ]] && echo -e "\033[0;31mThis commit contains whitespace issues!\033[0m"
 
-# Usefull hooks for the Chrome Extensions
+# Usefull hooks for Chrome Extensions
 
 # Retrieve the name of the Porject through the git root directory name
 project_root="$(basename `git rev-parse --show-toplevel`)"
@@ -25,7 +25,7 @@ unset GIT_DIR
 # Allow to read user input below, assigns stdin to keyboard
 exec < /dev/tty
 
-# Ask whether a rebuild is desired
+# Ask whether a zipping is desired
 zip_cmd="zip -r ${project_root}.zip ${project_root}"
 echo -en "\e[34;1m  ->\e[39;1m Do you want to zip the Project using '${zip_cmd}'? [Y/n] \e[0m"
 read -n1 user_input
