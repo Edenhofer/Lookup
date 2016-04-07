@@ -26,12 +26,12 @@ unset GIT_DIR
 exec < /dev/tty
 
 # Ask whether a zipping is desired
-zip_cmd="zip -r ${project_root}.zip ${project_root}"
+zip_cmd="zip -FSr ../${project_root}.zip ."
 echo -en "\e[34;1m  ->\e[39;1m Do you want to zip the Project using '${zip_cmd}'? [Y/n] \e[0m"
 read -n1 user_input
 echo
 if [[ ${user_input} =~ (Y|y) ]]; then
-	(cd $(git rev-parse --show-toplevel) && ${zip_cmd})
+	(cd $(git rev-parse --show-toplevel)/${project_root} && ${zip_cmd})
 	# Ask to abort the commit in case the build fails
 	if [[ $? != 0 ]]; then
 		echo -en "\n\e[34;1m  ->\e[39;1m A failure occured while zipping the package. Do you want to abort this commit? [Y/n] \e[0m"
