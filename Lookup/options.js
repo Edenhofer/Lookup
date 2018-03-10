@@ -4,23 +4,26 @@ function style_display_language() {
 	var input_language = document.getElementById("input_language").value;
 	var grounding = document.getElementById("grounding").value;
 
-	if (language == "de") document.getElementById("duden").style.display = 'inline';
+	if (language == "de")
+		document.getElementById("duden").style.display = "inline";
 	else {
-		if (grounding == "duden") document.getElementById("grounding").options[0].selected = true;
-		document.getElementById("duden").style.display = 'none';
+		if (grounding == "duden")
+			document.getElementById("grounding").options[0].selected = true;
+		document.getElementById("duden").style.display = "none";
 	}
 
 	if (language == "de" || language == "en") {
-		document.getElementById("input_language_section").style.display = 'inline';
-		document.getElementById("input_language").style.display = 'inline';
-	}else {
-		document.getElementById("input_language_section").style.display = 'none';
-		document.getElementById("input_language").style.display = 'none';
+		document.getElementById("input_language_section").style.display = "inline";
+		document.getElementById("input_language").style.display = "inline";
+	} else {
+		document.getElementById("input_language_section").style.display = "none";
+		document.getElementById("input_language").style.display = "none";
 	}
 
 	// Warning the user if the same values for "language" and "input_language" are selected
 	if (language == input_language) {
-		document.getElementById("warning").innerHTML = "The values of \"Language\" and \"Input Language\" should be different.<br><br>";
+		document.getElementById("warning").innerHTML =
+			'The values of "Language" and "Input Language" should be different.<br><br>';
 	} else document.getElementById("warning").innerHTML = "";
 }
 
@@ -29,17 +32,30 @@ function save_options() {
 	var language = document.getElementById("language").value;
 	var grounding = document.getElementById("grounding").value;
 	var input_language = document.getElementById("input_language").value;
-	var switcher_grounding = document.getElementById("switcher_grounding").checked;
-	var switcher_ranked_search = document.getElementById("switcher_ranked_search").checked;
+	var switcher_grounding = document.getElementById("switcher_grounding")
+		.checked;
+	var switcher_ranked_search = document.getElementById("switcher_ranked_search")
+		.checked;
 
 	// Saving the selected options
-	chrome.storage.sync.set({'language': language, 'grounding': grounding, 'input_language': input_language, 'switcher_grounding': switcher_grounding, 'switcher_ranked_search': switcher_ranked_search}, function() {
-		if (chrome.runtime.error) console.log("Runtime Error, code:BB7742");
-	});
+	chrome.storage.sync.set(
+		{
+			language: language,
+			grounding: grounding,
+			input_language: input_language,
+			switcher_grounding: switcher_grounding,
+			switcher_ranked_search: switcher_ranked_search
+		},
+		function() {
+			if (chrome.runtime.error) console.log("Runtime Error, code:BB7742");
+		}
+	);
 
 	// Displaying a message for a fixed time
 	document.getElementById("status").innerHTML = "Settings saved.";
-	setTimeout(function() {document.getElementById("status").innerHTML = "";}, 1250);
+	setTimeout(function() {
+		document.getElementById("status").innerHTML = "";
+	}, 1250);
 }
 
 // Setting default options
@@ -51,11 +67,21 @@ function default_options() {
 
 // Setting the init configuration
 function init() {
-	var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
-	var language, grounding, input_language, switcher_grounding, switcher_ranked_search;
+	var saves = [
+		"language",
+		"grounding",
+		"input_language",
+		"switcher_grounding",
+		"switcher_ranked_search"
+	];
+	var language,
+		grounding,
+		input_language,
+		switcher_grounding,
+		switcher_ranked_search;
 
 	// The chrome.storage call runs in the background and other function do not wait for it to finish. It is an asynchronous method!
-	chrome.storage.sync.get(saves, function (result) {
+	chrome.storage.sync.get(saves, function(result) {
 		if (chrome.runtime.lasError || !result) {
 			console.log("[RUNTIME ERROR]: Please consult the support!");
 		}
@@ -71,22 +97,32 @@ function init() {
 		if (!result.grounding) grounding = "wikipedia";
 		else grounding = result.grounding;
 		// Getting the switcher_grounding (!variable also checks whether variable is false, so it is necessary to exclude this case)
-		if (!result.switcher_grounding && result.switcher_grounding !== false) switcher_grounding = true;
+		if (!result.switcher_grounding && result.switcher_grounding !== false)
+			switcher_grounding = true;
 		else switcher_grounding = result.switcher_grounding;
 		// Getting the switcher_ranked_search (!variable also checks whether variable is false, so it is necessary to exclude this case)
-		if (!result.switcher_ranked_search && result.switcher_ranked_search !== false) switcher_ranked_search = true;
+		if (
+			!result.switcher_ranked_search &&
+			result.switcher_ranked_search !== false
+		)
+			switcher_ranked_search = true;
 		else switcher_ranked_search = result.switcher_ranked_search;
 
 		// Preselecting the saved language
-		for (var i = 0; i < document.getElementById("language").options.length; i++) {
+		for (
+			var i = 0;
+			i < document.getElementById("language").options.length;
+			i++
+		) {
 			if (document.getElementById("language").options[i].value == language) {
 				document.getElementById("language").options[i].selected = true;
 				break;
 			}
 		}
 
-		if (language == "de") document.getElementById("duden").style.display = 'inline';
-		else document.getElementById("duden").style.display = 'none';
+		if (language == "de")
+			document.getElementById("duden").style.display = "inline";
+		else document.getElementById("duden").style.display = "none";
 
 		// Preselecting the saved grounding
 		for (i = 0; i < document.getElementById("grounding").options.length; i++) {
@@ -97,8 +133,15 @@ function init() {
 		}
 
 		// Preselecting the saved input_language
-		for (i = 0; i < document.getElementById("input_language").options.length; i++) {
-			if (document.getElementById("input_language").options[i].value == input_language) {
+		for (
+			i = 0;
+			i < document.getElementById("input_language").options.length;
+			i++
+		) {
+			if (
+				document.getElementById("input_language").options[i].value ==
+				input_language
+			) {
 				document.getElementById("input_language").options[i].selected = true;
 				break;
 			}
@@ -106,22 +149,30 @@ function init() {
 
 		// Warning the user if the same values for "language" and "input_language" are selected
 		if (language == input_language) {
-			document.getElementById("warning").innerHTML = "The values of \"Language\" and \"Input Language\" should be different.<br><br>";
+			document.getElementById("warning").innerHTML =
+				'The values of "Language" and "Input Language" should be different.<br><br>';
 		} else document.getElementById("warning").innerHTML = "";
 
 		// Preselecting the saved switcher_grounding
-		if (switcher_grounding === true) document.getElementById("switcher_grounding").checked = true;
-		else if (switcher_grounding === false) document.getElementById("switcher_grounding").checked = false;
+		if (switcher_grounding === true)
+			document.getElementById("switcher_grounding").checked = true;
+		else if (switcher_grounding === false)
+			document.getElementById("switcher_grounding").checked = false;
 
 		// Preselecting the saved switcher_ranked_search
-		if (switcher_ranked_search === true) document.getElementById("switcher_ranked_search").checked = true;
-		else if (switcher_ranked_search === false) document.getElementById("switcher_ranked_search").checked = false;
+		if (switcher_ranked_search === true)
+			document.getElementById("switcher_ranked_search").checked = true;
+		else if (switcher_ranked_search === false)
+			document.getElementById("switcher_ranked_search").checked = false;
 	});
 }
 
 // Donate Popup
 function donate() {
-	window.open("https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9ZAYWC36LQVZQ&submit.x=35&submit.y=2", "_blank");
+	window.open(
+		"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9ZAYWC36LQVZQ&submit.x=35&submit.y=2",
+		"_blank"
+	);
 	/* TODO Popup erstellen!
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 	<input type="hidden" name="cmd" value="_s-xclick">
@@ -137,18 +188,32 @@ function donate() {
 window.addEventListener("load", function(evt) {
 	// Loading the groundings
 	for (var current in engine) {
-		document.getElementById("grounding").innerHTML += "<option value=\"" + current + "\" id=\"" + current + "\">" + engine[current].info[0] + "</option>";
+		document.getElementById("grounding").innerHTML +=
+			'<option value="' +
+			current +
+			'" id="' +
+			current +
+			'">' +
+			engine[current].info[0] +
+			"</option>";
 	}
 
 	// Display the version number
-	document.getElementById("version").innerHTML = "<p>You are currently using version " + chrome.app.getDetails().version + " of the extension.<p>";
+	document.getElementById("version").innerHTML =
+		"<p>You are currently using version " +
+		chrome.app.getDetails().version +
+		" of the extension.<p>";
 
 	init();
 
 	document.getElementById("save").addEventListener("click", save_options);
 	document.getElementById("default").addEventListener("click", default_options);
-	document.getElementById("language").addEventListener("change", style_display_language);
-	document.getElementById("input_language").addEventListener("change", style_display_language);
+	document
+		.getElementById("language")
+		.addEventListener("change", style_display_language);
+	document
+		.getElementById("input_language")
+		.addEventListener("change", style_display_language);
 	document.getElementById("donate").addEventListener("click", donate);
 });
 
@@ -156,7 +221,12 @@ window.addEventListener("load", function(evt) {
 chrome.storage.onChanged.addListener(function(changes, namespace) {
 	for (var key in changes) {
 		var storageChange = changes[key];
-		console.log('Storage key "%s" in namespace "%s" changed: The old value was "%s" and now the new value is "%s".',
-		key, namespace, storageChange.oldValue, storageChange.newValue);
+		console.log(
+			'Storage key "%s" in namespace "%s" changed: The old value was "%s" and now the new value is "%s".',
+			key,
+			namespace,
+			storageChange.oldValue,
+			storageChange.newValue
+		);
 	}
 });

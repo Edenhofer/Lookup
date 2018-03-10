@@ -1,112 +1,136 @@
 <!doctype html>
 <html>
+
 <head>
 	<title>Look Up</title>
-	<script	src="search_engines.js"></script>
+	<script src="search_engines.js"></script>
 	<script src="options.js"></script>
 	<link rel="stylesheet" href="styles.css">
 	<style>
-	body {
-		font-size: 1em;
-		margin: auto;
-		width: 24em;
-		color: #474747;
-	}
-	span.tab {
-		padding: 0.7em;
-	}
-	td.FirstOfRow {
-		padding-right: 1em;
-	}
-	a {
-		color: #4488ee;
-		text-decoration: none;
-	}
-	a:hover {
-		color: #3a75cc;
-	}
-	.small_text {
-		font-size: 0.85em;
-	}
-	.status {
-		font-size: 0.9em;
-		color: #4488ee;
-	}
-	.warning {
-		font-size: 0.9em;
-		color: #ff0000;
-	}
-	.report {
-		font-size: 0.8em;
-	}
-	.version {
-		font-size: 0.8em;
-		font-style: italic;
-	}
-	#footer {
-		font-size: 0.8em;
-		text-align: center;
-		color: #999999;
-	}
-	.button {
-		width: 75px;
-		height: 27px;
-		background-color: #4488ee;
-		color: #f2f2f2;
-		border: 0px solid;
-		border-radius: 3px;
-	}
-	.button:hover {
-		background-color: #4475ee;
-	}
-	.default.button {
-		width: 75px;
-		height: 27px;
-		background-color: #ffffff;
-		color: #525252;
-		border: 1px solid;
-		border-color: #929292;
-		border-radius: 3px;
-	}
-	#donate {
-		width: 70px;
-		height: 25px;
-		font-size: 1em;
-		background-color: #ffffff;
-		color: #4488ee;
-		border: 0px solid;
-		border-radius: 3px;
-	}
-	#donate:hover {
-		color: #3a75cc;
-		cursor:pointer;
-	}
-	select {
-		background-color: #ffffff;
-		color: #454545;
-		border: 1px solid;
-		border-color: #929292;
-		border-radius: 1px;
-	}
+		body {
+			font-size: 1em;
+			margin: auto;
+			width: 24em;
+			color: #474747;
+		}
+
+		span.tab {
+			padding: 0.7em;
+		}
+
+		td.FirstOfRow {
+			padding-right: 1em;
+		}
+
+		a {
+			color: #4488ee;
+			text-decoration: none;
+		}
+
+		a:hover {
+			color: #3a75cc;
+		}
+
+		.small_text {
+			font-size: 0.85em;
+		}
+
+		.status {
+			font-size: 0.9em;
+			color: #4488ee;
+		}
+
+		.warning {
+			font-size: 0.9em;
+			color: #ff0000;
+		}
+
+		.report {
+			font-size: 0.8em;
+		}
+
+		.version {
+			font-size: 0.8em;
+			font-style: italic;
+		}
+
+		#footer {
+			font-size: 0.8em;
+			text-align: center;
+			color: #999999;
+		}
+
+		.button {
+			width: 75px;
+			height: 27px;
+			background-color: #4488ee;
+			color: #f2f2f2;
+			border: 0px solid;
+			border-radius: 3px;
+		}
+
+		.button:hover {
+			background-color: #4475ee;
+		}
+
+		.default.button {
+			width: 75px;
+			height: 27px;
+			background-color: #ffffff;
+			color: #525252;
+			border: 1px solid;
+			border-color: #929292;
+			border-radius: 3px;
+		}
+
+		#donate {
+			width: 70px;
+			height: 25px;
+			font-size: 1em;
+			background-color: #ffffff;
+			color: #4488ee;
+			border: 0px solid;
+			border-radius: 3px;
+		}
+
+		#donate:hover {
+			color: #3a75cc;
+			cursor: pointer;
+		}
+
+		select {
+			background-color: #ffffff;
+			color: #454545;
+			border: 1px solid;
+			border-color: #929292;
+			border-radius: 1px;
+		}
 	</style>
 </head>
+
 <body>
 	<br>
 	<form>
 		<table>
 			<tr>
-				<td class="FirstOfRow">Language:<span class="tab"></span></td>
-				<td><select id="language">
-					<option value="en">Englisch</option>
-					<option value="de">German</option>
-				</select></td>
+				<td class="FirstOfRow">Language:
+					<span class="tab"></span>
+				</td>
+				<td>
+					<select id="language">
+						<option value="en">Englisch</option>
+						<option value="de">German</option>
+					</select>
+				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td class="FirstOfRow">Grounding:<span class="tab"></span></td>
+				<td class="FirstOfRow">Grounding:
+					<span class="tab"></span>
+				</td>
 				<td>
 					<select id="grounding"></select>
 				</td>
@@ -116,30 +140,45 @@
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td class="FirstOfRow"><span id="input_language_section">Input Language: (for&nbsp;translator)</span><span class="tab"></span></td>
-				<td><select id="input_language">
-					<option value="en">Englisch</option>
-					<option value="de">German</option>
-					<option value="fr">French</option>
-					<option value="es">Spanich</option>
-					<option value="ru">Russian</option>
-				</select></td>
+				<td class="FirstOfRow">
+					<span id="input_language_section">Input Language: (for&nbsp;translator)</span>
+					<span class="tab"></span>
+				</td>
+				<td>
+					<select id="input_language">
+						<option value="en">Englisch</option>
+						<option value="de">German</option>
+						<option value="fr">French</option>
+						<option value="es">Spanich</option>
+						<option value="ru">Russian</option>
+					</select>
+				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td class="FirstOfRow">Further Tweaks:<span class="tab"></span></td>
-				<td><input type="checkbox" value="switcher_grounding" id="switcher_grounding"><span class="small_text">Quick grounding-switcher in the popup itself.</span></td>
+				<td class="FirstOfRow">Further Tweaks:
+					<span class="tab"></span>
+				</td>
+				<td>
+					<input type="checkbox" value="switcher_grounding" id="switcher_grounding">
+					<span class="small_text">Quick grounding-switcher in the popup itself.</span>
+				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
 				<td>&nbsp;</td>
 			</tr>
 			<tr>
-				<td class="FirstOfRow"><span class="tab"></span></td>
-				<td><input type="checkbox" value="switcher_ranked_search" id="switcher_ranked_search"><span class="small_text">Perform a ranked search with multiple groundings.</span></td>
+				<td class="FirstOfRow">
+					<span class="tab"></span>
+				</td>
+				<td>
+					<input type="checkbox" value="switcher_ranked_search" id="switcher_ranked_search">
+					<span class="small_text">Perform a ranked search with multiple groundings.</span>
+				</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
@@ -157,13 +196,17 @@
 	<span class="status" id="status"></span>
 	<br>
 	<br>
-	<span class="report">If you encounter any bugs or errors, please report them on <a href="https://github.com/Edenhofer/Lookup/issues" target="_blank">github</a>. Thank you in advance.</span>
+	<span class="report">If you encounter any bugs or errors, please report them on
+		<a href="https://github.com/Edenhofer/Lookup/issues" target="_blank">github</a>. Thank you in advance.</span>
 	<span class="version" id="version"></span>
 	<div id="footer">
 		<p>
 			<i>&copy; Gordian Edenhofer - </i>
-			<button type="button" id="donate"><i>Donate</i></button>
+			<button type="button" id="donate">
+				<i>Donate</i>
+			</button>
 		</p>
 	</div>
 </body>
+
 </html>

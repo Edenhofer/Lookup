@@ -1,79 +1,95 @@
 <!doctype html>
 <html>
+
 <head>
 	<title>Look Up</title>
-	<script	src="search_engines.js"></script>
-	<script	src="query_functions.js"></script>
-	<script	src="popup.js"></script>
+	<script src="search_engines.js"></script>
+	<script src="query_functions.js"></script>
+	<script src="popup.js"></script>
 	<link rel="stylesheet" href="styles.css">
 	<style>
-	#loading {
-		font-size: 1.2em;
-		color: #4488ee;
-	}
-	#output {
-		font-size: 1.15em;
-		color: #474747;
-	}
-	#noresult {
-		font-size: 1.2em;
-		color: #4488ee;
-	}
-	#tip {
-		font-size: 1.25em;
-		color: #4488ee;
-	}
-	#source {
-		font-size: 1em;
-		color: #191919;
-	}
-	#footer {
-		font-size: 0.95em;
-		text-align: center;
-		color: #999999;
-	}
-	body {
-		min-width: 32em;
-		min-height: 6em;
-	}
-	span.tab {
-		padding: 0.7em;
-	}
-	td {
-		padding-left: .5em;
-		padding-right: .5em;
-	}
-	a {
-		color: #3161aa;
-		text-decoration: none;
-	}
-	a:hover {
-		color: #3a75cc;
-		text-decoration: underline;
-	}
-	input[type=text] {
-		min-width: 19em;
-	}
-	input[type=submit] {
-		height: 2em;
-		background-color: #4488ee;
-		color: #f2f2f2;
-		border: 0px solid;
-		border-radius: 3px;
-	}
-	input[type=submit]:hover {
-		background-color: #4475ee;
-	}
-	select {
-		font-size: 0.95em;
-		background-color: #ffffff;
-		color: #454545;
-		border: 1px solid;
-		border-color: #929292;
-		border-radius: 1px;
-	}
+		#loading {
+			font-size: 1.2em;
+			color: #4488ee;
+		}
+
+		#output {
+			font-size: 1.15em;
+			color: #474747;
+		}
+
+		#noresult {
+			font-size: 1.2em;
+			color: #4488ee;
+		}
+
+		#tip {
+			font-size: 1.25em;
+			color: #4488ee;
+		}
+
+		#source {
+			font-size: 1em;
+			color: #191919;
+		}
+
+		#footer {
+			font-size: 0.95em;
+			text-align: center;
+			color: #999999;
+		}
+
+		body {
+			min-width: 32em;
+			min-height: 6em;
+		}
+
+		span.tab {
+			padding: 0.7em;
+		}
+
+		td {
+			padding-left: .5em;
+			padding-right: .5em;
+		}
+
+		a {
+			color: #3161aa;
+			text-decoration: none;
+		}
+
+		a:hover {
+			color: #3a75cc;
+			text-decoration: underline;
+		}
+
+		input[type=text] {
+			min-width: 19em;
+		}
+
+		input[type=submit] {
+			height: 2em;
+			background-color: #4488ee;
+			color: #f2f2f2;
+			border: 0px solid;
+			border-radius: 3px;
+		}
+
+		input[type=submit]:hover {
+			background-color: #4475ee;
+		}
+
+		select {
+			font-size: 0.95em;
+			background-color: #ffffff;
+			color: #454545;
+			border: 1px solid;
+			border-color: #929292;
+			border-radius: 1px;
+		}
 	</style>
 </head>
+
 <body>
 	<form id="search">
 		<input type="text" id="query" name="input" autofocus="autofocus">
@@ -85,11 +101,14 @@
 	<div id="noresult"></div>
 	<div id="source"></div>
 	<div id="tip">
-		<i><p>Tip: Use the arrow-keys to navigate through your search history. To further tweak your search use the settings.</p></i>
+		<i>
+			<p>Tip: Use the arrow-keys to navigate through your search history. To further tweak your search use the settings.</p>
+		</i>
 	</div>
 	<div id="footer">
 		<p>
-			<i>&copy; Gordian Edenhofer</i>&nbsp;-&nbsp;&nbsp;<span id="options_page"></span>
+			<i>&copy; Gordian Edenhofer</i>&nbsp;-&nbsp;&nbsp;
+			<span id="options_page"></span>
 			<span id="icon"></span>
 			<select id="grounding" title="Quick Grounding Switch"></select>
 			<select id="input_language" title="Quick Input Language Switch">
@@ -102,4 +121,5 @@
 		</p>
 	</div>
 </body>
+
 </html>

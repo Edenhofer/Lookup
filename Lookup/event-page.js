@@ -15,9 +15,9 @@ var last_queries = [];
 var query;
 
 // Handling double-click events with the content-script
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	if (request.message) {
-		sendResponse({back: "message delivered"}); // DEBUG text TODO
+		sendResponse({ back: "message delivered" }); // DEBUG text TODO
 
 		/*
 		query = request.message;
@@ -56,6 +56,5 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	lookup.init();
 });
 */
-}
-else console.log("[INTERNAL ERROR]: onMessage Error. Please consult the support!");
+	} else console.log("[INTERNAL ERROR]: onMessage Error. Please consult the support!");
 });
