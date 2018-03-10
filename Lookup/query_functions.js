@@ -35,7 +35,7 @@ function assemble_search_engines(language, grounding, input_language, switcher_g
 
 	// If switcher_grounding is true then set the selected search engine to the top of the result array
 	if (switcher_grounding === true) {
-		// Removing the next occurance of grounding in result to avoid fetching the site twice
+		// Removing the next occurrence of grounding in result to avoid fetching the site twice
 		for (i = 0; i < result.length; i++) {
 			if (result[i][0].indexOf(grounding) != -1) result.splice(i, 1);
 		}
@@ -81,7 +81,7 @@ var lookup = {
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == 4) {
 				if (xmlhttp.status == 200) {
-					// Deleting unneccessary spaces in response text
+					// Deleting unnecessary spaces in response text
 					search_engines[i][2] = xmlhttp.responseText.trim();
 					// Dispatch event
 					document.dispatchEvent(event);
@@ -94,12 +94,12 @@ var lookup = {
 		};
 
 		xmlhttp.open("GET", url, true);
-		// Defining the request header (needed at least for duden)
+		// Defining the request header (required by at least 'duden')
 		//xmlhttp.setRequestHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36");
 		xmlhttp.send();
 	},
 
-	// Process the recieved html-code
+	// Process the received html-code
 	//
 	// @global string query
 	// @global array search_engines
@@ -199,7 +199,7 @@ var lookup = {
 		document.getElementById(pre_html_id + "loading").innerHTML = "<p>Searching in " +
 		search_engines.map(function(value,index) { return value[0]; }).toString().replace(/,/g, ", ") + "...<\p>";
 
-		// Listen for the magic signal from lookup.fetch to process the recieved html-code
+		// Listen for the magic signal from lookup.fetch to process the received html-code
 		document.addEventListener('display_result', lookup.process);
 
 		// Fetching possible entries from each site

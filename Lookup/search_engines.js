@@ -14,12 +14,12 @@ var engine = {
 			// Stripping tables from data
 			data = data.slice(0, data.indexOf("<table")) +  data.slice(data.indexOf("</table>"));
 
-			// Checking for the existance of an article
+			// Checking for the existence of an article
 			if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
 			else {
 				data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
 				begin = data.indexOf("<p>");
-				// Check for interactive boxes where no usefull text is available, e.g. year number - german only
+				// Check for interactive boxes where no useful text is available, e.g. year number - german only
 				if (data.slice(begin + 3, begin + 18).localeCompare('<a href="/wiki/') === 0) begin = -1;
 			}
 
@@ -104,7 +104,7 @@ var engine = {
 			var begin = -1;
 			var end = -1;
 
-			// Checking for the existance of an article
+			// Checking for the existence of an article
 			if (data.indexOf("<div class=\"noarticletext\">", data.search(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"))) != -1) begin = -1;
 			else {
 				data = data.slice(new RegExp("<div id=\"mw-content-text\"[^>]*>", "i"));
@@ -113,7 +113,7 @@ var engine = {
 
 			if (begin != -1) {
 				end = data.indexOf("</p>", begin);
-				// If the article is to short it is probabaly a quotation, then things have to be handled differently
+				// If the article is to short it is probably a quotation, then things have to be handled differently
 				if (strip_html(data.slice(begin, end)).length < 50) {
 					data = data.slice(end + 4);
 					begin = data.indexOf("<p>");
@@ -156,7 +156,7 @@ var engine = {
 			begin = data.search(/<tr id='tr1'>/i);
 
 			if (begin != -1) {
-				// Searching for the third ocurrance of "</tr>" or the first of "</table>
+				// Searching for the third occurrence of "</tr>" or the first of "</table>
 				end = data.indexOf("</tr>", data.indexOf("</tr>", data.indexOf("</tr>", begin) + 5) + 5) + 5;
 				tmp = data.indexOf("</table>", begin);
 				if (tmp < end) end = tmp;
@@ -166,7 +166,7 @@ var engine = {
 				data = data.replace(/<\/div><b>([^<]*)<\/b>/ig, "");
 				// Removing the little gray numbers
 				data = data.replace(/<div[^>]*>([\d]+)<\/div>/ig, "");
-				// Removing some uneccessary html code
+				// Removing some unnecessary html code
 				data = data.replace(/<dfn([^<]+)<\/dfn>/ig, "");
 				data = data.replace(/<td class="td7cm(l|r)"><([^<]+)<\/td>/ig, "");
 

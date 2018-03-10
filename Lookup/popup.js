@@ -1,9 +1,8 @@
 /*
-Tipp: Keep in mind slicing data (str.slice) with one arguemente actualĺy not being found
-than slice will still work, because the not found arguements equales -1!
+Hint: Keep in mind that slicing data using str.slice where no cutoff has been found will not result in a failed slice due the usage of '-1' as default value.
 */
 
-// Custom JSLint configurtations
+// Custom JSLint configuration
 // Allow the use ECMAScript 6 specific syntax, e.g. const
 // jshint esnext: true
 // Increased sensitivity for warnings if UNCOMMENTED
@@ -32,7 +31,7 @@ function init() {
 	var saves = ["language", "grounding", "input_language", "switcher_grounding", "switcher_ranked_search"];
 	var language, grounding, input_language, switcher_grounding, switcher_ranked_search;
 
-	// The chrome.storage call runs in the background and other function do not wait for it to finisch. It is an asynchronous method!
+	// The chrome.storage call runs in the background and other function do not wait for it to finish. It is an asynchronous method!
 	chrome.storage.sync.get(saves, function (result) {
 		if (chrome.runtime.lasError || !result) {
 			console.log("[RUNTIME ERROR]: Please consult the support!");
@@ -47,10 +46,10 @@ function init() {
 		// Getting the grounding
 		if (!result.grounding) grounding = "wikipedia";
 		else grounding = result.grounding;
-		// Getting the switcher_grounding (!variable also checks whether variable is false, so it is necessary to exlude this case)
+		// Getting the switcher_grounding (!variable also checks whether variable is false, so it is necessary to exclude this case)
 		if (!result.switcher_grounding && result.switcher_grounding !== false) switcher_grounding = true;
 		else switcher_grounding = result.switcher_grounding;
-		// Getting the switcher_ranked_search (!variable also checks whether variable is false, so it is necessary to exlude this case)
+		// Getting the switcher_ranked_search (!variable also checks whether variable is false, so it is necessary to exclude this case)
 		if (!result.switcher_ranked_search && result.switcher_ranked_search !== false) switcher_ranked_search = true;
 		else switcher_ranked_search = result.switcher_ranked_search;
 

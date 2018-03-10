@@ -1,4 +1,4 @@
-// Custom JSLint configurtations
+// Custom JSLint configuration
 // Allow the use ECMAScript 6 specific syntax, e.g. const
 // jshint esnext: true
 
